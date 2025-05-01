@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Laravel WebSocket Chat Test</title>
+    <script src="https://js.pusher.com/7.2/pusher.min.js"></script>
+</head>
+<body>
+    <h2>Listening to private-chat.2</h2>
+    <pre id="log"></pre>
+
+    <script>
+        // Replace this with the token from your Laravel backend (user ID = 2)
+        const AUTH_TOKEN = 'Bearer 1|aFgsn8uZUuXze0f329docZU6C4TxFEphKK2Mo9Hrb2a4e1aa';
+
+        const pusher = new Pusher('l4ewjdxj5hilgin4smsv', {
+            wsHost: '127.0.0.1',
+            wsPort: 6001,
+            forceTLS: false,
+            encrypted: false,
+            disableStats: true,
+            enabledTransports: ['ws'],
+            authEndpoint: 'http://127.0.0.1:3302/broadcasting/auth',
+            auth: {
+                headers: {
+                    Authorization: AUTH_TOKEN
+                }
+            }
+        });
+
+        const channel = pusher.subscribe('chat.32');
+
+        channel.bind('private.message.sent', function(data) {
+            console.log("New message received:", data.message);
+            document.getElementById('log').textContent +=
+                'Received: ' + JSON.stringify(data) + '\n';
+        });
+
+        channel.bind('pusher:subscription_error', function(status) {
+            console.error('Subscription error:', status);
+        });
+    </script>
+</body>
+</html>
