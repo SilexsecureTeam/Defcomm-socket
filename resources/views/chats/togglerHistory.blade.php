@@ -92,23 +92,7 @@
             @forelse($chat_history as $dt)
             <!--begin::Item-->
             @if($dt->user_group == "user")
-            <div wire:click="chat({{$dt->userTo->id}},'user')" onclick="forceScrollDownLcl()" id="kt_drawer_chat_toggle" class="d-flex flex-nowrap align-items-center mb-7">
-                <!--begin::Image-->
-                <div class="symbol symbol-40px symbol-2by3 me-4">
-                    <img src="{{ $dt->userTo->avatar ? asset('/'.$dt->userTo->avatar) : asset('/img/iconMain.png')}}" alt="" class="mw-100 object-fit-cover" />
-                </div>
-                <!--end::Image-->
-                <!--begin::Title-->
-                <div class="d-flex flex-column flex-grow-1 my-lg-0 my-2 pe-3">
-                    <a href="#" class="text-white fw-semibold text-hover-primary fs-6">{{$dt->userTo->name}}</a>
-                    @if($dt->is_file == "yes")
-                    <span class="sidebar-text-muted fw-semibold fs-7 my-1">File was share</span>
-                    @else
-                    <span class="sidebar-text-muted fw-semibold fs-7 my-1 truncate">{!! decrypt($dt->last_message) !!}</span>
-                    @endif
-                </div>
-                <!--end::Title-->
-            </div>
+            
             @else
             <div wire:click="chat({{$dt->companyGroup->id}},'group')" onclick="forceScrollDownLcl()" id="kt_drawer_chat_toggle" class="d-flex flex-nowrap align-items-center mb-7">
                 <!--begin::Image-->
@@ -122,7 +106,9 @@
                     @if($dt->is_file == "yes")
                     <span class="sidebar-text-muted fw-semibold fs-7 my-1">File was share</span>
                     @else
-                    <span class="sidebar-text-muted fw-semibold fs-7 my-1 truncate">{!! decrypt($dt->last_message) !!}</span>
+                    <span class="sidebar-text-muted fw-semibold fs-7 my-1 truncate">
+                        {!! decrypt($dt->last_message) !!}
+                    </span>
                     @endif
                 </div>
                 <!--end::Title-->

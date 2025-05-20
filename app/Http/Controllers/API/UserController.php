@@ -4,6 +4,9 @@ namespace App\Http\Controllers\API;
 
 use App\Models\User;
 use App\Models\Files;
+use App\Models\Meeting;
+use App\Models\MeetingLog;
+use App\Models\ChatCallLog;
 use App\Models\ChatLastLog;
 use App\Models\ChatMessage;
 use App\Models\ContactList;
@@ -13,9 +16,11 @@ use App\Models\CompanyGroup;
 use App\Models\FileShareLog;
 use App\Models\Notification;
 use Illuminate\Http\Request;
+use App\Mail\MeetingInvitation;
 use App\Models\CompanyGroupUser;
 use App\Http\Services\ChatService;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Mail;
 use App\Http\Services\FileUploadService;
 
 class UserController extends Controller
@@ -247,7 +252,8 @@ class UserController extends Controller
         $file = Files::find(decrypt($id));
         FileShareLog::create(['user_id' => auth()->user()->id, 'file_id' => $file->id, 'company_id' => auth()->user()->company_id]);
         return view('admin.fileView', [
-            'file' => $file
+            'file' => $file,
+            'user' => auth()->user()
         ]);
     }
 
@@ -606,6 +612,246 @@ class UserController extends Controller
         );
     }
 
+    public function getmeeting()
+    {
+        $datas = Meeting::where('user_id', auth()->user()->id)->get();
+
+        $data = [];
+        foreach($datas as $dt){
+            $data[] = [
+                'id' => encrypt($dt->id),
+                'group_user_id' => encrypt($dt->group_user_id),
+                'group_user' => $dt->group_user,
+                'meeting_link' => $dt->meeting_link,
+                'meeting_id' => $dt->meeting_id,
+                'subject' => $dt->subject,
+                'title' => $dt->title,
+                'agenda' => $dt->agenda,
+                'startdatetime' => $dt->startdatetime,
+                'duration' => $dt->duration,
+                'number_join' => $dt->number_join,
+            ];
+        }
+
+        return response()->json(
+            [
+                'status' => '200',
+                'message' => 'Record listed',
+                'data' => $data
+            ],
+            201
+        );
+    }
+
+    public function getmeetingid($id, $type)
+    {
+        $datas = Meeting::where('group_user_id', decrypt($id))->where('group_user', $type)->get();
+
+        $data = [];
+        foreach($datas as $dt){
+            $data[] = [
+                'id' => encrypt($dt->id),
+                'group_user_id' => encrypt($dt->group_user_id),
+                'group_user' => $dt->group_user,
+                'meeting_link' => $dt->meeting_link,
+                'meeting_id' => $dt->meeting_id,
+                'subject' => $dt->subject,
+                'title' => $dt->title,
+                'agenda' => $dt->agenda,
+                'startdatetime' => $dt->startdatetime,
+                'duration' => $dt->duration,
+                'number_join' => $dt->number_join,
+            ];
+        }
+
+        return response()->json(
+            [
+                'status' => '200',
+                'message' => 'Record listed',
+                'data' => $data
+            ],
+            201
+        );
+    }
+
+    public function meetingCreate(Request $request)
+    {
+        $data = Meeting::create([
+            'user_id' => auth()->user()->id,
+            'group_user_id' => decrypt($request->group_user_id),
+            'group_user' => $request->group_user,
+            'meeting_link' => $request->meeting_link,
+            'meeting_id' => $request->meeting_id,
+            'subject' => $request->subject,
+            'title' => $request->title,
+            'agenda' => $request->agenda,
+            'startdatetime' => $request->startdatetime,
+        ]);
+
+        return response()->json(
+            [
+                'status' => '200',
+                'message' => 'Record listed',
+                'data' => $data
+            ],
+            201
+        );
+    }
+    
+    public function meetingUpdate(Request $request)
+    {
+        $data = Meeting::find(decrypt($request->id));
+
+        if ($request->meeting_link) {
+            $data->update(['meeting_link' => $request->meeting_link]);
+        }
+
+        if ($request->meeting_id) {
+            $data->update(['meeting_id' => $request->meeting_id]);
+        }
+
+        if ($request->subject) {
+            $data->update(['subject' => $request->subject]);
+        }
+
+        if ($request->title) {
+            $data->update(['title' => $request->title]);
+        }
+
+        if ($request->agenda) {
+            $data->update(['agenda' => $request->agenda]);
+        }
+
+        if ($request->startdatetime) {
+            $data->update(['startdatetime' => $request->startdatetime]);
+        }
+
+        if ($request->duration) {
+            $data->update(['duration' => $request->duration]);
+        }
+        
+        if ($request->number_join) {
+            $data->update(['number_join' => $request->number_join]);
+        }
+        
+        if ($request->status) {
+            $data->update(['status' => $request->status]);
+        }
+
+        $data = Meeting::find(decrypt($request->id));
+
+        return response()->json(
+            [
+                'status' => '200',
+                'message' => 'Record listed',
+                'data' => $data
+            ],
+            201
+        );
+    }
+
+    public function meetingInvitation(Request $request)
+    {
+        $meet = Meeting::find(decrypt($request->meetings_id));
+        $json = str_replace("'", '"', $request->users);
+        $array = json_decode($json, true);
+        foreach ($array as $value) {
+            MeetingLog::updateOrCreate([
+                'meetings_id' => $meet->id,
+                'user_id' => decrypt($value),
+            ],[
+                'join_status' => 'invite'
+            ]);
+
+            $usr = User::find(decrypt($value));
+
+            Mail::to($usr->email)->send(new MeetingInvitation($usr->name, $usr->email, $meet));
+        }
+
+        return response()->json(
+            [
+                'status' => '200',
+                'message' => 'Record listed',
+                'data' => $meet
+            ],
+            201
+        );
+    }
+
+    public function meetingInvitationJoin($id)
+    {
+        $meet = Meeting::find(decrypt($id));
+        $user = MeetingLog::where('meetings_id', $meet->id)->where('user_id', auth()->user()->id)->first();
+        if($user->join_status == 'invite'){
+            if ($meet->status == 'start') {
+                $meet->update(['number_join' => $meet->number_join + 1]);
+                $user->update(['join_status' => 'joined']);
+            }
+            if ($meet->status == 'end') {
+                $user->update(['join_status' => 'close']);
+            }
+        }
+        return response()->json(
+            [
+                'status' => '200',
+                'message' => 'Record listed',
+                'data' => $meet
+            ],
+            201
+        );
+    }
+
+    public function meetingInvitationGroup(Request $request)
+    {
+        $meet = Meeting::find(decrypt($request->meetings_id));
+        $group = CompanyGroup::find(decrypt($request->group_id));
+        foreach ($group->user as $value) {
+            MeetingLog::updateOrCreate([
+                'meetings_id' => $meet->id,
+                'user_id' => decrypt($value),
+            ],[
+                'join_status' => 'invite'
+            ]);
+
+            $usr = User::find(decrypt($value));
+
+            Mail::to($usr->email)->send(new MeetingInvitation($usr->name, $usr->email, $meet));
+        }
+
+        return response()->json(
+            [
+                'status' => '200',
+                'message' => 'Record listed',
+                'data' => $meet
+            ],
+            201
+        );
+    }
+
+    public function sendMessageCall(Request $request)
+    {
+        $calllog = ChatCallLog::where('send_user_id', auth()->user()->id)
+        ->where('recieve_user_id', decrypt($request->recieve_user_id))
+        ->where('mss_id', decrypt($request->mss_id));
+
+        if($request->call_duration){
+            $calllog->update(['call_duration' => $request->call_duration]);
+        }
+
+        if($request->call_state){
+            $calllog->update(['call_state' => $request->call_state]);
+        }
+
+        return response()->json(
+            [
+                'status' => '200',
+                'message' => 'call log updated',
+                'data' => $calllog->get(),
+            ],
+            201
+        );
+    }
+
     public function sendMessage(Request $request)
     {
         if($request->message) {
@@ -634,7 +880,8 @@ class UserController extends Controller
                 $request->current_chat_user,
                 $request->chat_id,
                 $message,
-                $request->is_file
+                $request->is_file,
+                $request->mss_type
             );
         }
 
@@ -642,8 +889,7 @@ class UserController extends Controller
             [
                 'status' => '200',
                 'message' => 'Message Sent',
-                'data' => null,
-                'ret' => $ret
+                'data' => $ret
             ],
             201
         );

@@ -27,4 +27,9 @@ class ChatMessage extends Model
     {
         return $this->belongsTo(CompanyGroup::class, 'group_to')->withDefault();
     }
+
+    public function chatCall()
+    {
+        return $this->hasOne(ChatCallLog::class, 'mss_id')->withDefault();
+    }
 }

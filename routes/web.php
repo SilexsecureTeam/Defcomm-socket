@@ -38,6 +38,17 @@ Route::middleware('auth')->group(function () {
 
 // require __DIR__.'/auth.php';
 
+Route::get('/pdf-proxy/{filename}', function ($filename) {
+    $path = public_path("/secure/{$filename}");
+
+    if (!file_exists($path)) {
+        abort(404);
+    }
+
+    return response()->file($path);
+});
+
+
 Route::get('/', [AuthenticateController::class, 'index'])->name('home');
 Route::get('/login', [AuthenticateController::class, 'index'])->name('login');
 Route::get('/loginOtp', [AuthenticateController::class, 'loginOtp'])->name('loginOtp');

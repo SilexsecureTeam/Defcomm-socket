@@ -57,6 +57,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user/chat/history', [UserController::class, 'chatHistory']);
     Route::get('/user/chat/messages/{chat_user_id}/{user_group}', [UserController::class, 'chatMessages']);
     Route::post('/user/chat/messages/send', [UserController::class, 'sendMessage']);
+    Route::post('/user/chat/messages/call', [UserController::class, 'sendMessageCall']);
+
+    Route::post('/user/meeting/create', [UserController::class, 'meetingCreate']);
+    Route::post('/user/meeting/update', [UserController::class, 'meetingUpdate']);
+    Route::get('/user/getmeeting', [UserController::class, 'getmeeting']);
+    Route::get('/user/getmeetingid/{id}/{type}', [UserController::class, 'getmeetingid']);
+    Route::post('/user/meetingInvitation', [UserController::class, 'meetingInvitation']);
+    Route::post('/user/meetingInvitationGroup', [UserController::class, 'meetingInvitationGroup']);
+    Route::get('/user/meetingInvitationJoin/{id}', [UserController::class, 'meetingInvitationJoin']);
 
     Route::post('/user/setting', [UserController::class, 'setting']);
 

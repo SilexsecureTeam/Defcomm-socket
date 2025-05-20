@@ -12,6 +12,7 @@ class HandleCors
      */
     protected $allowedOrigins = [
         '/broadcasting/auth',
+        '/secure/*',
     ];
 
     /**

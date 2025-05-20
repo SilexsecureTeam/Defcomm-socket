@@ -109,4 +109,14 @@ class User extends Authenticatable
     {
         return $this->hasOne(ChatSettings::class, 'user_id')->withDefault();
     }
+
+    public function userCallSender()
+    {
+        return $this->hasMany(ChatCallLog::class, 'send_user_id')->withDefault();
+    }
+
+    public function userCallReciever()
+    {
+        return $this->hasMany(ChatCallLog::class, 'recieve_user_id')->withDefault();
+    }
 }
