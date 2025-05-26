@@ -674,6 +674,30 @@ class UserController extends Controller
         );
     }
 
+    public function folderCreate(Request $request)
+    {
+        $data = Meeting::create([
+            'user_id' => auth()->user()->id,
+            'group_user_id' => decrypt($request->group_user_id),
+            'group_user' => $request->group_user,
+            'meeting_link' => $request->meeting_link,
+            'meeting_id' => $request->meeting_id,
+            'subject' => $request->subject,
+            'title' => $request->title,
+            'agenda' => $request->agenda,
+            'startdatetime' => $request->startdatetime,
+        ]);
+
+        return response()->json(
+            [
+                'status' => '200',
+                'message' => 'Record listed',
+                'data' => $data
+            ],
+            201
+        );
+    }
+    
     public function meetingCreate(Request $request)
     {
         $data = Meeting::create([
