@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('folder_files', function (Blueprint $table) {
             $table->id();
+            $table->integer('user_id');
             $table->integer('folder_id');
             $table->integer('file_id');
             $table->timestamps();

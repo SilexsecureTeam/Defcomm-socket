@@ -4,7 +4,9 @@ namespace App\Http\Controllers\API;
 
 use App\Models\User;
 use App\Models\Files;
+use App\Models\Folders;
 use App\Models\Meeting;
+use App\Models\FolderFile;
 use App\Models\MeetingLog;
 use App\Models\ChatCallLog;
 use App\Models\ChatLastLog;
@@ -674,19 +676,89 @@ class UserController extends Controller
         );
     }
 
+    public function folderFile(Request $request)
+    {
+        $data = FolderFile::updateOrCreate([
+            'user_id' => auth()->user()->id,
+            'folder_id' => decrypt($request->folder_id),
+            'file_id' => decrypt($request->file_id),
+        ]);
+
+        return response()->json(
+            [
+                'status' => '200',
+                'message' => 'Record listed',
+                'data' => $data
+            ],
+            201
+        );
+    }
+
     public function folderCreate(Request $request)
     {
-        $data = Meeting::create([
+        $data = Folders::updateOrCreate([
             'user_id' => auth()->user()->id,
-            'group_user_id' => decrypt($request->group_user_id),
-            'group_user' => $request->group_user,
-            'meeting_link' => $request->meeting_link,
-            'meeting_id' => $request->meeting_id,
-            'subject' => $request->subject,
-            'title' => $request->title,
-            'agenda' => $request->agenda,
-            'startdatetime' => $request->startdatetime,
+            'name' => $request->name,
+            'rel' => $request->rel ? decrypt($request->rel) : null,
+        ],[
+            'description' => $request->description,
         ]);
+
+        return response()->json(
+            [
+                'status' => '200',
+                'message' => 'Record listed',
+                'data' => $data
+            ],
+            201
+        );
+    }
+    
+    public function folderUpdate(Request $request)
+    {
+        $data = Folders::find(decrypt($request->id));
+        $data->update([
+            'name' => $request->name,
+            'rel' => $request->rel ? decrypt($request->rel) : $data->rel,
+            'description' => $request->description,
+        ]);
+
+        return response()->json(
+            [
+                'status' => '200',
+                'message' => 'Record listed',
+                'data' => $data
+            ],
+            201
+        );
+    }
+
+    public function folderdelete($id)
+    {
+        $data = Folders::find(decrypt($id))->delete();
+
+        return response()->json(
+            [
+                'status' => '200',
+                'message' => 'Record delete',
+                'data' => $data
+            ],
+            201
+        );
+    }
+
+    public function folderget(Request $request)
+    {
+        $folder = Folders::where('user_id', auth()->user()->id)->get();
+        $data = [];
+
+        foreach($folder as $fl){
+            $data[] = [
+                'id' => encrypt($fl->id),
+                'name' => $fl->name,
+                'description' => $fl->description,
+            ];
+        }
 
         return response()->json(
             [

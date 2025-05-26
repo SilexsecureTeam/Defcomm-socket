@@ -68,8 +68,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user/meetingInvitationJoin/{id}', [UserController::class, 'meetingInvitationJoin']);
 
     Route::post('/user/folder/create', [UserController::class, 'folderCreate']);
+    Route::post('/user/folderUpdate', [UserController::class, 'folderUpdate']);
     Route::get('/user/folder/{id}', [UserController::class, 'folderget']);
-    Route::post('/user/folder/file', [UserController::class, 'folderFile']);
+    Route::get('/user/folderDel/{id}', [UserController::class, 'folderdelete']);
+    Route::post('/user/folderFile', [UserController::class, 'folderFile']);
 
     Route::post('/user/setting', [UserController::class, 'setting']);
 
