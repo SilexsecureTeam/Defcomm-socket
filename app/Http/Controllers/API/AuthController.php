@@ -105,7 +105,7 @@ class AuthController extends Controller
             'data' => [
                 'access_token' => $token,
                 'token_type' => 'Bearer',
-                'user_enid' => decrypt($user->id),
+                'user_enid' => encrypt($user->id),
                 'user' => $user
             ],
         ], 201);
@@ -141,7 +141,7 @@ class AuthController extends Controller
                     'data' => [
                         'access_token' => $token,
                         'token_type' => 'Bearer',
-                        'user_enid' => decrypt($user->first()->id),
+                        'user_enid' => encrypt($user->first()->id),
                         'user' => $user->first()
                     ],
                 ], 201);
