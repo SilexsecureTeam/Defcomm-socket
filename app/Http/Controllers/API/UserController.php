@@ -387,6 +387,10 @@ class UserController extends Controller
     public function profile()
     {
         $user = User::find(auth()->user()->id);
+        $data = [
+            'id' => $user->id,
+            $user
+        ];
         return response()->json(
             [
                 'status' => '200',
