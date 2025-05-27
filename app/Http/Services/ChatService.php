@@ -112,12 +112,12 @@ class ChatService
         foreach ($group as $value) {
             MeetingLog::updateOrCreate([
                 'meetings_id' => $meet->id,
-                'user_id' => decrypt($value->user_id),
+                'user_id' => $value->user_id,
             ], [
                 'join_status' => 'invite'
             ]);
 
-            $usr = User::find(decrypt($value->user_id));
+            $usr = User::find($value->user_id);
             if($usr){
                 Mail::to($usr->email)->send(new MeetingInvitation($usr->name, $usr->email, $meet));
             }
