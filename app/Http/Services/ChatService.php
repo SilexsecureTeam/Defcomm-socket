@@ -2,12 +2,18 @@
 
 namespace App\Http\Services;
 
+use App\Models\User;
+use App\Models\Meeting;
+use App\Models\MeetingLog;
 use App\Events\MessageSent;
 use App\Models\ChatCallLog;
 use App\Models\ChatLastLog;
 use App\Models\ChatMessage;
+use App\Models\CompanyGroup;
+use App\Mail\MeetingInvitation;
 use App\Events\GroupMessageSent;
 use App\Events\PrivateMessageSent;
+use Illuminate\Support\Facades\Mail;
 
 class ChatService
 {
@@ -95,5 +101,54 @@ class ChatService
                 "is_read" => $chatmss->is_read,
             ]
         ];
+    }
+
+
+    public function meetingInvitationGroup($meetings_id, $group_id)
+    {
+        $meet = Meeting::find(decrypt($meetings_id));
+        $group = CompanyGroup::find(decrypt($group_id));
+        foreach ($group->user as $value) {
+            MeetingLog::updateOrCreate([
+                'meetings_id' => $meet->id,
+                'user_id' => decrypt($value),
+            ], [
+                'join_status' => 'invite'
+            ]);
+
+            $usr = User::find(decrypt($value));
+
+            Mail::to($usr->email)->send(new MeetingInvitation($usr->name, $usr->email, $meet));
+        }
+
+        return response()->json(
+            [
+                'status' => '200',
+                'message' => 'Record listed',
+                'data' => $meet
+            ],
+            201
+        );
+    }
+
+    public function meetingInvitation($meetings_id, $users)
+    {
+        $meet = Meeting::find(decrypt($meetings_id));
+        $json = str_replace("'", '"', $users);
+        $array = json_decode($json, true);
+        foreach ($array as $value) {
+            MeetingLog::updateOrCreate([
+                'meetings_id' => $meet->id,
+                'user_id' => decrypt($value),
+            ], [
+                'join_status' => 'invite'
+            ]);
+
+            $usr = User::find(decrypt($value));
+
+            Mail::to($usr->email)->send(new MeetingInvitation($usr->name, $usr->email, $meet));
+        }
+
+        return $meet;
     }
 }

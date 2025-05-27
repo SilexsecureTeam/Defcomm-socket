@@ -806,8 +806,6 @@ class UserController extends Controller
     {
         $data = Meeting::create([
             'user_id' => auth()->user()->id,
-            // 'group_user_id' => decrypt($request->group_user_id),
-            // 'group_user' => $request->group_user,
             'meeting_link' => $request->meeting_link,
             'meeting_id' => $request->meeting_id,
             'subject' => $request->subject,
@@ -815,6 +813,14 @@ class UserController extends Controller
             'agenda' => $request->agenda,
             'startdatetime' => $request->startdatetime,
         ]);
+
+        if($request->group_user == "users" && $request->group_user_id){
+            $this->ChatService->meetingInvitation($data->id, $request->group_user_id);
+        }
+        
+        if($request->group_user == "group" && $request->group_user_id){
+            $this->ChatService->meetingInvitationGroup($data->id, $request->group_user_id);
+        }
 
         return response()->json(
             [
@@ -880,27 +886,13 @@ class UserController extends Controller
 
     public function meetingInvitation(Request $request)
     {
-        $meet = Meeting::find(decrypt($request->meetings_id));
-        $json = str_replace("'", '"', $request->users);
-        $array = json_decode($json, true);
-        foreach ($array as $value) {
-            MeetingLog::updateOrCreate([
-                'meetings_id' => $meet->id,
-                'user_id' => decrypt($value),
-            ],[
-                'join_status' => 'invite'
-            ]);
-
-            $usr = User::find(decrypt($value));
-
-            Mail::to($usr->email)->send(new MeetingInvitation($usr->name, $usr->email, $meet));
-        }
+        $data = $this->ChatService->meetingInvitation($request->meetings_id, $request->users);
 
         return response()->json(
             [
                 'status' => '200',
                 'message' => 'Record listed',
-                'data' => $meet
+                'data' => $data
             ],
             201
         );
@@ -931,29 +923,8 @@ class UserController extends Controller
 
     public function meetingInvitationGroup(Request $request)
     {
-        $meet = Meeting::find(decrypt($request->meetings_id));
-        $group = CompanyGroup::find(decrypt($request->group_id));
-        foreach ($group->user as $value) {
-            MeetingLog::updateOrCreate([
-                'meetings_id' => $meet->id,
-                'user_id' => decrypt($value),
-            ],[
-                'join_status' => 'invite'
-            ]);
-
-            $usr = User::find(decrypt($value));
-
-            Mail::to($usr->email)->send(new MeetingInvitation($usr->name, $usr->email, $meet));
-        }
-
-        return response()->json(
-            [
-                'status' => '200',
-                'message' => 'Record listed',
-                'data' => $meet
-            ],
-            201
-        );
+        $data = $this->ChatService->meetingInvitationGroup($request->meetings_id, $request->group_id);
+        return $data;
     }
 
     public function sendMessageCall(Request $request)
