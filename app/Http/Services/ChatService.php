@@ -117,8 +117,9 @@ class ChatService
             ]);
 
             $usr = User::find(decrypt($value));
-
-            Mail::to($usr->email)->send(new MeetingInvitation($usr->name, $usr->email, $meet));
+            if($usr){
+                Mail::to($usr->email)->send(new MeetingInvitation($usr->name, $usr->email, $meet));
+            }
         }
 
         return response()->json(
@@ -145,8 +146,9 @@ class ChatService
             ]);
 
             $usr = User::find(decrypt($value));
-
-            Mail::to($usr->email)->send(new MeetingInvitation($usr->name, $usr->email, $meet));
+            if ($usr) {
+                Mail::to($usr->email)->send(new MeetingInvitation($usr->name, $usr->email, $meet));
+            }
         }
 
         return $meet;
