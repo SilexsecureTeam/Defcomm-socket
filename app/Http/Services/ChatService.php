@@ -12,6 +12,7 @@ use App\Models\ChatMessage;
 use App\Models\CompanyGroup;
 use App\Mail\MeetingInvitation;
 use App\Events\GroupMessageSent;
+use App\Models\CompanyGroupUser;
 use App\Events\PrivateMessageSent;
 use Illuminate\Support\Facades\Mail;
 
@@ -107,16 +108,16 @@ class ChatService
     public function meetingInvitationGroup($meetings_id, $group_id)
     {
         $meet = Meeting::find(decrypt($meetings_id));
-        $group = CompanyGroup::find(decrypt($group_id));
-        foreach ($group->user as $value) {
+        $group = CompanyGroupUser::where('group_id', decrypt($group_id))->get();
+        foreach ($group as $value) {
             MeetingLog::updateOrCreate([
                 'meetings_id' => $meet->id,
-                'user_id' => decrypt($value),
+                'user_id' => decrypt($value->user_id),
             ], [
                 'join_status' => 'invite'
             ]);
 
-            $usr = User::find(decrypt($value));
+            $usr = User::find(decrypt($value->user_id));
             if($usr){
                 Mail::to($usr->email)->send(new MeetingInvitation($usr->name, $usr->email, $meet));
             }
