@@ -626,8 +626,6 @@ class UserController extends Controller
         foreach($datas as $dt){
             $data[] = [
                 'id' => encrypt($dt->id),
-                'group_user_id' => encrypt($dt->group_user_id),
-                'group_user' => $dt->group_user,
                 'meeting_link' => $dt->meeting_link,
                 'meeting_id' => $dt->meeting_id,
                 'subject' => $dt->subject,
@@ -667,6 +665,36 @@ class UserController extends Controller
                 'startdatetime' => $dt->startdatetime,
                 'duration' => $dt->duration,
                 'number_join' => $dt->number_join,
+            ];
+        }
+
+        return response()->json(
+            [
+                'status' => '200',
+                'message' => 'Record listed',
+                'data' => $data
+            ],
+            201
+        );
+    }
+
+    public function meetingInvitationlist()
+    {
+        $datas = MeetingLog::where('user_id', auth()->user()->id)->get();
+
+        $data = [];
+        foreach($datas as $dt){
+            $data[] = [
+                'id' => encrypt($dt->meeting->id),
+                'meeting_id' => encrypt($dt->meeting->id),
+                'meeting_link' => $dt->meeting->meeting_link,
+                'meeting_id' => $dt->meeting->meeting_id,
+                'subject' => $dt->meeting->subject,
+                'title' => $dt->meeting->title,
+                'agenda' => $dt->meeting->agenda,
+                'startdatetime' => $dt->meeting->startdatetime,
+                'duration' => $dt->meeting->duration,
+                'number_join' => $dt->meeting->number_join,
             ];
         }
 
@@ -778,8 +806,8 @@ class UserController extends Controller
     {
         $data = Meeting::create([
             'user_id' => auth()->user()->id,
-            'group_user_id' => decrypt($request->group_user_id),
-            'group_user' => $request->group_user,
+            // 'group_user_id' => decrypt($request->group_user_id),
+            // 'group_user' => $request->group_user,
             'meeting_link' => $request->meeting_link,
             'meeting_id' => $request->meeting_id,
             'subject' => $request->subject,
