@@ -815,11 +815,11 @@ class UserController extends Controller
         ]);
 
         if($request->group_user == "users" && $request->group_user_id){
-            $this->ChatService->meetingInvitation($data->id, $request->group_user_id);
+            $this->ChatService->meetingInvitation(encrypt($data->id), $request->group_user_id);
         }
         
         if($request->group_user == "group" && $request->group_user_id){
-            $this->ChatService->meetingInvitationGroup($data->id, $request->group_user_id);
+            $this->ChatService->meetingInvitationGroup(encrypt($data->id), $request->group_user_id);
         }
 
         return response()->json(
