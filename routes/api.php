@@ -70,7 +70,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/user/folder/create', [UserController::class, 'folderCreate']);
     Route::post('/user/folderUpdate', [UserController::class, 'folderUpdate']);
-    Route::get('/user/folder/{id}', [UserController::class, 'folderget']);
+    Route::get('/user/folder/', [UserController::class, 'folderget']);
+    Route::get('/user/folder/{id}', [UserController::class, 'foldergetId']);
     Route::get('/user/folderDel/{id}', [UserController::class, 'folderdelete']);
     Route::post('/user/folderFile', [UserController::class, 'folderFile']);
 

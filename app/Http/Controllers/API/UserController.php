@@ -779,9 +779,32 @@ class UserController extends Controller
         );
     }
 
-    public function folderget(Request $request)
+    public function folderget()
     {
         $folder = Folders::where('user_id', auth()->user()->id)->get();
+        $data = [];
+
+        foreach($folder as $fl){
+            $data[] = [
+                'id' => encrypt($fl->id),
+                'name' => $fl->name,
+                'description' => $fl->description,
+            ];
+        }
+
+        return response()->json(
+            [
+                'status' => '200',
+                'message' => 'Record listed',
+                'data' => $data
+            ],
+            201
+        );
+    }
+
+    public function foldergetId($id)
+    {
+        $folder = Folders::where('user_id', auth()->user()->id)->where('rel', decrypt($id))->get();
         $data = [];
 
         foreach($folder as $fl){
