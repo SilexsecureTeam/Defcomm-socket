@@ -826,7 +826,15 @@ class UserController extends Controller
             [
                 'status' => '200',
                 'message' => 'Record listed',
-                'data' => $data
+                'data' => [
+                    'id' => encrypt($data->id),
+                    'meeting_link' => $data->meeting_link,
+                    'meeting_id' => $data->meeting_id,
+                    'subject' => $data->subject,
+                    'title' => $data->title,
+                    'agenda' => $data->agenda,
+                    'startdatetime' => $data->startdatetime,
+                ]
             ],
             201
         );
