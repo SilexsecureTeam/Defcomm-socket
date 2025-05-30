@@ -10,9 +10,8 @@
 
 <script>
     Pusher.logToConsole = true;
-
     const pusher = new Pusher("l4ewjdxj5hilgin4smsv", {
-        wsHost: 'backend.defcomm.ng', // No https:// here
+       wsHost: 'backend.defcomm.ng', // No https:// here
         forceTLS: true,
         disableStats: true,
         encrypted: true,
@@ -25,17 +24,28 @@
         }
     });
 
+    // Private chat
     const privateChannel = pusher.subscribe("private-chat.31");
-
     privateChannel.bind("private.message.sent", function (data) {
         console.log("Private:", data.message);
         document.getElementById('log').textContent +=
-            'Received: ' + JSON.stringify(data) + '\n';
+                'Received: ' + JSON.stringify(data) + '\n';
     });
 
     privateChannel.bind('pusher:subscription_error', function(status) {
         console.error('Subscription error:', status);
     });
+
+    // Group chat
+//    const groupChannel = pusher.subscribe("group.1");
+//    groupChannel.bind("group.message.sent", function (data) {
+//        console.log("Group:", data.message);
+//    });
+//
+//    groupChannel.bind('pusher:subscription_error', function(status) {
+//        console.error('Subscription error:', status);
+//    });
+
 </script>
 </body>
 </html>
