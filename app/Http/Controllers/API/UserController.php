@@ -826,12 +826,13 @@ class UserController extends Controller
         );
     }
     
-    public function meetingTyping(Request $request)
+    public function messagesTyping(Request $request)
     {
         broadcast(new PrivateMessageSent(auth()->user()->id, $request->current_chat_user, [
             'state' => $request->typing,
             'user' => encrypt($request->current_chat_user),
             'message' => '',
+            'name' => '',
             'data' => ''
         ]))->toOthers();
 
@@ -864,7 +865,7 @@ class UserController extends Controller
                 'message' => 'Record listed',
                 'data' => [
                     'id' => encrypt($data->id),
-                    'meeting_link' => $data->meeting_link,
+                    'meeting_link' => $data->meeting_link.'/'. encrypt($data->id),
                     'meeting_id' => $data->meeting_id,
                     'subject' => $data->subject,
                     'title' => $data->title,

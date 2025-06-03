@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Mail;
 
 class ChatService
 {
-    public function submitChat($current_chat_user_type, $current_chat_user, $userLastLog, $message, $is_file, $mss_type= 'text')
+    public function submitChat($current_chat_user_type, $current_chat_user, $userLastLog, $message, $is_file, $mss_type = 'text')
     {
         $userLog = $userLastLog ?? uniqid();
 
@@ -69,7 +69,7 @@ class ChatService
             'message' => encrypt($message)
         ]);
 
-        if($mss_type == 'call'){
+        if ($mss_type == 'call') {
             ChatCallLog::create([
                 'send_user_id' => auth()->user()->id,
                 'recieve_user_id' => $current_chat_user,
@@ -78,21 +78,22 @@ class ChatService
             ]);
         }
 
-        
+
         if ($current_chat_user_type == 'group') {
             broadcast(new GroupMessageSent(auth()->user()->id, $current_chat_user, $message))->toOthers();
         } else {
             broadcast(new PrivateMessageSent(auth()->user()->id, $current_chat_user, [
                 'state' => 'message',
                 'user' => encrypt($current_chat_user),
-                'message' => $message, 
+                'name' => $chatmss->userTo->name,
+                'message' => $message,
                 'data' => $chatmss
             ]))->toOthers();
         }
 
         return [
             'userlog' => $userLog,
-            'recieve_user_id' => encrypt($current_chat_user), 
+            'recieve_user_id' => encrypt($current_chat_user),
             'chat_message' => $message,
             'current_chat_user_type' => $current_chat_user_type,
             'mss_chat' => [
@@ -123,7 +124,7 @@ class ChatService
             ]);
 
             $usr = User::find($value->user_id);
-            if($usr){
+            if ($usr) {
                 Mail::to($usr->email)->send(new MeetingInvitation($usr->name, $usr->email, $meet));
             }
         }
