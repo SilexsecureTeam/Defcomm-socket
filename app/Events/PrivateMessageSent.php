@@ -38,6 +38,6 @@ class PrivateMessageSent implements ShouldBroadcast
 
     public function broadcastWith()
     {
-        return ['message' => $this->message];
+        return ['data' => $this->message];
     }
 }

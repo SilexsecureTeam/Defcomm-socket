@@ -78,14 +78,17 @@ class ChatService
             ]);
         }
 
-
-        broadcast(new PrivateMessageSent(auth()->user()->id, $current_chat_user, $message))->toOthers();
         
-        // if ($current_chat_user_type == 'group') {
-        //     broadcast(new GroupMessageSent(auth()->user()->id, $current_chat_user, $message))->toOthers();
-        // } else {
-        //     broadcast(new PrivateMessageSent(auth()->user()->id, $current_chat_user, $message))->toOthers();
-        // }
+        if ($current_chat_user_type == 'group') {
+            broadcast(new GroupMessageSent(auth()->user()->id, $current_chat_user, $message))->toOthers();
+        } else {
+            broadcast(new PrivateMessageSent(auth()->user()->id, $current_chat_user, [
+                'state' => 'message',
+                'user' => encrypt($current_chat_user),
+                'message' => $message, 
+                'data' => $chatmss
+            ]))->toOthers();
+        }
 
         return [
             'userlog' => $userLog,

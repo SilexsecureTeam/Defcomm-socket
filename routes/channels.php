@@ -23,7 +23,7 @@ Broadcast::channel('myPrivateChannel.user.{id}', function ($user, $id) {
 
 Broadcast::channel('chat.{receiverId}', function ($user, $receiverId) {
     // Allow only the two involved users
-    return (int) $user->id === (int) $receiverId || true;
+    return (int) $user->id === (int) $receiverId ?? false;
 });
 
 Broadcast::channel('group.{groupId}', function ($user, $groupId) {

@@ -59,6 +59,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/user/chat/messages/send', [UserController::class, 'sendMessage']);
     Route::post('/user/chat/messages/call', [UserController::class, 'sendMessageCall']);
 
+    Route::post('/user/meeting/typing', [UserController::class, 'meetingTyping']);
     Route::post('/user/meeting/create', [UserController::class, 'meetingCreate']);
     Route::post('/user/meeting/update', [UserController::class, 'meetingUpdate']);
     Route::get('/user/getmeeting', [UserController::class, 'getmeeting']);

@@ -20,6 +20,7 @@ use App\Models\Notification;
 use Illuminate\Http\Request;
 use App\Mail\MeetingInvitation;
 use App\Models\CompanyGroupUser;
+use App\Events\PrivateMessageSent;
 use App\Http\Services\ChatService;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Mail;
@@ -825,6 +826,18 @@ class UserController extends Controller
         );
     }
     
+    public function meetingTyping(Request $request)
+    {
+        broadcast(new PrivateMessageSent(auth()->user()->id, $request->current_chat_user, [
+            'state' => $request->typing,
+            'user' => encrypt($request->current_chat_user),
+            'message' => '',
+            'data' => ''
+        ]))->toOthers();
+
+        return true;
+    }
+    
     public function meetingCreate(Request $request)
     {
         $data = Meeting::create([
@@ -1007,7 +1020,7 @@ class UserController extends Controller
 
             $ret = $this->ChatService->submitChat(
                 $request->current_chat_user_type,
-                $request->current_chat_user,
+                ($request->current_chat_user),
                 $request->chat_id,
                 $message,
                 $request->is_file,

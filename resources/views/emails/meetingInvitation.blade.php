@@ -39,11 +39,11 @@
 
             <p>Kindly click the button to proceed</p>
             <div style="text-align: center;">
-                <a href="https://cloud.defcomm.ng/onboarding" style="background-color: #36460A; padding: 10px; border-radius:5px; color: #ffffff;">Join</a>
+                <a href="{{$meet->meeting_link}}" style="background-color: #36460A; padding: 10px; border-radius:5px; color: #ffffff;">Join</a>
             </div>
             <div>
                 <p>Please use this link if the join button is not working</p>
-                <a href="https://cloud.defcomm.ng/onboarding">https://cloud.defcomm.ng/onboarding</a>
+                <a href="{{$meet->meeting_link}}">{{$meet->meeting_link}}</a>
             </div>
         </div>
 
