@@ -412,7 +412,11 @@ class UserController extends Controller
             $file->move(public_path('avatar'), $file_name);
 
             if ($user->avatar) {
-                unlink(public_path($user->avatar));
+                try {
+                    unlink(public_path($user->avatar));
+                } catch (\Exception $e) {
+                    // Optionally log the error
+                }
             }
 
             $user->update([
@@ -534,6 +538,40 @@ class UserController extends Controller
         );
     }
 
+    public function chatCallLog()
+    {
+        $datas = ChatCallLog::where('send_user_id', auth()->user()->id)->orWhere('recieve_user_id', auth()->user()->id)->orderBy('created_at', 'ASC')->get();
+
+        $data = [];
+        foreach($datas as $dt){
+            $data[] = [
+                'send_user_id' => encrypt($dt->send_user_id),
+                'send_user_name' => $dt->userSender->name,
+                'send_user_phone' => $dt->userSender->phone,
+                'send_user_email' => $dt->userSender->email,
+                'recieve_user_id' => encrypt($dt->recieve_user_id),
+                'recieve_user_name' => $dt->userReciever->name,
+                'recieve_user_phone' => $dt->userReciever->phone,
+                'recieve_user_email' => $dt->userReciever->email,
+                'call_st' => $dt->call_st,
+                'created_at' => $dt->created_at,
+                'mss_id' => $dt->mss_id,
+                'call_duration' => $dt->call_duration,
+                'call_state' => $dt->call_state,
+                'chatbtw' => $dt->chatbtw,
+            ];
+        }
+
+        return response()->json(
+            [
+                'status' => '200',
+                'message' => 'Record listed',
+                'data' => $data
+            ],
+            201
+        );
+    }
+
     public function chatHistory()
     {
         $record = ChatLastLog::where('user_id', auth()->user()->id)->join('users', 'users.id', '=', 'chat_last_logs.user_to')->orderBy('users.name', 'ASC')->get();
@@ -570,10 +608,14 @@ class UserController extends Controller
 
         $userLastLog = $thisuserLastLog ? $thisuserLastLog->group_to : null;
 
-        $record = ChatMessage::where('group_to', $userLastLog)->where(function ($query) {
+        $record = ChatMessage::where(function ($query) {
             $query->where('user_id', $this->current_chat_user)
                 ->orWhere('group_to', $this->current_chat_user)
                 ->orWhere('user_to', $this->current_chat_user);
+        })->where(function ($query) {
+            $query->where('user_id', auth()->user()->id)
+                ->orWhere('group_to', auth()->user()->id)
+                ->orWhere('user_to', auth()->user()->id);
         })->orderBy('created_at', 'ASC')->get();
 
         $data = [];
@@ -637,6 +679,32 @@ class UserController extends Controller
                 'number_join' => $dt->number_join,
             ];
         }
+
+        return response()->json(
+            [
+                'status' => '200',
+                'message' => 'Record listed',
+                'data' => $data
+            ],
+            201
+        );
+    }
+
+    public function getmeetingDetail($id)
+    {
+        $datas = Meeting::find(decrypt($id));
+
+        $data = [
+            'id' => encrypt($datas->id),
+            'meeting_link' => $datas->meeting_link,
+            'meeting_id' => $datas->meeting_id,
+            'subject' => $datas->subject,
+            'title' => $datas->title,
+            'agenda' => $datas->agenda,
+            'startdatetime' => $datas->startdatetime,
+            'duration' => $datas->duration,
+            'number_join' => $datas->number_join,
+        ];
 
         return response()->json(
             [

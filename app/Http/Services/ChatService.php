@@ -86,6 +86,8 @@ class ChatService
                 'state' => 'message',
                 'user' => encrypt($current_chat_user),
                 'name' => $chatmss->userTo->name,
+                'phone' => $chatmss->userTo->phone,
+                'email' => $chatmss->userTo->email,
                 'message' => $message,
                 'data' => $chatmss
             ]))->toOthers();

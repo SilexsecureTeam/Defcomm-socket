@@ -54,6 +54,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user/contact/add/{id}', [UserController::class, 'contactAdd']);
     Route::get('/user/contact/remove/{id}', [UserController::class, 'contactRemove']);
 
+    Route::get('/user/chat/callLog', [UserController::class, 'chatCallLog']);
     Route::get('/user/chat/history', [UserController::class, 'chatHistory']);
     Route::get('/user/chat/messages/{chat_user_id}/{user_group}', [UserController::class, 'chatMessages']);
     Route::post('/user/chat/messages/send', [UserController::class, 'sendMessage']);
@@ -63,6 +64,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/user/meeting/create', [UserController::class, 'meetingCreate']);
     Route::post('/user/meeting/update', [UserController::class, 'meetingUpdate']);
     Route::get('/user/getmeeting', [UserController::class, 'getmeeting']);
+    Route::get('/user/getmeeting/{id}', [UserController::class, 'getmeetingDetail']);
     Route::get('/user/getmeetingid/{id}/{type}', [UserController::class, 'getmeetingid']);
     Route::post('/user/meetingInvitation', [UserController::class, 'meetingInvitation']);
     Route::post('/user/meetingInvitationGroup', [UserController::class, 'meetingInvitationGroup']);
