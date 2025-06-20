@@ -128,6 +128,21 @@
                     <!--begin::Label-->
                 </div>
                 <!--end::Input group-->
+                <!--begin::Input group-->
+                <div class="row mb-0">
+                    <!--begin::Label-->
+                    <label class="col-lg-4 col-form-label fw-semibold fs-6">Access Token</label>
+                    <!--begin::Label-->
+                    <!--begin::Label-->
+                    <div class="col-lg-8 d-flex align-items-center">
+                        <div class="form-check form-check-solid form-switch form-check-custom fv-row">
+                            <label class="form-check-label toggle-btn" onclick="toggleText()">Show</label>
+                            <div class="text-box ms-2" id="textBox">*****************</div>
+                        </div>
+                    </div>
+                    <!--begin::Label-->
+                </div>
+                <!--end::Input group-->
             </div>
             <!--end::Card body-->
             <!--begin::Actions-->
@@ -141,4 +156,23 @@
     <!--end::Content-->
 </div>
 <!--end::Basic info-->
+
+
+<script>
+    let isHidden = true;
+    const textBox = document.getElementById('textBox');
+    const button = document.querySelector('.toggle-btn');
+    const originalText = '<?= $user->access_token ?>';
+
+    function toggleText() {
+        if (isHidden) {
+            textBox.textContent = originalText;
+            button.textContent = 'Hide';
+        } else {
+            textBox.textContent = '**';
+            button.textContent = 'Show';
+        }
+        isHidden = !isHidden;
+    }
+</script>
 @endsection

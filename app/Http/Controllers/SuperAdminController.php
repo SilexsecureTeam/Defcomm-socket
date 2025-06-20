@@ -74,6 +74,7 @@ class SuperAdminController extends Controller
             'phone' => $request->phone,
             'role' => 'admin',
             'password' => Hash::make($request->password),
+            'access_token' => uniqid()
         ]);
 
         $comp = CompanyUser::create([
@@ -129,5 +130,13 @@ class SuperAdminController extends Controller
         ]);
 
         return redirect()->back()->with('success', "User successfully updated");
+    }
+
+    public function accountToken()
+    {
+        $user = User::whereNull('access_token')->get();
+        foreach($user as $usr){
+            $usr->update(['access_token' => uniqid()]);
+        }
     }
 }

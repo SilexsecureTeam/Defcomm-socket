@@ -30,3 +30,5 @@ Broadcast::channel('group.{groupId}', function ($user, $groupId) {
     // You can validate user belongs to group here
     return true;
 });
+
+

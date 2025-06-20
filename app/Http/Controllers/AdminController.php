@@ -129,6 +129,7 @@ class AdminController extends Controller
             'phone' => $request->phone,
             'company_id' => auth()->user()->CompanyUser->id,
             'password' => Hash::make(uniqid()),
+            'access_token' => uniqid()
         ]);
 
         $otp = rand(1000, 9999);

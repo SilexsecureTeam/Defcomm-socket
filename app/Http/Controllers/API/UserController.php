@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Models\User;
 use App\Models\Files;
+use Firebase\JWT\JWT;
 use App\Models\Folders;
 use App\Models\Meeting;
 use App\Models\FolderFile;
@@ -35,14 +36,13 @@ class UserController extends Controller
         $this->FileUploadService = new FileUploadService();
         $this->ChatService = new ChatService();
     }
-    
+
     public function file()
     {
         $file = Files::where('uploaded_by', auth()->user()->id)->orderBy('id', 'DESC')->get();
-        
+
         $data = [];
-        foreach($file as $key => $dt)
-        {
+        foreach ($file as $key => $dt) {
             $data[$key] = [
                 'id' => encrypt($dt->id),
                 'name' => $dt->name,
@@ -57,11 +57,14 @@ class UserController extends Controller
             ];
         }
 
-        return response()->json([
-            'status'=>'200',
-            'message' => 'Record List', 
-            'data' => $data]
-        , 201);
+        return response()->json(
+            [
+                'status' => '200',
+                'message' => 'Record List',
+                'data' => $data
+            ],
+            201
+        );
     }
 
     public function fileOther()
@@ -94,7 +97,7 @@ class UserController extends Controller
             201
         );
     }
-    
+
     public function fileOtherPending()
     {
         $file = FilesShares::where('user_id', auth()->user()->id)->where('status', 'pending')->orderBy('id', 'DESC')->get();
@@ -267,7 +270,7 @@ class UserController extends Controller
         return response()->json(
             [
                 'status' => '200',
-                'url' => route('user.com.file.view',['id'=> encrypt($file->id), 'user'=>encrypt(auth()->user()->id)]),
+                'url' => route('user.com.file.view', ['id' => encrypt($file->id), 'user' => encrypt(auth()->user()->id)]),
                 'data' => null
             ],
             201
@@ -329,7 +332,7 @@ class UserController extends Controller
             201
         );
     }
-    
+
     public function groupPendig()
     {
         $group = CompanyGroupUser::where('user_id', auth()->user()->id)->where('status', 'pending')->orderBy('id', 'DESC')->get();
@@ -427,39 +430,39 @@ class UserController extends Controller
         if ($request->name) {
             $user->update(['name' => $request->name]);
         }
-        
+
         if ($request->recover_mail) {
             $user->update(['recover_mail' => $request->recover_mail]);
         }
-        
+
         if ($request->phone) {
             $user->update(['phone' => $request->phone]);
         }
-        
+
         if ($request->address) {
             $user->update(['address' => $request->address]);
         }
-        
+
         if ($request->enable_2fa) {
             $user->update(['enable_2fa' => $request->enable_2fa]);
         }
-        
+
         if ($request->device_token) {
             $user->update(['device_token' => $request->device_token]);
         }
-        
+
         if ($request->device_type) {
             $user->update(['device_type' => $request->device_type]);
         }
-        
+
         if ($request->pin) {
             $user->update(['pin' => encrypt($request->pin)]);
         }
-        
+
         if ($request->onboarding_stage) {
             $user->update(['onboarding_stage' => $request->onboarding_stage]);
         }
-        
+
         if ($request->username) {
             $user->update(['username' => $request->username]);
         }
@@ -479,8 +482,7 @@ class UserController extends Controller
         $record = ContactList::where('user_id', auth()->user()->id)->get();
 
         $data = [];
-        foreach($record as $key => $dt)
-        {
+        foreach ($record as $key => $dt) {
             $data[$key] = [
                 'id' => encrypt($dt->id),
                 'contact_id_encrypt' => encrypt($dt->userLink->id),
@@ -543,7 +545,7 @@ class UserController extends Controller
         $datas = ChatCallLog::where('send_user_id', auth()->user()->id)->orWhere('recieve_user_id', auth()->user()->id)->orderBy('created_at', 'ASC')->get();
 
         $data = [];
-        foreach($datas as $dt){
+        foreach ($datas as $dt) {
             $data[] = [
                 'send_user_id' => encrypt($dt->send_user_id),
                 'send_user_name' => $dt->userSender->name,
@@ -577,8 +579,7 @@ class UserController extends Controller
         $record = ChatLastLog::where('user_id', auth()->user()->id)->join('users', 'users.id', '=', 'chat_last_logs.user_to')->orderBy('users.name', 'ASC')->get();
 
         $data = [];
-        foreach($record as $key => $dt)
-        {
+        foreach ($record as $key => $dt) {
             $data[$key] = [
                 'id' => encrypt($dt->id),
                 'chat_id' => $dt->group_to,
@@ -599,7 +600,7 @@ class UserController extends Controller
             201
         );
     }
-    
+
     public function chatMessages($chat_user_id, $chat_user_type)
     {
         $this->current_chat_user = $chat_user_id;
@@ -619,8 +620,7 @@ class UserController extends Controller
         })->orderBy('created_at', 'ASC')->get();
 
         $data = [];
-        foreach($record as $key => $dt)
-        {
+        foreach ($record as $key => $dt) {
             $data[$key] = [
                 'id' => $dt->id,
                 'is_my_chat' => $dt->user_id == auth()->user()->id ? 'yes' : 'no',
@@ -666,7 +666,7 @@ class UserController extends Controller
         $datas = Meeting::where('user_id', auth()->user()->id)->get();
 
         $data = [];
-        foreach($datas as $dt){
+        foreach ($datas as $dt) {
             $data[] = [
                 'id' => encrypt($dt->id),
                 'meeting_link' => $dt->meeting_link,
@@ -721,7 +721,7 @@ class UserController extends Controller
         $datas = Meeting::where('group_user_id', decrypt($id))->where('group_user', $type)->get();
 
         $data = [];
-        foreach($datas as $dt){
+        foreach ($datas as $dt) {
             $data[] = [
                 'id' => encrypt($dt->id),
                 'group_user_id' => encrypt($dt->group_user_id),
@@ -752,7 +752,7 @@ class UserController extends Controller
         $datas = MeetingLog::where('user_id', auth()->user()->id)->get();
 
         $data = [];
-        foreach($datas as $dt){
+        foreach ($datas as $dt) {
             $data[] = [
                 'id' => encrypt($dt->meeting->id),
                 'meeting_id' => encrypt($dt->meeting->id),
@@ -801,7 +801,7 @@ class UserController extends Controller
             'user_id' => auth()->user()->id,
             'name' => $request->name,
             'rel' => $request->rel ? decrypt($request->rel) : null,
-        ],[
+        ], [
             'description' => $request->description,
         ]);
 
@@ -814,7 +814,7 @@ class UserController extends Controller
             201
         );
     }
-    
+
     public function folderUpdate(Request $request)
     {
         $data = Folders::find(decrypt($request->id));
@@ -850,10 +850,10 @@ class UserController extends Controller
 
     public function folderget()
     {
-        $folder = Folders::where('user_id', auth()->user()->id)->get();
+        $folder = Folders::where('user_id', auth()->user()->id)->whereNull('rel')->get();
         $data = [];
 
-        foreach($folder as $fl){
+        foreach ($folder as $fl) {
             $data[] = [
                 'id' => encrypt($fl->id),
                 'name' => $fl->name,
@@ -876,7 +876,7 @@ class UserController extends Controller
         $folder = Folders::where('user_id', auth()->user()->id)->where('rel', decrypt($id))->get();
         $data = [];
 
-        foreach($folder as $fl){
+        foreach ($folder as $fl) {
             $data[] = [
                 'id' => encrypt($fl->id),
                 'name' => $fl->name,
@@ -893,7 +893,7 @@ class UserController extends Controller
             201
         );
     }
-    
+
     public function messagesTyping(Request $request)
     {
         broadcast(new PrivateMessageSent(auth()->user()->id, $request->current_chat_user, [
@@ -906,7 +906,7 @@ class UserController extends Controller
 
         return true;
     }
-    
+
     public function meetingCreate(Request $request)
     {
         $data = Meeting::create([
@@ -919,11 +919,11 @@ class UserController extends Controller
             'startdatetime' => $request->startdatetime,
         ]);
 
-        if($request->group_user == "users" && $request->group_user_id){
+        if ($request->group_user == "users" && $request->group_user_id) {
             $this->ChatService->meetingInvitation(encrypt($data->id), $request->group_user_id);
         }
-        
-        if($request->group_user == "group" && $request->group_user_id){
+
+        if ($request->group_user == "group" && $request->group_user_id) {
             $this->ChatService->meetingInvitationGroup(encrypt($data->id), $request->group_user_id);
         }
 
@@ -933,7 +933,7 @@ class UserController extends Controller
                 'message' => 'Record listed',
                 'data' => [
                     'id' => encrypt($data->id),
-                    'meeting_link' => $data->meeting_link.'/'. encrypt($data->id),
+                    'meeting_link' => $data->meeting_link . '/' . encrypt($data->id),
                     'meeting_id' => $data->meeting_id,
                     'subject' => $data->subject,
                     'title' => $data->title,
@@ -944,7 +944,7 @@ class UserController extends Controller
             201
         );
     }
-    
+
     public function meetingUpdate(Request $request)
     {
         $data = Meeting::find(decrypt($request->id));
@@ -976,11 +976,11 @@ class UserController extends Controller
         if ($request->duration) {
             $data->update(['duration' => $request->duration]);
         }
-        
+
         if ($request->number_join) {
             $data->update(['number_join' => $request->number_join]);
         }
-        
+
         if ($request->status) {
             $data->update(['status' => $request->status]);
         }
@@ -1015,7 +1015,7 @@ class UserController extends Controller
     {
         $meet = Meeting::find(decrypt($id));
         $user = MeetingLog::where('meetings_id', $meet->id)->where('user_id', auth()->user()->id)->first();
-        if($user->join_status == 'invite'){
+        if ($user->join_status == 'invite') {
             if ($meet->status == 'start') {
                 $meet->update(['number_join' => $meet->number_join + 1]);
                 $user->update(['join_status' => 'joined']);
@@ -1042,37 +1042,63 @@ class UserController extends Controller
 
     public function sendMessageCall(Request $request)
     {
+        // return [auth()->user()->id, decrypt($request->recieve_user_id)];
         $calllog = ChatCallLog::where('send_user_id', auth()->user()->id)
-        ->where('recieve_user_id', decrypt($request->recieve_user_id))
-        ->where('mss_id', decrypt($request->mss_id));
+            ->where('recieve_user_id', decrypt($request->recieve_user_id))
+            ->where('mss_id', decrypt($request->mss_id))->first();
 
-        if($request->call_duration){
-            $calllog->update(['call_duration' => $request->call_duration]);
-        }
+        if($calllog){
+            if ($request->call_duration) {
+                $calllog->update(['call_duration' => $request->call_duration]);
+            }
 
-        if($request->call_state){
-            $calllog->update(['call_state' => $request->call_state]);
+            if ($request->call_state) {
+                $calllog->update(['call_state' => $request->call_state]);
+            }
+
+            broadcast(new PrivateMessageSent(auth()->user()->id, $calllog->userReciever->id, [
+                'state' => 'call',
+                'user' => encrypt($calllog->userReciever->id),
+                'name' => $calllog->userReciever->name,
+                'phone' => $calllog->userReciever->phone,
+                'email' => $calllog->userReciever->email,
+                'call' => [
+                    "chat_id" => encrypt($calllog->chatMess->id),
+                    "call_duration" => $request->call_duration,
+                    "call_state" => $request->call_state
+                ]
+            ]))->toOthers();
+
+            return response()->json(
+                [
+                    'status' => '200',
+                    'message' => 'call log updated',
+                    'data' => $calllog,
+                ],
+                201
+            );
         }
 
         return response()->json(
             [
-                'status' => '200',
-                'message' => 'call log updated',
-                'data' => $calllog->get(),
+                'status' => '400',
+                'message' => 'No log found',
+                'data' => null
             ],
-            201
+            401
         );
+
     }
 
     public function sendMessage(Request $request)
     {
-        if($request->message) {
+        if ($request->message) {
 
             $message = "";
-            if($request->is_file =="yes"){
+            if ($request->is_file == "yes") {
                 $file = $this->FileUploadService->submitFile($request);
-                
-                if($file['status'] == false){
+
+                if ($file['status'] == false) {
                     return response()->json(
                         [
                             'status' => '400',
@@ -1083,13 +1109,13 @@ class UserController extends Controller
                     );
                 }
                 $message = $file['data']['file'];
-            }else{
+            } else {
                 $message = $request->message;
             }
 
             $ret = $this->ChatService->submitChat(
                 $request->current_chat_user_type,
-                ($request->current_chat_user),
+                $request->current_chat_user,
                 $request->chat_id,
                 $message,
                 $request->is_file,
@@ -1109,12 +1135,12 @@ class UserController extends Controller
 
     public function setting(Request $request)
     {
-        if($request->hide_message){
+        if ($request->hide_message) {
             ChatSettings::updateOrCreate(['user_id' => auth()->user()->id], [
                 'hide_message' => $request->hide_message,
             ]);
         }
-        if($request->hide_message_style){
+        if ($request->hide_message_style) {
             ChatSettings::updateOrCreate(['user_id' => auth()->user()->id], [
                 'hide_message_style' => $request->hide_message_style,
             ]);
@@ -1137,8 +1163,7 @@ class UserController extends Controller
         $group = CompanyGroup::find($idUser);
 
         $data = [];
-        foreach($record as $key => $dt)
-        {
+        foreach ($record as $key => $dt) {
             $data[$key] = [
                 'id' => $dt->id,
                 'join_date' => $dt->join_date,
@@ -1147,7 +1172,6 @@ class UserController extends Controller
                 'member_id' => $dt->user_id,
                 'member_name' => $dt->user->name,
             ];
-
         }
 
         return response()->json(
@@ -1173,5 +1197,29 @@ class UserController extends Controller
             ],
             201
         );
+    }
+
+    public function meetingTokenGen()
+    {
+        $VIDEOSDK_API_KEY = "533374080782aa04f1f129fa3837589694170ccac5a34a7281b8f058c8f0445b";
+        $VIDEOSDK_SECRET_KEY = "83f2a350-a7c2-42cf-8447-18dc0b7cbb48";
+
+        $issuedAt = new \DateTimeImmutable();
+        $expire = $issuedAt->modify('+2 hours')->getTimestamp();
+
+        $payload = [
+            'apikey' => $VIDEOSDK_API_KEY,
+            'permissions' => ['allow_join', 'allow_mod'],
+            'version' => 2,
+            'roomId' => '2kyv-gzay-64pg',
+            'participantId' => 'lxvdplwt',
+            'roles' => ['crawler'],
+            'iat' => $issuedAt->getTimestamp(),
+            'exp' => $expire,
+        ];
+
+        $jwt = JWT::encode($payload, $VIDEOSDK_SECRET_KEY, 'HS256');
+
+        return response()->json(['token' => $jwt]);
     }
 }

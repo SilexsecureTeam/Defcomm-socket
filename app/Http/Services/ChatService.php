@@ -3,6 +3,7 @@
 namespace App\Http\Services;
 
 use App\Models\User;
+use App\Mail\CallMail;
 use App\Models\Meeting;
 use App\Models\MeetingLog;
 use App\Events\MessageSent;
@@ -21,6 +22,11 @@ class ChatService
     public function submitChat($current_chat_user_type, $current_chat_user, $userLastLog, $message, $is_file, $mss_type = 'text')
     {
         $userLog = $userLastLog ?? uniqid();
+
+        $altuser = "";
+        if ($current_chat_user_type == 'user') {
+            $altuser = User::find($current_chat_user);
+        }
 
         if ($userLastLog) {
             $userLog = $userLastLog;
@@ -76,6 +82,9 @@ class ChatService
                 'chatbtw' => $current_chat_user_type,
                 'mss_id' => $chatmss->id,
             ]);
+            if ($altuser) {
+                Mail::to($altuser->email)->send(new CallMail(auth()->user()->name, $altuser->name));
+            }
         }
 
 
@@ -83,13 +92,24 @@ class ChatService
             broadcast(new GroupMessageSent(auth()->user()->id, $current_chat_user, $message))->toOthers();
         } else {
             broadcast(new PrivateMessageSent(auth()->user()->id, $current_chat_user, [
-                'state' => 'message',
+                'state' => $mss_type,
                 'user' => encrypt($current_chat_user),
                 'name' => $chatmss->userTo->name,
                 'phone' => $chatmss->userTo->phone,
                 'email' => $chatmss->userTo->email,
                 'message' => $message,
-                'data' => $chatmss
+                'data' => $chatmss,
+                'mss_chat' => [
+                    "id" => encrypt($chatmss->id),
+                    "user_id" => encrypt($chatmss->user_id),
+                    "user_to" => encrypt($chatmss->user_to),
+                    "group_to" => $chatmss->group_to,
+                    "reference_chat" => $chatmss->reference_chat,
+                    "user_group" => $chatmss->user_group,
+                    "is_file" => $chatmss->is_file,
+                    "file_type" => $chatmss->file_type,
+                    "is_read" => $chatmss->is_read,
+                ]
             ]))->toOthers();
         }
 
@@ -118,7 +138,7 @@ class ChatService
         $meet = Meeting::find(decrypt($meetings_id));
         $group = CompanyGroupUser::where('group_id', decrypt($group_id))->get();
         foreach ($group as $value) {
-            if($value->user_id !== auth()->user()->id){
+            if ($value->user_id !== auth()->user()->id) {
                 MeetingLog::updateOrCreate([
                     'meetings_id' => $meet->id,
                     'user_id' => $value->user_id,

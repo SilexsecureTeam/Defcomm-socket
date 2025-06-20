@@ -8,6 +8,7 @@ use App\Mail\OtpMail;
 use App\Mail\Invitation;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use App\Mail\PasswordResetMail;
 use App\Http\Controllers\Controller;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Support\Facades\Auth;
@@ -61,6 +62,7 @@ class AuthController extends Controller
             'email' => $request->email,
             'phone' => $request->phone,
             'password' => Hash::make($request->password),
+            'access_token' => uniqid()
         ]);
 
         event(new Registered($user));
@@ -214,5 +216,45 @@ class AuthController extends Controller
         event(new Verified($user));
 
         return response()->json(['message' => 'Email has been verified'], 201);
+    }
+
+    public function appAuthenticate(Request $request)
+    {
+        $user = User::where('phone', $request->phone)->where('email', $request->email)->where('access_token', $request->access_token)->first();
+
+        if($user){
+            $user->update(['device' => 'yes']);
+            $token = $user->createToken('auth_token')->plainTextToken;
+            return response()->json([
+                'message' => 'Login successfully',
+                'data' => [
+                    'access_token' => $token,
+                    'token_type' => 'Bearer',
+                    'user_enid' => encrypt($user->id),
+                    'user' => $user
+                ],
+            ], 201);
+        }
+
+        return response()->json([
+            'message' => 'Wrong login detail',
+            'data' => [],
+        ], 401);
+    }
+
+    public function appresetPassword(Request $request)
+    {
+        $request->validate([
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+
+        $user = User::find(auth()->user()->id);
+
+        $user->password = Hash::make($request->password);
+        $user->save();
+
+        Mail::to($user->email)->send(new PasswordResetMail($user->name));
+
+        return response()->json(['message' => 'Password has been successfully reset'], 201);
     }
 }

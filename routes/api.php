@@ -31,7 +31,11 @@ Route::post('forgot-password', [AuthController::class, 'forgotPassword']);
 Route::post('reset-password', [AuthController::class, 'resetPassword']);
 Route::post('email/verify/{id}/{hash}', [AuthController::class, 'verifyEmail'])->name('verification.verify');
 
+Route::post('app/authenticate', [AuthController::class, 'appAuthenticate']);
+
 Route::middleware('auth:sanctum')->group(function () {
+    Route::post('app/resetPassword', [AuthController::class, 'appresetPassword']);
+
     Route::get('/user/file', [UserController::class, 'file']);
     Route::get('/user/file/pending', [UserController::class, 'fileOtherPending']);
     Route::get('/user/file/other', [UserController::class, 'fileOther']);
@@ -61,6 +65,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/user/chat/messages/call', [UserController::class, 'sendMessageCall']);
     Route::post('/user/messages/{type}', [UserController::class, 'messagesTyping']);
 
+    Route::get('/user/meetingTokenGen', [UserController::class, 'meetingTokenGen']);
     Route::post('/user/meeting/create', [UserController::class, 'meetingCreate']);
     Route::post('/user/meeting/update', [UserController::class, 'meetingUpdate']);
     Route::get('/user/getmeeting', [UserController::class, 'getmeeting']);

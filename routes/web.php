@@ -74,6 +74,8 @@ Route::middleware(['auth', 'user-role:super'])->group(function () {
     Route::post('/super/accountEdit', [SuperAdminController::class, 'accountEdit'])->name('super.accountEdit');
     Route::get('/super/accountView/{id}', [SuperAdminController::class, 'accountView'])->name('super.accountView');
     Route::get('/super/accountDelete/{id}', [SuperAdminController::class, 'accountDelete'])->name('super.accountDelete');
+    Route::get('/super/accountToken', [SuperAdminController::class, 'accountToken'])->name('super.accountToken');
+
 });
 
 Route::middleware(['auth', 'user-role:admin'])->group(function () {
