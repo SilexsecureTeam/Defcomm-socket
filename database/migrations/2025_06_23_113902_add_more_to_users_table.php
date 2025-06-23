@@ -16,6 +16,7 @@ return new class extends Migration
             $table->enum('remote_management',['on','off'])->default('off');
             $table->enum('encrypted_storage',['on','off'])->default('off');
             $table->enum('self_wipe',['on','off'])->default('off');
+            $table->sting('imei')->nullable();
         });
     }
 
@@ -29,6 +30,7 @@ return new class extends Migration
             $table->dropColumn('remote_management');
             $table->dropColumn('encrypted_storage');
             $table->dropColumn('self_wipe');
+            $table->dropColumn('imei');
         });
     }
 };

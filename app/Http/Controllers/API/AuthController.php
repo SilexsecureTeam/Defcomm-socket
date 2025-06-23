@@ -263,12 +263,42 @@ class AuthController extends Controller
     public function appConfiguration(Request $request)
     {
         $user = User::find(auth()->user()->id);
-        $user->update([
-            'signal_blocking' => $request->signal_blocking,
-            'remote_management' => $request->remote_management,
-            'encrypted_storage' => $request->encrypted_storage,
-            'self_wipe' => $request->self_wipe,
-        ]);
+        if ($request->has('signal_blocking')) {
+            $user->update([
+                'signal_blocking' => $request->signal_blocking,
+            ]);
+        }
+
+        if ($request->has('remote_management')) {
+            $user->update([
+                'remote_management' => $request->remote_management,
+            ]);
+        }
+
+        if ($request->has('encrypted_storage')) {
+            $user->update([
+                'encrypted_storage' => $request->encrypted_storage,
+            ]);
+        }
+
+        if ($request->has('self_wipe')) {
+            $user->update([
+                'self_wipe' => $request->self_wipe,
+            ]);
+        }
+
+        if ($request->has('imei')) {
+            $user->update([
+                'imei' => $request->imei,
+            ]);
+        }
+
+        if ($request->has('device_type')) {
+            $user->update([
+                'device_type' => $request->device_type,
+            ]);
+        }
+
         return response()->json(['message' => 'Configuration has been successfully reset'], 201);
     }
 
