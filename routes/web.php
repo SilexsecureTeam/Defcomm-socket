@@ -75,7 +75,14 @@ Route::middleware(['auth', 'user-role:super'])->group(function () {
     Route::get('/super/accountView/{id}', [SuperAdminController::class, 'accountView'])->name('super.accountView');
     Route::get('/super/accountDelete/{id}', [SuperAdminController::class, 'accountDelete'])->name('super.accountDelete');
     Route::get('/super/accountToken', [SuperAdminController::class, 'accountToken'])->name('super.accountToken');
-
+    
+    Route::get('/super/language', [SuperAdminController::class, 'language'])->name('super.language');
+    Route::post('/super/languageCreate', [SuperAdminController::class, 'languageCreate'])->name('super.languageCreate');
+    Route::post('/super/languageEdit', [SuperAdminController::class, 'languageEdit'])->name('super.languageEdit');
+    
+    Route::get('/super/agreements', [SuperAdminController::class, 'agreements'])->name('super.agreements');
+    Route::post('/super/agreementsCreate', [SuperAdminController::class, 'agreementsCreate'])->name('super.agreementsCreate');
+    Route::post('/super/agreementsEdit', [SuperAdminController::class, 'agreementsEdit'])->name('super.agreementsEdit');
 });
 
 Route::middleware(['auth', 'user-role:admin'])->group(function () {

@@ -6,9 +6,11 @@ use Carbon\Carbon;
 use App\Models\User;
 use App\Mail\OtpMail;
 use App\Mail\Invitation;
+use App\Models\Language;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Mail\PasswordResetMail;
+use App\Models\StatementAgreement;
 use App\Http\Controllers\Controller;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Support\Facades\Auth;
@@ -256,5 +258,45 @@ class AuthController extends Controller
         Mail::to($user->email)->send(new PasswordResetMail($user->name));
 
         return response()->json(['message' => 'Password has been successfully reset'], 201);
+    }
+
+    public function appConfiguration(Request $request)
+    {
+        $user = User::find(auth()->user()->id);
+        $user->update([
+            'signal_blocking' => $request->signal_blocking,
+            'remote_management' => $request->remote_management,
+            'encrypted_storage' => $request->encrypted_storage,
+            'self_wipe' => $request->self_wipe,
+        ]);
+        return response()->json(['message' => 'Configuration has been successfully reset'], 201);
+    }
+
+    public function appLanguage()
+    {
+        $data = Language::where('status', 'active')->get();
+
+        return response()->json(
+            [
+                'status' => '200',
+                'message' => 'Language List',
+                'data' => $data
+            ],
+            201
+        );
+    }
+
+    public function appAgreements($term = null)
+    {
+        $data = StatementAgreement::where('status', 'active')->get();
+
+        return response()->json(
+            [
+                'status' => '200',
+                'message' => 'Agreement List',
+                'data' => $data
+            ],
+            201
+        );
     }
 }

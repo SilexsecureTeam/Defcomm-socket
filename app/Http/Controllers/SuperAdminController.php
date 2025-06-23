@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Mail\Invitation;
+use App\Models\Language;
 use App\Models\CompanyUser;
 use Illuminate\Http\Request;
+use App\Models\StatementAgreement;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
@@ -138,5 +140,67 @@ class SuperAdminController extends Controller
         foreach($user as $usr){
             $usr->update(['access_token' => uniqid()]);
         }
+    }
+
+    public function language()
+    {
+        $data = Language::get();
+        return view('super.language', [
+            'page' => "Language",
+            'opt' => 'admin',
+            'data' => $data
+        ]);
+    }
+
+    public function languageCreate(Request $request)
+    {
+        Language::updateOrCreate([
+            'label' => $request->label
+        ],[
+            'description' => $request->description
+        ]);
+        return redirect()->back()->with('success', "Language successfully updated");
+    }
+
+    public function languageEdit(Request $request)
+    {
+        Language::find(decrypt($request->id))->update([
+            'label' => $request->label,
+            'description' => $request->description,
+            'status' => $request->status
+        ]);
+        return redirect()->back()->with('success', "Language successfully updated");
+    }
+
+    public function agreements()
+    {
+        $data = StatementAgreement::get();
+        return view('super.agreements', [
+            'page' => "agreements",
+            'opt' => 'admin',
+            'data' => $data
+        ]);
+    }
+
+    public function agreementsCreate(Request $request)
+    {
+        StatementAgreement::updateOrCreate([
+            'title' => $request->title,
+            'label' => $request->label
+        ],[
+            'description' => $request->description
+        ]);
+        return redirect()->back()->with('success', "agreements successfully updated");
+    }
+
+    public function agreementsEdit(Request $request)
+    {
+        StatementAgreement::find(decrypt($request->id))->update([
+            'title' => $request->title,
+            'label' => $request->label,
+            'description' => $request->description,
+            'status' => $request->status
+        ]);
+        return redirect()->back()->with('success', "agreements successfully updated");
     }
 }

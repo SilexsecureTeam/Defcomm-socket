@@ -1,0 +1,34 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::table('users', function (Blueprint $table) {
+            $table->enum('signal_blocking',['on','off'])->default('off');
+            $table->enum('remote_management',['on','off'])->default('off');
+            $table->enum('encrypted_storage',['on','off'])->default('off');
+            $table->enum('self_wipe',['on','off'])->default('off');
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropColumn('signal_blocking');
+            $table->dropColumn('remote_management');
+            $table->dropColumn('encrypted_storage');
+            $table->dropColumn('self_wipe');
+        });
+    }
+};

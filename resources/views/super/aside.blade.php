@@ -31,6 +31,30 @@
             <!--begin:Menu item-->
             <div data-kt-menu-trigger="{default: 'click', lg: 'hover'}" data-kt-menu-placement="right-start" class="menu-item py-2">
                 <!--begin:Menu link-->
+                <a href="{{ url('/super/language')}}" class="menu-link menu-center">
+                    <span class="menu-icon me-0">
+                        <i class="ki-outline ki-notification-status fs-2x"></i>
+                    </span>
+                    <span class="menu-title">Language</span>
+                </a>
+                <!--end:Menu link-->
+            </div>
+            <!--end:Menu item-->
+            <!--begin:Menu item-->
+            <div data-kt-menu-trigger="{default: 'click', lg: 'hover'}" data-kt-menu-placement="right-start" class="menu-item py-2">
+                <!--begin:Menu link-->
+                <a href="{{ url('/super/agreements')}}" class="menu-link menu-center">
+                    <span class="menu-icon me-0">
+                        <i class="ki-outline ki-notification-status fs-2x"></i>
+                    </span>
+                    <span class="menu-title">Agreement Statement</span>
+                </a>
+                <!--end:Menu link-->
+            </div>
+            <!--end:Menu item-->
+            <!--begin:Menu item-->
+            <div data-kt-menu-trigger="{default: 'click', lg: 'hover'}" data-kt-menu-placement="right-start" class="menu-item py-2">
+                <!--begin:Menu link-->
                 <a href="{{ url('logout')}}" class="menu-link menu-center">
                     <span class="menu-icon me-0">
                         <i class="ki-outline ki-notification-status fs-2x"></i>
