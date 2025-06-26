@@ -94,10 +94,20 @@ class ChatService
         } else {
             broadcast(new PrivateMessageSent(auth()->user()->id, $current_chat_user, [
                 'state' => $mss_type,
-                'user' => encrypt($current_chat_user),
-                'name' => $chatmss->userTo->name,
-                'phone' => $chatmss->userTo->phone,
-                'email' => $chatmss->userTo->email,
+                'sender' => [
+                    'id' => $chatmss->user_id,
+                    'id_en' => encrypt($chatmss->user_id),
+                    'name' => $chatmss->user->name,
+                    'phone' => $chatmss->user->phone,
+                    'email' => $chatmss->user->email,
+                ],
+                'receiver' => [
+                    'id' => $chatmss->user_to,
+                    'id_en' => encrypt($chatmss->user_to),
+                    'name' => $chatmss->userTo->name,
+                    'phone' => $chatmss->userTo->phone,
+                    'email' => $chatmss->userTo->email,
+                ],                
                 'message' => $message,
                 'data' => $chatmss,
                 'mss_chat' => [
@@ -179,7 +189,8 @@ class ChatService
                     'meetings_id' => $meet->id,
                     'user_id' => $value->user_id,
                 ], [
-                    'join_status' => 'invite'
+                    'join_status' => 'invite',
+                    'user_type' => $value->user_id == auth()->user()->id ? 'creator' : 'participant'
                 ]);
 
                 $usr = User::find($value->user_id);

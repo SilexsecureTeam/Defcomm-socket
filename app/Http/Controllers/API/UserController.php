@@ -1058,11 +1058,22 @@ class UserController extends Controller
             }
 
             broadcast(new PrivateMessageSent(auth()->user()->id, $calllog->userReciever->id, [
-                'state' => 'call',
+                'state' => 'callUpdate',
                 'user' => encrypt($calllog->userReciever->id),
-                'name' => $calllog->userReciever->name,
-                'phone' => $calllog->userReciever->phone,
-                'email' => $calllog->userReciever->email,
+                'sender' => [
+                    'id' => $calllog->userSender->id,
+                    'id_en' => encrypt($calllog->userSender->id),
+                    'name' => $calllog->userSender->name,
+                    'phone' => $calllog->userSender->phone,
+                    'email' => $calllog->userSender->email,
+                ],
+                'receiver' => [
+                    'id' => $calllog->userReciever->id,
+                    'id_en' => encrypt($calllog->userReciever->id),
+                    'name' => $calllog->userReciever->name,
+                    'phone' => $calllog->userReciever->phone,
+                    'email' => $calllog->userReciever->email,
+                ],
                 'call' => [
                     "chat_id" => encrypt($calllog->chatMess->id),
                     "call_duration" => $request->call_duration,
