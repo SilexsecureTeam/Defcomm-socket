@@ -113,22 +113,54 @@ class ChatService
             ]))->toOthers();
         }
 
+        $chat_meta = [
+            'chat_user_id' => $chatmss->userTo->id,
+            'chat_id' => $userLog,
+            'chat_user_type' => $chatmss->user_group
+        ];
+
+        $data = [
+            'id' => $chatmss->id,
+            'is_my_chat' => $chatmss->user_id == auth()->user()->id ? 'yes' : 'no',
+            'user_id' => $chatmss->user_id,
+            'user_to' => $chatmss->user_to,
+            'user_to_name' => $chatmss->userTo->name,
+            'group_to' => $chatmss->group_to,
+            'chat_user_type' => $chatmss->user_group,
+            'is_file' => $chatmss->is_file,
+            'file_type' => $chatmss->file_type,
+            'is_read' => $chatmss->is_read,
+            'is_important' => $chatmss->is_important,
+            'is_forward' => $chatmss->is_forward,
+            'is_star' => $chatmss->is_star,
+            'view_once' => $chatmss->view_once,
+            'expire_time' => $chatmss->expire_time,
+            'message' => decrypt($chatmss->message),
+            'deleted_at' => $chatmss->deleted_at,
+            'created_at' => $chatmss->created_at,
+            'updated_at' => $chatmss->updated_at,
+        ];
+
+        // return [
+        //     'userlog' => $userLog,
+        //     'recieve_user_id' => encrypt($current_chat_user),
+        //     'chat_message' => $message,
+        //     'current_chat_user_type' => $current_chat_user_type,
+        //     'mss_chat' => [
+        //         "id" => encrypt($chatmss->id),
+        //         "user_id" => encrypt($chatmss->user_id),
+        //         "user_to" => encrypt($chatmss->user_to),
+        //         "group_to" => $chatmss->group_to,
+        //         "reference_chat" => $chatmss->reference_chat,
+        //         "user_group" => $chatmss->user_group,
+        //         "is_file" => $chatmss->is_file,
+        //         "file_type" => $chatmss->file_type,
+        //         "is_read" => $chatmss->is_read,
+        //     ]
+        // ];
         return [
-            'userlog' => $userLog,
-            'recieve_user_id' => encrypt($current_chat_user),
-            'chat_message' => $message,
-            'current_chat_user_type' => $current_chat_user_type,
-            'mss_chat' => [
-                "id" => encrypt($chatmss->id),
-                "user_id" => encrypt($chatmss->user_id),
-                "user_to" => encrypt($chatmss->user_to),
-                "group_to" => $chatmss->group_to,
-                "reference_chat" => $chatmss->reference_chat,
-                "user_group" => $chatmss->user_group,
-                "is_file" => $chatmss->is_file,
-                "file_type" => $chatmss->file_type,
-                "is_read" => $chatmss->is_read,
-            ]
+            'chat_meta' => $chat_meta,
+            'data' => $data
         ];
     }
 

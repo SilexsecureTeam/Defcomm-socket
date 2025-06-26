@@ -88,9 +88,9 @@ class AuthController extends Controller
             //     'email' => ['The provided credentials are incorrect.'],
             // ]);
             return response()->json([
-            'message' => 'Wrong login detail',
-            'data' => [],
-        ], 401);
+                'message' => 'Wrong login detail',
+                'data' => [],
+            ], 401);
         }
 
         $user = $request->user();
@@ -117,8 +117,8 @@ class AuthController extends Controller
 
     public function requestOtpSms(Request $request)
     {
-        $users = User::where('phone', '=', $request->input('phone'));
-        
+        $users = User::where('phone', '=', $request->input('phone'))->orWhere('phone', '=', '+234' . $request->input('phone'))->orWhere('phone', '=', '234' . $request->input('phone'))->orWhere('phone', '=', preg_replace('/^\+?234/', '', $request->input('phone')))->orWhere('phone', '=', preg_replace('/^\+?+234/', '', $request->input('phone')));
+
         if ($users->first()) {
             $user = $users->first();
             $otp = rand(1000, 9999);
@@ -127,7 +127,7 @@ class AuthController extends Controller
             Mail::to($user->email)->send(new OtpMail($user->name, $otp));
             return response()->json(['status' => 200, 'message' => 'OTP has been sent', 'otp' => $otp], 200);
         } else {
-            return response()->json(['status' => 400, 'error' => "An Error Occur. Try again"], 400);
+            return response()->json(['status' => 400, 'error' => "This user does not exist."], 400);
         }
     }
 
@@ -224,7 +224,7 @@ class AuthController extends Controller
     {
         $user = User::where('phone', $request->phone)->where('email', $request->email)->where('access_token', $request->access_token)->first();
 
-        if($user){
+        if ($user) {
             $user->update(['device' => 'yes']);
             $token = $user->createToken('auth_token')->plainTextToken;
             return response()->json([

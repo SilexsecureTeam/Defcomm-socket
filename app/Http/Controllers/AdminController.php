@@ -20,7 +20,7 @@ use Illuminate\Support\Facades\Validator;
 
 class AdminController extends Controller
 {
-    
+
     public function dashboard()
     {
         $users = User::where('company_id', auth()->user()->CompanyUser->id)->where('role', 'user')->orderBy('name', 'ASC')->get();
@@ -51,7 +51,7 @@ class AdminController extends Controller
             'fileActiveCount' => $fileActive->count(),
         ]);
     }
-    
+
     public function account()
     {
         $users = User::where('company_id', auth()->user()->CompanyUser->id)->where('role', 'user')->orderBy('name', 'ASC')->get();
@@ -60,7 +60,7 @@ class AdminController extends Controller
             'users' => $users,
         ]);
     }
-    
+
     public function notification()
     {
         $notify = Notification::get();
@@ -117,7 +117,7 @@ class AdminController extends Controller
 
         $error = "";
         if ($validator->fails()) {
-            foreach($validator->messages()->all() as $mess){
+            foreach ($validator->messages()->all() as $mess) {
                 $error .= "$mess <br>";
             }
             return redirect()->back()->with('error', $error);
@@ -139,7 +139,6 @@ class AdminController extends Controller
         Mail::to($request->email)->send(new Invitation($request->name, $request->email, $encrypt, $otp));
 
         return redirect()->back()->with('success', "User successfully added");
-        
     }
 
     public function group()
@@ -150,7 +149,7 @@ class AdminController extends Controller
             'groups' => $groups
         ]);
     }
-    
+
     public function groupCreate(Request $request)
     {
         CompanyGroup::create([
@@ -161,7 +160,7 @@ class AdminController extends Controller
 
         return redirect()->back()->with('success', "Group successfully created");
     }
-    
+
     public function member($id)
     {
         $idUser = decrypt($id);
@@ -178,7 +177,7 @@ class AdminController extends Controller
         CompanyGroupUser::find($idUser)->delete();
         return redirect()->back()->with('success', "Group member successfully removed");
     }
-    
+
     public function memberAdd($id)
     {
         $users = User::where('company_id', auth()->user()->CompanyUser->id)->where('role', 'user')->orderBy('name', 'ASC')->get();
@@ -193,22 +192,23 @@ class AdminController extends Controller
     {
         $id = decrypt($request->id);
         $user = json_decode($request->users, true);
-        if(!empty($user)){
-            foreach($user as $dt){
+        if (!empty($user)) {
+            foreach ($user as $dt) {
                 CompanyGroupUser::firstOrCreate([
                     'user_id' => $dt,
                     'group_id' => $id
                 ], [
                     'company_id' => auth()->user()->CompanyUser->id
                 ]);
+                // Mail::to($request->email)->send(new GroupInvitation($request->name, $request->email, $encrypt, $otp));
             }
 
-            return redirect('/admin/group/member/'.$request->id)->with('success', "Group member added successfully");
+            return redirect('/admin/group/member/' . $request->id)->with('success', "Group member added successfully");
         }
 
         return redirect()->back()->with('error', "Please ensure to select a user");
     }
-    
+
     public function file()
     {
         $file = Files::where('company_id', auth()->user()->CompanyUser->id)->where('user_type', 'admin')->orderBy('id', 'DESC')->get();
@@ -217,7 +217,7 @@ class AdminController extends Controller
             'option' => "admin"
         ]);
     }
-    
+
     public function fileUser()
     {
         $file = Files::where('company_id', auth()->user()->CompanyUser->id)->where('user_type', 'user')->orderBy('id', 'DESC')->get();
@@ -235,7 +235,7 @@ class AdminController extends Controller
             'option' => "request"
         ]);
     }
-    
+
     public function fileView($id)
     {
         $file = Files::find(decrypt($id));
@@ -252,7 +252,7 @@ class AdminController extends Controller
 
         // return dd($file_ext != "pdf" || $file_ext != "PDF");
 
-        if($file_ext != "pdf"){
+        if ($file_ext != "pdf") {
             return redirect()->back()->with('error', "Ensure the file is PDF");
         }
 
@@ -369,7 +369,7 @@ class AdminController extends Controller
             'users' => $users
         ]);
     }
-    
+
     public function fileAccessLog($id)
     {
         $data = FileShareLog::where('file_id', decrypt($id))->get();
@@ -409,24 +409,24 @@ class AdminController extends Controller
             'companyUser' => $companyUser,
         ]);
     }
-    
+
     public function profileUpload(Request $request)
     {
         $user = User::find(auth()->user()->id);
         $companyUser = CompanyUser::find(auth()->user()->CompanyUser->id);
 
-        if($request->avatar){
+        if ($request->avatar) {
             $file = $request->file('avatar');
             $file_name = time() . "avatar." . $file->getClientOriginalExtension();
             $file->move(public_path('avatar'), $file_name);
 
-            if($user->avatar){
+            if ($user->avatar) {
                 unlink(public_path($user->avatar));
             }
 
-             $user->update([
-                'avatar' => 'avatar/'.$file_name,
-             ]);
+            $user->update([
+                'avatar' => 'avatar/' . $file_name,
+            ]);
         }
 
         $user->update([
