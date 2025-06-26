@@ -904,10 +904,10 @@ class UserController extends Controller
         foreach ($file as $fi) {
             $data['file'][] = [
                 'id' => encrypt($fi->id),
-                'name' => $fi->name,
-                'file_size' => $fi->file_size,
-                'file_ext' => $fi->file_ext,
-                'description' => $fi->description
+                'name' => $fi->file->name,
+                'file_size' => $fi->file->file_size,
+                'file_ext' => $fi->file->file_ext,
+                'description' => $fi->file->description
             ];
         }
 
