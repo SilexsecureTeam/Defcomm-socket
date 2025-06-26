@@ -184,19 +184,17 @@ class ChatService
         $meet = Meeting::find(decrypt($meetings_id));
         $group = CompanyGroupUser::where('group_id', decrypt($group_id))->get();
         foreach ($group as $value) {
-            if ($value->user_id !== auth()->user()->id) {
-                MeetingLog::updateOrCreate([
-                    'meetings_id' => $meet->id,
-                    'user_id' => $value->user_id,
-                ], [
-                    'join_status' => 'invite',
-                    'user_type' => $value->user_id == auth()->user()->id ? 'creator' : 'participant'
-                ]);
+            MeetingLog::updateOrCreate([
+                'meetings_id' => $meet->id,
+                'user_id' => $value->user_id,
+            ], [
+                'join_status' => 'invite',
+                'user_type' => $value->user_id == auth()->user()->id ? 'creator' : 'participant'
+            ]);
 
-                $usr = User::find($value->user_id);
-                if ($usr) {
-                    Mail::to($usr->email)->send(new MeetingInvitation($usr->name, $usr->email, $meet));
-                }
+            $usr = User::find($value->user_id);
+            if ($usr) {
+                Mail::to($usr->email)->send(new MeetingInvitation($usr->name, $usr->email, $meet));
             }
         }
 
