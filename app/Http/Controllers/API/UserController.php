@@ -7,6 +7,7 @@ use App\Models\Files;
 use Firebase\JWT\JWT;
 use App\Models\Folders;
 use App\Models\Meeting;
+use App\Mail\MissCallMail;
 use App\Models\FolderFile;
 use App\Models\MeetingLog;
 use App\Models\ChatCallLog;
@@ -638,6 +639,9 @@ class UserController extends Controller
                 'is_star' => $dt->is_star,
                 'view_once' => $dt->view_once,
                 'mss_type' => $dt->mss_type,
+                'call_duration' => $dt->mss_type == "call" ? $dt->chatCall->call_duration : null,
+                'call_state' => $dt->mss_type == "call" ? $dt->chatCall->call_state : null,
+                'chatbtw' => $dt->mss_type == "call" ? $dt->chatCall->chatbtw : null,
                 'expire_time' => $dt->expire_time,
                 'message' => decrypt($dt->message),
                 'deleted_at' => $dt->deleted_at,
@@ -901,6 +905,7 @@ class UserController extends Controller
     {
         broadcast(new PrivateMessageSent(auth()->user()->id, $request->current_chat_user, [
             'state' => $request->typing,
+            'id' => $request->current_chat_user,
             'user' => encrypt($request->current_chat_user),
             'message' => '',
             'name' => '',
@@ -1045,7 +1050,6 @@ class UserController extends Controller
 
     public function sendMessageCall(Request $request)
     {
-        // return [auth()->user()->id, decrypt($request->recieve_user_id)];
         $calllog = ChatCallLog::where('mss_id', decrypt($request->mss_id))->first();
 
         if($calllog){
@@ -1055,6 +1059,10 @@ class UserController extends Controller
 
             if ($request->call_state) {
                 $calllog->update(['call_state' => $request->call_state]);
+            }
+
+            if ($request->call_state == "miss") {
+                Mail::to($calllog->userReciever->email)->send(new MissCallMail($calllog->userSender->name, $calllog->userReciever->name));
             }
 
             broadcast(new PrivateMessageSent(auth()->user()->id, $calllog->userReciever->id, [
