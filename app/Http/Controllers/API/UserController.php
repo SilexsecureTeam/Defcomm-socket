@@ -623,6 +623,7 @@ class UserController extends Controller
         foreach ($record as $key => $dt) {
             $data[$key] = [
                 'id' => $dt->id,
+                'id_en' => encrypt($dt->id),
                 'is_my_chat' => $dt->user_id == auth()->user()->id ? 'yes' : 'no',
                 'user_id' => $dt->user_id,
                 'user_to' => $dt->user_to,
@@ -636,6 +637,7 @@ class UserController extends Controller
                 'is_forward' => $dt->is_forward,
                 'is_star' => $dt->is_star,
                 'view_once' => $dt->view_once,
+                'mss_type' => $dt->mss_type,
                 'expire_time' => $dt->expire_time,
                 'message' => decrypt($dt->message),
                 'deleted_at' => $dt->deleted_at,
@@ -646,6 +648,7 @@ class UserController extends Controller
 
         $chat_meta = [
             'chat_user_id' => $chat_user_id,
+            'chat_user_id_en' => encrypt($chat_user_id),
             'chat_id' => $userLastLog,
             'chat_user_type' => $chat_user_type
         ];
@@ -1043,9 +1046,7 @@ class UserController extends Controller
     public function sendMessageCall(Request $request)
     {
         // return [auth()->user()->id, decrypt($request->recieve_user_id)];
-        $calllog = ChatCallLog::where('send_user_id', auth()->user()->id)
-            ->where('recieve_user_id', decrypt($request->recieve_user_id))
-            ->where('mss_id', decrypt($request->mss_id))->first();
+        $calllog = ChatCallLog::where('mss_id', decrypt($request->mss_id))->first();
 
         if($calllog){
             if ($request->call_duration) {

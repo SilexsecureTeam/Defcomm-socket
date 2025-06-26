@@ -65,6 +65,7 @@ class ChatService
             'reference_chat' => null,
             'user_group' => $current_chat_user_type,
             'is_file' => $is_file,
+            'mss_type' => $mss_type,
             'file_type' => 'other',
             'is_read' => 'no',
             'is_important' => 'no',
@@ -115,12 +116,14 @@ class ChatService
 
         $chat_meta = [
             'chat_user_id' => $chatmss->userTo->id,
+            'chat_user_id_en' => encrypt($chatmss->userTo->id),
             'chat_id' => $userLog,
             'chat_user_type' => $chatmss->user_group
         ];
 
         $data = [
             'id' => $chatmss->id,
+            'id_en' => encrypt($chatmss->id),
             'is_my_chat' => $chatmss->user_id == auth()->user()->id ? 'yes' : 'no',
             'user_id' => $chatmss->user_id,
             'user_to' => $chatmss->user_to,
@@ -134,6 +137,7 @@ class ChatService
             'is_forward' => $chatmss->is_forward,
             'is_star' => $chatmss->is_star,
             'view_once' => $chatmss->view_once,
+            'mss_type' => $chatmss->mss_type,
             'expire_time' => $chatmss->expire_time,
             'message' => decrypt($chatmss->message),
             'deleted_at' => $chatmss->deleted_at,
