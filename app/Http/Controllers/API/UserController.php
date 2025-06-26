@@ -8,6 +8,7 @@ use Firebase\JWT\JWT;
 use App\Models\Folders;
 use App\Models\Meeting;
 use App\Mail\MissCallMail;
+use App\Models\FileFolder;
 use App\Models\FolderFile;
 use App\Models\MeetingLog;
 use App\Models\ChatCallLog;
@@ -193,7 +194,7 @@ class UserController extends Controller
             $file_size = $file_size . ' bytes';
         }
 
-        Files::create([
+        $file = Files::create([
             'name' => $request->name,
             'description' => $request->description,
             'file' => $file_name,
@@ -204,6 +205,14 @@ class UserController extends Controller
             'uploaded_by' => auth()->user()->id,
             'user_type' => 'user'
         ]);
+
+        if($request->folder_id){
+            FileFolder::create([
+                'user_id' => auth()->user()->id,
+                'file_id' => $file->id,
+                'folder_id' => decrypt($request->folder_id)
+            ]);
+        }
 
         return response()->json(
             [
@@ -884,10 +893,21 @@ class UserController extends Controller
         $data = [];
 
         foreach ($folder as $fl) {
-            $data[] = [
+            $data['folder'][] = [
                 'id' => encrypt($fl->id),
                 'name' => $fl->name,
                 'description' => $fl->description,
+            ];
+        }
+
+        $file = FileFolder::where('folder_id', decrypt($id))->get();
+        foreach ($file as $fi) {
+            $data['file'][] = [
+                'id' => encrypt($fi->id),
+                'name' => $fi->name,
+                'file_size' => $fi->file_size,
+                'file_ext' => $fi->file_ext,
+                'description' => $fi->description
             ];
         }
 

@@ -30,4 +30,9 @@ class Files extends Model
     {
         return $this->hasMany(FileShareLog::class, 'file_id');
     }
+
+    public function folder()
+    {
+        return $this->hasOne(FileFolder::class, 'file_id')->withDefault();
+    }
 }
