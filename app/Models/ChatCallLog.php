@@ -21,7 +21,6 @@ class ChatCallLog extends Model
         return $this->belongsTo(User::class, 'recieve_user_id')->withDefault();
     }
     
-    
     public function chatMess()
     {
         return $this->belongsTo(ChatMessage::class, 'recieve_user_id')->withDefault();

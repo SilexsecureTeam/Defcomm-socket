@@ -7,7 +7,7 @@
         </div>
         <div style=" display:flex; align-items:center; margin-top:10px; justify-content:center; ">
             <p style="padding: 10px; display: inline-block; font-size: 20px; text-align: center; font-weight: bold; margin: 0 auto;">
-                Password Reset 
+                {{$admail->title}}
             </p>
         </div>
 
@@ -15,7 +15,7 @@
         <p style="font-weight:bold;">Hi {{ $name ?? '' }},</p>
         <div style="margin-bottom:30px;">
 
-            <p>Your password was just reset on defcomm</p>
+            <p>{!! $admail->message !!}</p>
         </div>
 
         <div style="line-height: 6px;">

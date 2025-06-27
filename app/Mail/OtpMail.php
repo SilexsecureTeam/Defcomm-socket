@@ -2,10 +2,11 @@
 
 namespace App\Mail;
 
+use App\Models\SystemMail;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
 class OtpMail extends Mailable
 {
@@ -13,6 +14,7 @@ class OtpMail extends Mailable
 
     public $name;
     public $otp;
+    public $admail;
     /**
      * Create a new message instance.
      *
@@ -22,6 +24,7 @@ class OtpMail extends Mailable
     {
         $this->name = $name;
         $this->otp = $otp;
+        $this->admail = SystemMail::where('label', 'otp')->first();
     }
 
     /**

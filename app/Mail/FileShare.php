@@ -2,10 +2,11 @@
 
 namespace App\Mail;
 
+use App\Models\SystemMail;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
 class FileShare extends Mailable
 {
@@ -14,6 +15,7 @@ class FileShare extends Mailable
     public $name;
     public $email;
     public $company;
+    public $admail;
     /**
      * Create a new message instance.
      *
@@ -24,6 +26,7 @@ class FileShare extends Mailable
         $this->name = $name;
         $this->email = $email;
         $this->company = $company;
+        $this->admail = SystemMail::where('label', 'fileshare')->first();
     }
 
     /**

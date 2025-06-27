@@ -7,14 +7,15 @@
         </div>
         <div style=" display:flex; align-items:center; margin-top:10px; justify-content:center; ">
             <p style="padding: 10px; display: inline-block; font-size: 20px; text-align: center; font-weight: bold; margin: 0 auto;">
-                Welcome to Defcomm
+                {{$admail->title}}
             </p>
         </div>
 
 
         <p style="font-weight:bold;">Hi {{ $name ?? '' }},</p>
         <div style="margin-bottom:30px;">
-            <p>You are invited to join Defcomm. Use the button to join
+            <p>
+                {!! $admail->message !!}
             </p>
 
             <p>Kindly click the button to proceed</p>

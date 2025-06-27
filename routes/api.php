@@ -89,4 +89,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/user/setting', [UserController::class, 'setting']);
 
     Route::get('/user/notification', [UserController::class, 'notification']);
+
+    Route::post('/app/create', [UserController::class, 'appcreate']);
+    Route::get('/app/list', [UserController::class, 'appList']);
 });

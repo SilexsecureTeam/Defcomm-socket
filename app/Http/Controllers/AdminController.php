@@ -123,6 +123,12 @@ class AdminController extends Controller
             return redirect()->back()->with('error', $error);
         }
 
+        $userCount = User::where('company_id', auth()->user()->CompanyUser->id)->count();
+
+        if($userCount > auth()->user()->number_user ){
+            return redirect()->back()->with('error', "You have reach you limit");
+        }
+
         $usr = User::create([
             'name' => $request->name,
             'email' => $request->email,

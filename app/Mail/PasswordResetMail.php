@@ -2,16 +2,18 @@
 
 namespace App\Mail;
 
+use App\Models\SystemMail;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
 class PasswordResetMail extends Mailable
 {
     use Queueable, SerializesModels;
 
     public $name;
+    public $admail;
     /**
      * Create a new message instance.
      *
@@ -20,6 +22,7 @@ class PasswordResetMail extends Mailable
     public function __construct($name)
     {
         $this->name = $name;
+        $this->admail = SystemMail::where('label', 'passreset')->first();
     }
 
     /**

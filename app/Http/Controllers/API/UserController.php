@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers\API;
 
+use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Files;
 use Firebase\JWT\JWT;
 use App\Models\Folders;
 use App\Models\Meeting;
+use App\Models\AppStore;
 use App\Mail\MissCallMail;
 use App\Models\FileFolder;
 use App\Models\FolderFile;
@@ -925,8 +927,10 @@ class UserController extends Controller
     {
         broadcast(new PrivateMessageSent(auth()->user()->id, $request->current_chat_user, [
             'state' => $request->typing,
-            'id' => $request->current_chat_user,
-            'user' => encrypt($request->current_chat_user),
+            'sender_id' => auth()->user()->id,
+            'sender_iden' => encrypt(auth()->user()->id),
+            'receiver_id' => $request->current_chat_user,
+            'receiver_iden' => encrypt($request->current_chat_user),
             'message' => '',
             'name' => '',
             'data' => ''
@@ -1261,5 +1265,203 @@ class UserController extends Controller
         $jwt = JWT::encode($payload, $VIDEOSDK_SECRET_KEY, 'HS256');
 
         return response()->json(['token' => $jwt]);
+    }
+
+    public function appcreate(Request $request)
+    {
+        if($request->id){
+            $app = AppStore::where('user', auth()->user()->id)->where('id', decrypt($request->id))->first();
+            if(empty($app)){
+                return response()->json(
+                    [
+                        'status' => '400',
+                        'message' => "Wrong app ID. Contact support",
+                        'data' => null
+                    ],
+                    401
+                );
+            }
+        }else{
+            
+            $app = AppStore::create([
+                'user' => auth()->user()->id,
+                'name' => $request->name,
+                'app_id' => uniqid()
+            ]);
+
+        }
+
+        if ($request->app_id) {
+            $appid = AppStore::where('app_id', $request->app_id)->first();
+            if (!empty($appid) && $appid != $request->app_id) {
+                return response()->json(
+                    [
+                        'status' => '400',
+                        'message' => "App Id already use. Try another one",
+                        'data' => null
+                    ],
+                    401
+                );
+            }
+            $app->update(['app_id' => $request->app_id]);
+        }
+        if ($request->app_id_name) {
+            $app->update(['app_id_name' => $request->app_id_name]);
+        }
+        if ($request->app_id_prefix) {
+            $app->update(['app_id_prefix' => $request->app_id_prefix]);
+        }
+        if ($request->app_id_surfix) {
+            $app->update(['app_id_surfix' => $request->app_id_surfix]);
+        }    
+
+        if($request->name){
+            $app->update(['name' => $request->name]);
+        }
+
+        if ($request->description) {
+            $app->update(['description' => $request->description]);
+        }
+        if ($request->category) {
+            $app->update(['category' => $request->category]);
+        }
+        if ($request->email) {
+            $app->update(['email' => $request->email]);
+        }
+        if ($request->phone) {
+            $app->update(['phone' => $request->phone]);
+        }
+        if ($request->phone_opt) {
+            $app->update(['phone_opt' => $request->phone_opt]);
+        }
+        if ($request->os) {
+            $app->update(['os' => $request->os]);
+        }
+        if ($request->app_icon) {
+            $fileIcon = $request->file('app_icon');
+            $fileIcon_name = time() . "app_icon." . $fileIcon->getClientOriginalExtension();
+            $fileIcon->move(public_path('app/app_icon'), $fileIcon_name);
+
+            if ($app->app_icon) {
+                try {
+                    unlink(public_path($app->app_icon));
+                } catch (\Exception $e) {
+                    // Optionally log the error
+                }
+            }
+
+            $app->update(['app_icon' => "app/icon/". $fileIcon]);
+        }
+        if ($request->feature_image) {
+            $fileFeatureimage = $request->file('feature_image');
+            $fileFeatureimage_name = time() . "feature_image." . $fileFeatureimage->getClientOriginalExtension();
+            $fileFeatureimage->move(public_path('app/feature_image'), $fileFeatureimage_name);
+
+            if ($app->feature_image) {
+                try {
+                    unlink(public_path($app->feature_image));
+                } catch (\Exception $e) {
+                    // Optionally log the error
+                }
+            }
+
+            $app->update(['feature_image' => "app/Featureimage/" . $fileFeatureimage]);
+        }
+        if ($request->app_bundle) {
+            $fileBundle = $request->file('app_bundle');
+            $fileBundle_name = time() . "app_bundle." . $fileBundle->getClientOriginalExtension();
+            $fileBundle->move(public_path('app/app_bundle'), $fileBundle_name);
+
+            if ($app->app_bundle) {
+                try {
+                    unlink(public_path($app->app_bundle));
+                } catch (\Exception $e) {
+                    // Optionally log the error
+                }
+            }
+
+            $app->update(['app_bundle' => "app/Bundle/" . $fileBundle]);
+        }
+        if ($request->policy) {
+            $app->update(['policy' => $request->policy]);
+        }
+        if ($request->name_release) {
+            $app->update(['name_release' => $request->name_release]);
+        }
+        if ($request->version) {
+            $app->update(['version' => $request->version]);
+        }
+        if ($request->copyright) {
+            $app->update(['copyright' => $request->copyright]);
+        }
+        if ($request->release) {
+            $app->update(['release' => $request->release]);
+        }
+        if ($request->collect_data) {
+            $app->update(['collect_data' => $request->collect_data]);
+        }
+        if ($request->contact_name) {
+            $app->update(['contact_name' => $request->contact_name]);
+        }
+        if ($request->contact_email) {
+            $app->update(['contact_email' => $request->contact_email]);
+        }
+        if ($request->contact_phone) {
+            $app->update(['contact_phone' => $request->contact_phone]);
+        }
+        if ($request->contact_address) {
+            $app->update(['contact_address' => $request->contact_address]);
+        }
+        if ($request->contact_other) {
+            $app->update(['contact_other' => $request->contact_other]);
+        }
+        if ($request->location_precise) {
+            $app->update(['location_precise' => $request->location_precise]);
+        }
+        if ($request->location_coarse) {
+            $app->update(['location_coarse' => $request->location_coarse]);
+        }
+        if ($request->sensitive_info) {
+            $app->update(['sensitive_info' => $request->sensitive_info]);
+        }
+        if ($request->active_date) {
+            $app->update(['active_date' => $request->active_date]);
+        }
+        if ($request->disable_date) {
+            $app->update(['disable_date' => $request->disable_date]);
+        }
+        if ($request->reject_date) {
+            $app->update(['reject_date' => $request->reject_date]);
+        }
+        if ($request->comment) {
+            $app->update(['comment' => $request->comment]);
+        }
+
+        if($app->status == 'reject'){
+            $app->update(['status' => 'pending', 'resubmit_date' => Carbon::now()]);
+        }
+
+        return response()->json(
+            [
+                'status' => '200',
+                'message' => 'Record listed',
+                'data' => $app
+            ],
+            201
+        );
+    }
+
+    public function appList(Request $request)
+    {
+        $data = AppStore::where('user', auth()->user()->id)->get();
+
+        return response()->json(
+            [
+                'status' => '200',
+                'message' => 'Record listed',
+                'data' => $data
+            ],
+            201
+        );
     }
 }

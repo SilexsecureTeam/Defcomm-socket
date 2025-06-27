@@ -107,16 +107,21 @@ class User extends Authenticatable
     
     public function chatSettings()
     {
-        return $this->hasOne(ChatSettings::class, 'user_id')->withDefault();
+        return $this->hasOne(ChatSettings::class, 'user_id');
     }
 
     public function userCallSender()
     {
-        return $this->hasMany(ChatCallLog::class, 'send_user_id')->withDefault();
+        return $this->hasMany(ChatCallLog::class, 'send_user_id');
     }
 
     public function userCallReciever()
     {
-        return $this->hasMany(ChatCallLog::class, 'recieve_user_id')->withDefault();
+        return $this->hasMany(ChatCallLog::class, 'recieve_user_id');
+    }
+
+    public function appStore()
+    {
+        return $this->hasMany(AppStore::class, 'user');
     }
 }

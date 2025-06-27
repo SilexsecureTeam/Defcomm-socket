@@ -1,3 +1,6 @@
+@extends('layouts.super')
+
+@section('content')
 <!--begin::Card-->
 <div class="card">
     <!--begin::Card header-->
@@ -15,12 +18,12 @@
         <!--begin::Card toolbar-->
         <div class="card-toolbar">
             <!--begin::Toolbar-->
-            <div class="d-flex justify-content-end" data-kt-user-table-toolbar="base">
+            {{--<div class="d-flex justify-content-end" data-kt-user-table-toolbar="base">
                 <!--begin::Add user-->
                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#kt_modal_add_user">
-                    <i class="ki-outline ki-plus fs-2"></i>Add User</button>
+                    <i class="ki-outline ki-plus fs-2"></i>Add Agreements</button>
                 <!--end::Add user-->
-            </div>
+            </div>--}}
             <!--end::Toolbar-->
             <!--begin::Group actions-->
             <div class="d-flex justify-content-end align-items-center d-none" data-kt-user-table-toolbar="selected">
@@ -114,7 +117,7 @@
                         <!--begin::Modal header-->
                         <div class="modal-header" id="kt_modal_add_user_header">
                             <!--begin::Modal title-->
-                            <h2 class="fw-bold">Add User</h2>
+                            <h2 class="fw-bold">Add Agreements</h2>
                             <!--end::Modal title-->
                             <!--begin::Close-->
                             <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal">
@@ -126,80 +129,40 @@
                         <!--begin::Modal body-->
                         <div class="modal-body px-5 my-7">
                             <!--begin::Form-->
-                            <form id="kt_modal_add_user_form" method="post" class="form" action="{{route('super.accountCreate')}}">
+                            <form id="kt_modal_add_user_form" method="post" class="form" action="{{route('super.agreementsCreate')}}">
                                 @csrf
                                 <!--begin::Scroll-->
                                 <div class="d-flex flex-column scroll-y px-5 px-lg-10" id="kt_modal_add_user_scroll" data-kt-scroll="true" data-kt-scroll-activate="true" data-kt-scroll-max-height="auto" data-kt-scroll-dependencies="#kt_modal_add_user_header" data-kt-scroll-wrappers="#kt_modal_add_user_scroll" data-kt-scroll-offset="300px">
                                     <!--begin::Input group-->
                                     <div class="fv-row mb-7">
                                         <!--begin::Label-->
-                                        <label class="required fw-semibold fs-6 mb-2">Organization Name</label>
+                                        <label class="required fw-semibold fs-6 mb-2">Title</label>
                                         <!--end::Label-->
                                         <!--begin::Input-->
-                                        <input type="text" name="nameorg" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="Organization name" />
+                                        <input type="text" name="title" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="Title" />
                                         <!--end::Input-->
                                     </div>
                                     <!--end::Input group-->
                                     <!--begin::Input group-->
                                     <div class="fv-row mb-7">
                                         <!--begin::Label-->
-                                        <label class="required fw-semibold fs-6 mb-2">Full Name</label>
+                                        <label class="required fw-semibold fs-6 mb-2">Label</label>
                                         <!--end::Label-->
                                         <!--begin::Input-->
-                                        <input type="text" name="name" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="Full name" />
+                                        <input type="text" name="label" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="Label" />
                                         <!--end::Input-->
                                     </div>
                                     <!--end::Input group-->
                                     <!--begin::Input group-->
                                     <div class="fv-row mb-7">
                                         <!--begin::Label-->
-                                        <label class="required fw-semibold fs-6 mb-2">Email</label>
+                                        <label class="required fw-semibold fs-6 mb-2">Description</label>
                                         <!--end::Label-->
-                                        <!--begin::Input-->
-                                        <input type="email" name="email" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="example@domain.com" />
+                                        <!--begin::Input--><textarea id="editor" name="description"></textarea>
                                         <!--end::Input-->
                                     </div>
                                     <!--end::Input group-->
-                                    <!--begin::Input group-->
-                                    <div class="fv-row mb-7">
-                                        <!--begin::Label-->
-                                        <label class="required fw-semibold fs-6 mb-2">Phone</label>
-                                        <!--end::Label-->
-                                        <!--begin::Input-->
-                                        <input type="text" name="phone" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="example@domain.com" />
-                                        <!--end::Input-->
-                                    </div>
-                                    <!--end::Input group-->
-                                    <!--begin::Input group-->
-                                    <div class="fv-row mb-7">
-                                        <!--begin::Label-->
-                                        <label class="required fw-semibold fs-6 mb-2">Password</label>
-                                        <!--end::Label-->
-                                        <!--begin::Input-->
-                                        <input type="password" name="password" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="**************" />
-                                        <!--end::Input-->
-                                    </div>
-                                    <!--end::Input group-->
-                                    <!--begin::Input group-->
-                                    <div class="fv-row mb-7">
-                                        <!--begin::Label-->
-                                        <label class="required fw-semibold fs-6 mb-2">number of user</label>
-                                        <!--end::Label-->
-                                        <!--begin::Input-->
-                                        <input type="number" name="number_user" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="0" />
-                                        <!--end::Input-->
-                                    </div>
-                                    <!--end::Input group-->
-                                    <!--begin::Input group-->
-                                    <div class="fv-row mb-7">
-                                        <!--begin::Label-->
-                                        <label class="required fw-semibold fs-6 mb-2">number of app</label>
-                                        <!--end::Label-->
-                                        <!--begin::Input-->
-                                        <input type="number" name="number_app" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="0" />
-                                        <!--end::Input-->
-                                    </div>
-                                    <!--end::Input group-->
+
                                 </div>
                                 <!--end::Scroll-->
                                 <!--begin::Actions-->
@@ -237,41 +200,26 @@
                             <input class="form-check-input" type="checkbox" data-kt-check="true" data-kt-check-target="#kt_table_users .form-check-input" value="1" />
                         </div>
                     </th>
-                    <th class="min-w-125px">User</th>
-                    <th class="min-w-125px">Role</th>
-                    <th class="min-w-125px">Joined Date</th>
+                    <th class="min-w-125px">Title</th>
+                    <th class="min-w-125px">Message</th>
+                    <th class="min-w-125px">Status</th>
                     <th class="text-end min-w-100px">Actions</th>
                 </tr>
             </thead>
             <tbody class="text-gray-600 fw-semibold">
-                @foreach($usr as $sur)
+                @foreach($data as $dt)
                 <tr>
                     <td>
                         <div class="form-check form-check-sm form-check-custom form-check-solid">
                             <input class="form-check-input" type="checkbox" value="1" />
                         </div>
                     </td>
-                    <td class="d-flex align-items-center">
-                        <!--begin:: Avatar -->
-                        <div class="symbol symbol-circle symbol-50px overflow-hidden me-3">
-                            <a href="#">
-                                <div class="symbol-label">
-                                    <img src="{{asset('img/icon.png')}}" alt="Emma Smith" class="w-100" />
-                                </div>
-                            </a>
-                        </div>
-                        <!--end::Avatar-->
-                        <!--begin::User details-->
-                        <div class="d-flex flex-column">
-                            <a href="#" class="text-gray-800 text-hover-primary mb-1">{{$sur->name}}</a>
-                            <span>{{$sur->email}}</span>
-                            <span>{{$sur->CompanyUsers->name}}</span>
-                            <span>{{$sur->otp}}</span>
-                        </div>
-                        <!--begin::User details-->
+                    <td>
+                        {{$dt->title}}<br/>
+                        {{$dt->label}}
                     </td>
-                    <td>Administrator</td>
-                    <td>{{$sur->created_at}}</td>
+                    <td>{!! $dt->message !!}</td>
+                    <td>{{$dt->status}}</td>
                     <td class="text-end">
                         <a href="#" class="btn btn-light btn-active-light-primary btn-flex btn-center btn-sm" data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end">Actions
                             <i class="ki-outline ki-down fs-5 ms-1"></i></a>
@@ -279,21 +227,8 @@
                         <div class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-600 menu-state-bg-light-primary fw-semibold fs-7 w-125px py-4" data-kt-menu="true">
                             <!--begin::Menu item-->
                             <div class="menu-item px-3">
-                                <a href="#" data-bs-toggle="modal" data-bs-target="#kt_modal_add_user-{{$sur->id}}" class="menu-link px-3">Edit</a>
+                                <a href="#" data-bs-toggle="modal" data-bs-target="#kt_modal_add_user-{{$dt->id}}" class="menu-link px-3">Edit</a>
                             </div>
-                            <!--end::Menu item-->
-                            @if($opt == 'admin')
-                            <!--begin::Menu item-->
-                            <div class="menu-item px-3">
-                                <a href="{{ route('super.accountView',['id' => encrypt($sur->company_id)])}}" class="menu-link px-3">View User</a>
-                            </div>
-                            <!--end::Menu item-->
-                            @endif
-                            <!--begin::Menu item-->
-                            <div class="menu-item px-3">
-                                <a href="{{ route('super.accountDelete',['id' => encrypt($sur->id)])}}" class="menu-link px-3">Delete</a>
-                            </div>
-                            <!--end::Menu item-->
                         </div>
                         <!--end::Menu-->
                     </td>
@@ -307,9 +242,9 @@
 </div>
 <!--end::Card-->
 
-@foreach($usr as $sur)
+@foreach($data as $dt)
 <!--begin::Modal - Add task-->
-<div class="modal fade" id="kt_modal_add_user-{{$sur->id}}" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="kt_modal_add_user-{{$dt->id}}" tabindex="-1" aria-hidden="true">
     <!--begin::Modal dialog-->
     <div class="modal-dialog modal-dialog-centered mw-650px">
         <!--begin::Modal content-->
@@ -317,7 +252,7 @@
             <!--begin::Modal header-->
             <div class="modal-header" id="kt_modal_add_user_header">
                 <!--begin::Modal title-->
-                <h2 class="fw-bold">Add User</h2>
+                <h2 class="fw-bold">Edit Agreements</h2>
                 <!--end::Modal title-->
                 <!--begin::Close-->
                 <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal">
@@ -329,78 +264,42 @@
             <!--begin::Modal body-->
             <div class="modal-body px-5 my-7">
                 <!--begin::Form-->
-                <form id="kt_modal_add_user_form" method="post" class="form" action="{{route('super.accountEdit')}}">
+                <form id="kt_modal_add_user_form" method="post" class="form" action="{{route('super.systemMailUpdate')}}">
                     @csrf
-                    <input type="hidden" value="{{encrypt($sur->id)}}" name="id" />
+                    <input type="hidden" value="{{encrypt($dt->id)}}" name="id" />
                     <!--begin::Scroll-->
                     <div class="d-flex flex-column scroll-y px-5 px-lg-10" id="kt_modal_add_user_scroll" data-kt-scroll="true" data-kt-scroll-activate="true" data-kt-scroll-max-height="auto" data-kt-scroll-dependencies="#kt_modal_add_user_header" data-kt-scroll-wrappers="#kt_modal_add_user_scroll" data-kt-scroll-offset="300px">
                         <!--begin::Input group-->
                         <div class="fv-row mb-7">
                             <!--begin::Label-->
-                            <label class="required fw-semibold fs-6 mb-2">Organization Name</label>
+                            <label class="required fw-semibold fs-6 mb-2">Subject</label>
                             <!--end::Label-->
                             <!--begin::Input-->
-                            <input type="text" name="nameorg" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="Organization name" value="{{$sur->CompanyUsers->name}}" />
+                            <input type="text" name="title" value="{{$dt->title}}" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="Title" />
                             <!--end::Input-->
                         </div>
                         <!--end::Input group-->
                         <!--begin::Input group-->
                         <div class="fv-row mb-7">
                             <!--begin::Label-->
-                            <label class="required fw-semibold fs-6 mb-2">Full Name</label>
+                            <label class="required fw-semibold fs-6 mb-2">Message</label>
                             <!--end::Label-->
                             <!--begin::Input-->
-                            <input type="text" name="name" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="Full name" value="{{$sur->name}}" />
+                            <textarea id="editor-{{$dt->id}}" name="message">{{$dt->message}}</textarea>
                             <!--end::Input-->
                         </div>
                         <!--end::Input group-->
                         <!--begin::Input group-->
                         <div class="fv-row mb-7">
                             <!--begin::Label-->
-                            <label class="required fw-semibold fs-6 mb-2">Email</label>
+                            <label class="required fw-semibold fs-6 mb-2">Status</label>
                             <!--end::Label-->
                             <!--begin::Input-->
-                            <input type="email" name="email" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="example@domain.com" value="{{$sur->email}}" />
-                            <!--end::Input-->
-                        </div>
-                        <!--end::Input group-->
-                        <!--begin::Input group-->
-                        <div class="fv-row mb-7">
-                            <!--begin::Label-->
-                            <label class="required fw-semibold fs-6 mb-2">Phone</label>
-                            <!--end::Label-->
-                            <!--begin::Input-->
-                            <input type="text" name="phone" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="example@domain.com" value="{{$sur->phone}}" />
-                            <!--end::Input-->
-                        </div>
-                        <!--end::Input group-->
-                        <!--begin::Input group-->
-                        <div class="fv-row mb-7">
-                            <!--begin::Label-->
-                            <label class="required fw-semibold fs-6 mb-2">Password</label>
-                            <!--end::Label-->
-                            <!--begin::Input-->
-                            <input type="password" name="password" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="**************" />
-                            <!--end::Input-->
-                        </div>
-                        <!--end::Input group-->
-                        <!--begin::Input group-->
-                        <div class="fv-row mb-7">
-                            <!--begin::Label-->
-                            <label class="required fw-semibold fs-6 mb-2">number of user</label>
-                            <!--end::Label-->
-                            <!--begin::Input-->
-                            <input type="number" name="number_user" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="0" value="{{$sur->number_user}}" />
-                            <!--end::Input-->
-                        </div>
-                        <!--end::Input group-->
-                        <!--begin::Input group-->
-                        <div class="fv-row mb-7">
-                            <!--begin::Label-->
-                            <label class="required fw-semibold fs-6 mb-2">number of app</label>
-                            <!--end::Label-->
-                            <!--begin::Input-->
-                            <input type="number" name="number_app" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="0" value="{{$sur->number_app}}" />
+                            <select name="status" class="form-control form-control-solid mb-3 mb-lg-0">
+                                <option value="{{$dt->status}}">{{$dt->status}}</option>
+                                <option value="active">Active</option>
+                                <option value="disable">Disable</option>
+                            </select>
                             <!--end::Input-->
                         </div>
                         <!--end::Input group-->
@@ -426,4 +325,44 @@
     <!--end::Modal dialog-->
 </div>
 <!--end::Modal - Add task-->
+<script src="https://cdn.tiny.cloud/1/4vvbz04oo7ekxbf7qy9wql3flmqdogtzmfhbr841milj2qbb/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
+<script>
+    tinymce.init({
+        selector: '#editor',
+        height: 400,
+        menubar: true,
+        plugins: [
+            'advlist', 'autolink', 'lists', 'link', 'image', 'charmap',
+            'preview', 'anchor', 'searchreplace', 'visualblocks',
+            'code', 'fullscreen', 'insertdatetime', 'media', 'table', 'help', 'wordcount'
+        ],
+        toolbar: 'undo redo | formatselect | ' +
+            'bold italic backcolor | alignleft aligncenter ' +
+            'alignright alignjustify | bullist numlist outdent indent | ' +
+            'removeformat | help',
+        content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
+    });
+</script>
+@foreach($data as $dt)
+<script>
+    tinymce.init({
+        selector: '#editor-<?= $dt->id ?>',
+        height: 400,
+        menubar: true,
+        plugins: [
+            'advlist', 'autolink', 'lists', 'link', 'image', 'charmap',
+            'preview', 'anchor', 'searchreplace', 'visualblocks',
+            'code', 'fullscreen', 'insertdatetime', 'media', 'table', 'help', 'wordcount'
+        ],
+        toolbar: 'undo redo | formatselect | ' +
+            'bold italic backcolor | alignleft aligncenter ' +
+            'alignright alignjustify | bullist numlist outdent indent | ' +
+            'removeformat | help',
+        content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
+    });
+</script>
 @endforeach
+
+@endforeach
+
+@endsection

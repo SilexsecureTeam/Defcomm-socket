@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Mail\Invitation;
+use App\Models\AppStore;
 use App\Models\Language;
+use App\Models\SystemMail;
 use App\Models\CompanyUser;
 use Illuminate\Http\Request;
 use App\Models\StatementAgreement;
@@ -74,6 +76,8 @@ class SuperAdminController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'phone' => $request->phone,
+            'number_user' => $request->number_user,
+            'number_app' => $request->number_app,
             'role' => 'admin',
             'password' => Hash::make($request->password),
             'access_token' => uniqid()
@@ -121,6 +125,8 @@ class SuperAdminController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'phone' => $request->phone,
+            'number_user' => $request->number_user,
+            'number_app' => $request->number_app,
         ]);
 
         if($request->password){
@@ -202,5 +208,70 @@ class SuperAdminController extends Controller
             'status' => $request->status
         ]);
         return redirect()->back()->with('success', "agreements successfully updated");
+    }
+
+    public function systemMail()
+    {
+        $data = SystemMail::get();
+        return view('super.systemmail', [
+            'page' => "System Mail",
+            'opt' => 'admin',
+            'data' => $data
+        ]);
+    }
+
+    public function systemMailUpdate(Request $request)
+    {
+        SystemMail::find(decrypt($request->id))->update([
+            'title' => $request->title,
+            'message' => $request->message,
+            'status' => $request->status
+        ]);
+        return redirect()->back()->with('success', "Mail successfully updated");
+    }
+
+    public function storeUser()
+    {
+        $data = User::with('appStore')->whereHas('appStore')->get();
+        return view('super.storeuser', [
+            'page' => "Store User",
+            'opt' => 'admin',
+            'data' => $data
+        ]);
+    }
+    
+    public function storeApp($id=null)
+    {
+        if($id){
+            $data = AppStore::where('user', decrypt($id))->get();
+        }else{
+            $data = AppStore::get();
+        }
+
+        return view('super.storeapp', [
+            'page' => "Store App",
+            'opt' => 'admin',
+            'data' => $data
+        ]);
+    }
+
+    public function storeappdetail($id)
+    {
+        $data = AppStore::find(decrypt($id));
+        
+        return view('super.storeappdetail', [
+            'page' => "Store App",
+            'opt' => 'admin',
+            'app' => $data
+        ]);
+    }
+
+    public function storeappdetailSub(Request $request)
+    {
+        AppStore::find(decrypt($request->id))->update([
+            'status' => $request->status,
+            'comment' => $request->comment
+        ]);
+        return redirect()->back()->with('success', "App status successfully updated");
     }
 }

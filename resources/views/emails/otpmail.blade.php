@@ -7,7 +7,7 @@
         </div>
         <div style=" display:flex; align-items:center; margin-top:10px; justify-content:center; ">
             <p style="padding: 10px; display: inline-block; font-size: 20px; text-align: center; font-weight: bold; margin: 0 auto;">
-                Welcome back to Defcomm
+                {{$admail->title}}
             </p>
         </div>
 
@@ -20,6 +20,8 @@
                 {{ $otp ?? '' }}
             </p>
         </div>
+
+        {!! $admail->message !!}
 
         <div style="line-height: 6px;">
             <p>Regards,</p>

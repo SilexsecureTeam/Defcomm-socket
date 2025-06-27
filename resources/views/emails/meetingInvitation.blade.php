@@ -14,7 +14,7 @@
 
         <p style="font-weight:bold;">Hi {{ $name ?? '' }},</p>
         <div style="margin-bottom:30px;">
-            <p>You are invited to join a meeting. If the meeting detial below</p>
+            <p>You are invited to join a meeting. The meeting detial below</p>
 
             <p>
                 @if($meet->title)

@@ -2,10 +2,11 @@
 
 namespace App\Mail;
 
+use App\Models\SystemMail;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
 class Invitation extends Mailable
 {
@@ -15,6 +16,7 @@ class Invitation extends Mailable
     public $email;
     public $encrypt;
     public $otp;
+    public $admail;
     /**
      * Create a new message instance.
      *
@@ -26,6 +28,7 @@ class Invitation extends Mailable
         $this->email = $email;
         $this->encrypt = $encrypt;
         $this->otp = $otp;
+        $this->admail = SystemMail::where('label', 'invitation_account')->first();
     }
 
     /**

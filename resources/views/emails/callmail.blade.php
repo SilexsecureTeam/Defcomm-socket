@@ -7,16 +7,17 @@
         </div>
         <div style=" display:flex; align-items:center; margin-top:10px; justify-content:center; ">
             <p style="padding: 10px; display: inline-block; font-size: 20px; text-align: center; font-weight: bold; margin: 0 auto;">
-                A call from Defcomm
+                {{$admail->title}}
             </p>
         </div>
 
 
         <p style="font-weight:bold;">Hi {{ $name ?? '' }},</p>
         <div style="margin-bottom:30px;">
-
             <p>You have a call from {{$altname}}</p>
         </div>
+
+        {!! $admail->message !!}
 
         <div style="line-height: 6px;">
             <p>Regards,</p>

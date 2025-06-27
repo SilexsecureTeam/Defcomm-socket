@@ -2,10 +2,11 @@
 
 namespace App\Mail;
 
+use App\Models\SystemMail;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
 class CallMail extends Mailable
 {
@@ -13,6 +14,7 @@ class CallMail extends Mailable
 
     public $name;
     public $altname;
+    public $admail;
     /**
      * Create a new message instance.
      *
@@ -22,6 +24,7 @@ class CallMail extends Mailable
     {
         $this->name = $name;
         $this->altname = $altname;
+        $this->admail = SystemMail::where('label', 'call')->first();
     }
 
     /**

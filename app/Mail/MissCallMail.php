@@ -2,10 +2,11 @@
 
 namespace App\Mail;
 
+use App\Models\SystemMail;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
 class MissCallMail extends Mailable
 {
@@ -13,6 +14,7 @@ class MissCallMail extends Mailable
 
     public $sender;
     public $reciever;
+    public $admail;
     /**
      * Create a new message instance.
      *
@@ -22,6 +24,7 @@ class MissCallMail extends Mailable
     {
         $this->sender = $sender;
         $this->reciever = $reciever;
+        $this->admail = SystemMail::where('label', 'miss_call')->first();
     }
 
     /**
