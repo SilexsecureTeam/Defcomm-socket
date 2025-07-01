@@ -208,7 +208,7 @@ class UserController extends Controller
             'user_type' => 'user'
         ]);
 
-        if($request->folder_id){
+        if ($request->folder_id) {
             FileFolder::create([
                 'user_id' => auth()->user()->id,
                 'file_id' => $file->id,
@@ -1075,8 +1075,9 @@ class UserController extends Controller
     public function sendMessageCall(Request $request)
     {
         $calllog = ChatCallLog::where('mss_id', decrypt($request->mss_id))->first();
+        $mss = ChatMessage::find(decrypt($request->mss_id));
 
-        if($calllog){
+        if ($calllog) {
             if ($request->call_duration) {
                 $calllog->update(['call_duration' => $request->call_duration]);
             }
@@ -1110,7 +1111,8 @@ class UserController extends Controller
                     "chat_id" => encrypt($calllog->chatMess->id),
                     "call_duration" => $request->call_duration,
                     "call_state" => $request->call_state
-                ]
+                ],
+                'mss' => $mss
             ]))->toOthers();
 
             return response()->json(
@@ -1131,7 +1133,6 @@ class UserController extends Controller
             ],
             401
         );
-
     }
 
     public function sendMessage(Request $request)
@@ -1269,9 +1270,9 @@ class UserController extends Controller
 
     public function appcreate(Request $request)
     {
-        if($request->id){
+        if ($request->id) {
             $app = AppStore::where('user', auth()->user()->id)->where('id', decrypt($request->id))->first();
-            if(empty($app)){
+            if (empty($app)) {
                 return response()->json(
                     [
                         'status' => '400',
@@ -1281,14 +1282,13 @@ class UserController extends Controller
                     401
                 );
             }
-        }else{
-            
+        } else {
+
             $app = AppStore::create([
                 'user' => auth()->user()->id,
                 'name' => $request->name,
                 'app_id' => uniqid()
             ]);
-
         }
 
         if ($request->app_id) {
@@ -1313,9 +1313,9 @@ class UserController extends Controller
         }
         if ($request->app_id_surfix) {
             $app->update(['app_id_surfix' => $request->app_id_surfix]);
-        }    
+        }
 
-        if($request->name){
+        if ($request->name) {
             $app->update(['name' => $request->name]);
         }
 
@@ -1350,7 +1350,7 @@ class UserController extends Controller
                 }
             }
 
-            $app->update(['app_icon' => "app/icon/". $fileIcon]);
+            $app->update(['app_icon' => "app/icon/" . $fileIcon]);
         }
         if ($request->feature_image) {
             $fileFeatureimage = $request->file('feature_image');
@@ -1437,7 +1437,7 @@ class UserController extends Controller
             $app->update(['comment' => $request->comment]);
         }
 
-        if($app->status == 'reject'){
+        if ($app->status == 'reject') {
             $app->update(['status' => 'pending', 'resubmit_date' => Carbon::now()]);
         }
 
