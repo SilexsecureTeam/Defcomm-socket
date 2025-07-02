@@ -131,7 +131,7 @@ class AuthController extends Controller
             $user->update(['otp' => $otp]);
             $this->smsSent($request->get('phone'), $otp);
             // Mail::to($user->email)->send(new OtpMail($user->name, $otp));
-            return response()->json(['status' => 200, 'message' => 'OTP has been sent'.$otp, 'otp' => $otp], 200);
+            return response()->json(['status' => 200, 'message' => 'OTP has been sent '.$otp, 'otp' => $otp], 200);
         } else {
             return response()->json(['status' => 400, 'error' => "This user does not exist."], 400);
         }
