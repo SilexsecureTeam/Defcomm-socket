@@ -64,7 +64,7 @@ class User extends Authenticatable
     {
         return $this->hasMany(FilesShares::class, 'user_id');
     }
-    
+
     public function filesSharesFrom()
     {
         return $this->hasMany(FilesShares::class, 'user_from');
@@ -74,12 +74,12 @@ class User extends Authenticatable
     {
         return $this->hasMany(FileShareLog::class, 'user_id');
     }
-    
+
     public function contactList()
     {
         return $this->hasMany(ContactList::class, 'user_id');
     }
-    
+
     public function contactListLink()
     {
         return $this->hasMany(ContactList::class, 'user_link');
@@ -89,25 +89,25 @@ class User extends Authenticatable
     {
         return $this->hasMany(ChatMessage::class, 'user_id');
     }
-    
+
     public function chatMessageTo()
     {
         return $this->hasMany(ChatMessage::class, 'user_to');
     }
-    
+
     public function chatLastLog()
     {
         return $this->hasMany(ChatLastLog::class, 'user_id');
     }
-    
+
     public function chatLastLogTo()
     {
         return $this->hasMany(ChatLastLog::class, 'user_to');
     }
-    
+
     public function chatSettings()
     {
-        return $this->hasOne(ChatSettings::class, 'user_id');
+        return $this->hasOne(ChatSettings::class, 'user_id')->withDefault();
     }
 
     public function userCallSender()

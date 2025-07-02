@@ -38,6 +38,7 @@ Route::get('app/agreements/{term?}', [AuthController::class, 'appAgreements']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('app/resetPassword', [AuthController::class, 'appresetPassword']);
     Route::post('app/configuration', [AuthController::class, 'appConfiguration']);
+    Route::post('app/developermode', [AuthController::class, 'appDevelopermode']);
 
     Route::get('/user/file', [UserController::class, 'file']);
     Route::get('/user/file/pending', [UserController::class, 'fileOtherPending']);

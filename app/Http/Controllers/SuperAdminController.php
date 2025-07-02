@@ -233,10 +233,18 @@ class SuperAdminController extends Controller
     public function storeUser()
     {
         $data = User::with('appStore')->whereHas('appStore')->get();
+        $userPen = User::where('app_role', 'developer')->where('statusApp', 'pending')->get();
+        $userApp = User::where('app_role', 'developer')->where('statusApp', 'approved')->get();
+        $userRej = User::where('app_role', 'developer')->where('statusApp', 'reject')->get();
+        $userBlk = User::where('app_role', 'developer')->where('statusApp', 'block')->get();
         return view('super.storeuser', [
             'page' => "Store User",
             'opt' => 'admin',
-            'data' => $data
+            'data' => $data,
+            'userPen' => $userPen,
+            'userApp' => $userApp,
+            'userRej' => $userRej,
+            'userBlk' => $userBlk
         ]);
     }
     

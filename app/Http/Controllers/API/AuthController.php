@@ -67,7 +67,13 @@ class AuthController extends Controller
             'access_token' => uniqid()
         ]);
 
-        event(new Registered($user));
+        $otp = rand(1000, 9999);
+
+        Mail::to($request->email)->send(new Invitation($request->name, $request->email, encrypt($request->email), $otp));
+
+        $bodysms = 'Welcome to Defcomm!, Your OTP is ' . $otp . ' or use https://cloud.defcomm.ng/onboarding to join. If you have any questions or concerns we  are here to help contact us via our Help Center';
+
+        $this->TermiiSms($request->phone, $bodysms);
 
         return response()->json(['message' => 'User registered successfully!', 'data' => $user], 201);
     }
@@ -124,7 +130,7 @@ class AuthController extends Controller
             $otp = rand(1000, 9999);
             $user->update(['otp' => $otp]);
             $this->smsSent($request->get('phone'), $otp);
-            Mail::to($user->email)->send(new OtpMail($user->name, $otp));
+            // Mail::to($user->email)->send(new OtpMail($user->name, $otp));
             return response()->json(['status' => 200, 'message' => 'OTP has been sent', 'otp' => $otp], 200);
         } else {
             return response()->json(['status' => 400, 'error' => "This user does not exist."], 400);
@@ -300,6 +306,11 @@ class AuthController extends Controller
         }
 
         return response()->json(['message' => 'Configuration has been successfully reset'], 201);
+    }
+
+    public function appDevelopermode()
+    {
+        $user = User::find(auth()->user()->id);
     }
 
     public function appLanguage()
