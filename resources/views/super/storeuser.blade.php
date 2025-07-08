@@ -15,9 +15,9 @@
     <li class="nav-item">
         <button class="nav-link" data-bs-toggle="tab" data-bs-target="#disable" type="button">Disabled</button>
     </li>
-    <li class="nav-item">
+    {{--<li class="nav-item">
         <button class="nav-link" data-bs-toggle="tab" data-bs-target="#active" type="button">Active</button>
-    </li>
+    </li>--}}
 </ul>
 
 
@@ -60,7 +60,7 @@
                         </tr>
                     </thead>
                     <tbody class="text-gray-600 fw-semibold">
-                        @foreach($data as $dt)
+                        @foreach($userPen as $dt)
                         <tr>
                             <td>
                                 <div class="form-check form-check-sm form-check-custom form-check-solid">
@@ -131,7 +131,7 @@
                         </tr>
                     </thead>
                     <tbody class="text-gray-600 fw-semibold">
-                        @foreach($data as $dt)
+                        @foreach($userApp as $dt)
                         <tr>
                             <td>
                                 <div class="form-check form-check-sm form-check-custom form-check-solid">
@@ -202,7 +202,7 @@
                         </tr>
                     </thead>
                     <tbody class="text-gray-600 fw-semibold">
-                        @foreach($data as $dt)
+                        @foreach($userRej as $dt)
                         <tr>
                             <td>
                                 <div class="form-check form-check-sm form-check-custom form-check-solid">
@@ -273,7 +273,7 @@
                         </tr>
                     </thead>
                     <tbody class="text-gray-600 fw-semibold">
-                        @foreach($data as $dt)
+                        @foreach($userBlk as $dt)
                         <tr>
                             <td>
                                 <div class="form-check form-check-sm form-check-custom form-check-solid">
@@ -307,7 +307,7 @@
         </div>
         <!--end::Card-->
     </div>
-    <div class="tab-pane fade show active" id="active">
+    {{--<div class="tab-pane fade show active" id="active">
         <!--begin::Card-->
         <div class="card">
             <!--begin::Card header-->
@@ -377,7 +377,7 @@
             <!--end::Card body-->
         </div>
         <!--end::Card-->
-    </div>
+    </div>--}}
 </div>
 
 @endsection

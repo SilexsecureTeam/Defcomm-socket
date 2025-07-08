@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Mail\OtpMail;
 use App\Mail\Invitation;
 use App\Models\Language;
+use App\Models\CompanyUser;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Mail\PasswordResetMail;
@@ -46,6 +47,17 @@ class AuthController extends Controller
         return true;
     }
 
+    public function emailVerify(Request $request)
+    {
+        $user = User::where('email', '=', $request->input('email'))->first();
+
+        if($user){
+            return response()->json(['status' => '400', 'message' => 'This email is already used', 'data' => []], 401);
+        }else{
+            return response()->json(['status' => '200','message' => 'This email is not yet taken', 'data' => []], 201);
+        }
+    }
+
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -59,16 +71,30 @@ class AuthController extends Controller
             return response()->json(['message' => 'Error Occur', 'data' => $validator->messages()], 401);
         }
 
+        $otp = rand(1000, 9999);
+
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'phone' => $request->phone,
+            'country' => $request->country,
+            'dob' => $request->dob,
+            'gender' => $request->gender,
+            'role' => $request->role == "company" ? 'admin' : 'user',
             'password' => Hash::make($request->password),
-            'access_token' => uniqid()
+            'access_token' => uniqid(),
+            'otp' => $otp
         ]);
 
-        $otp = rand(1000, 9999);
+        if($request->role == "company"){
+            $comp = CompanyUser::create([
+                'name' => $request->nameorg,
+                'user_id' => $user->id
+            ]);
 
+            $user->update(['company_id' => $comp->id]);
+        }
+        
         Mail::to($request->email)->send(new Invitation($request->name, $request->email, encrypt($request->email), $otp));
 
         $bodysms = 'Welcome to Defcomm!, Your OTP is ' . $otp . ' or use https://cloud.defcomm.ng/onboarding to join. If you have any questions or concerns we  are here to help contact us via our Help Center';
@@ -308,9 +334,60 @@ class AuthController extends Controller
         return response()->json(['message' => 'Configuration has been successfully reset'], 201);
     }
 
-    public function appDevelopermode()
+    public function appDevelopermode(Request $request)
     {
         $user = User::find(auth()->user()->id);
+
+        if($request->rc_number){
+            $user->update(['rc_number' => $request->rc_number]);
+        }
+
+        if($request->rc_doc){
+            $rc_doc = $request->file('rc_doc');
+            $rc_doc_name = time() . "secure." . $rc_doc->getClientOriginalExtension();
+            $rc_doc->move(public_path('storeuser'), $rc_doc_name);
+            $user->update(['rc_doc' => "storeuser/". $rc_doc_name]);
+        }
+
+        if($request->tin){
+            $user->update(['tin' => $request->tin]);
+        }
+
+        if($request->tin_doc){
+            $tin_doc = $request->file('tin_doc');
+            $tin_doc_name = time() . "secure." . $tin_doc->getClientOriginalExtension();
+            $tin_doc->move(public_path('storeuser'), $tin_doc_name);
+            $user->update(['tin_doc' => "storeuser/" . $tin_doc_name]);
+        }
+
+        if($request->developer_display_name ){
+            $user->update(['developer_display_name' => $request->developer_display_name ]);
+        }
+
+        if($request->website ){
+            $user->update(['website' => $request->website ]);
+        }
+
+        if($request->selfie ){
+            $selfie = $request->file('selfie');
+            $selfie_name = time() . "secure." . $selfie->getClientOriginalExtension();
+            $selfie->move(public_path('storeuser'), $selfie_name);
+            $user->update(['selfie' => "storeuser/" . $selfie_name]);
+        }
+
+        $user->update([
+            'app_role' => "developer",
+            'statusApp' => "pending"
+        ]);
+        
+        return response()->json(
+            [
+                'status' => '200',
+                'message' => 'Document upload',
+                'data' => $user
+            ],
+            201
+        );
     }
 
     public function appLanguage()
