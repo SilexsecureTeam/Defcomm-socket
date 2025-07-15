@@ -94,13 +94,15 @@ class AuthController extends Controller
 
             $user->update(['company_id' => $comp->id]);
         }
+        if($request->verify_option == "sms"){
+
+            $bodysms = 'Welcome to Defcomm!, Your OTP is ' . $otp . ' or use https://cloud.defcomm.ng/onboarding to join.';
+
+            $this->TermiiSms($request->phone, $bodysms);
+        }else{
+            Mail::to($request->email)->send(new Invitation($request->name, $request->email, encrypt($request->email), $otp));
+        }
         
-        Mail::to($request->email)->send(new Invitation($request->name, $request->email, encrypt($request->email), $otp));
-
-        $bodysms = 'Welcome to Defcomm!, Your OTP is ' . $otp . ' or use https://cloud.defcomm.ng/onboarding to join. If you have any questions or concerns we  are here to help contact us via our Help Center';
-
-        $this->TermiiSms($request->phone, $bodysms);
-
         return response()->json(['message' => 'User registered successfully!', 'data' => $user], 201);
     }
 

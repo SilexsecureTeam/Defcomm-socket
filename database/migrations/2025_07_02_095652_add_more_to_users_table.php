@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->enum('statusApp',['pending','reject','approved','block'])->default('pending');
+            $table->enum('statusApp',['pending','reject','approved','block'])->nullable();
             $table->enum('statusNdpc',['pending','reject', 'verified','block'])->default('pending');
             $table->string('ndpcCode')->nullable();
             $table->string('rc_number')->nullable();

@@ -15,6 +15,8 @@ return new class extends Migration
             $table->string('developer_display_name')->nullable();
             $table->string('website')->nullable();
             $table->string('selfie')->nullable();
+            $table->string('id_card_front')->nullable();
+            $table->string('id_card_back')->nullable();
         });
     }
 
@@ -27,6 +29,8 @@ return new class extends Migration
             $table->dropColumn('developer_display_name');
             $table->dropColumn('website');
             $table->dropColumn('selfie');
+            $table->dropColumn('id_card_front');
+            $table->dropColumn('id_card_back');
         });
     }
 };

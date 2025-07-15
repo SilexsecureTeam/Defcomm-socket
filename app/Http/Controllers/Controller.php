@@ -59,7 +59,7 @@ class Controller extends BaseController
 
         $body = [
             "to" => $this->formatPhoneNumber($phone),
-            "from" => "N-Alert",
+            "from" => "Defcomm",
             "sms" => $bodysms,
             "type" => "plain",
             "channel" => "generic",

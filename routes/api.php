@@ -35,6 +35,8 @@ Route::post('email/verify/{id}/{hash}', [AuthController::class, 'verifyEmail'])-
 Route::post('app/authenticate', [AuthController::class, 'appAuthenticate']);
 Route::get('app/language', [AuthController::class, 'appLanguage']);
 Route::get('app/agreements/{term?}', [AuthController::class, 'appAgreements']);
+Route::get('/app/list', [UserController::class, 'appList']);
+Route::get('/app/listId/{id}', [UserController::class, 'appListId']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('app/resetPassword', [AuthController::class, 'appresetPassword']);
@@ -93,5 +95,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user/notification', [UserController::class, 'notification']);
 
     Route::post('/app/create', [UserController::class, 'appcreate']);
-    Route::get('/app/list', [UserController::class, 'appList']);
+    Route::get('/app/ownlist', [UserController::class, 'appOwnList']);
 });

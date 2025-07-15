@@ -1453,7 +1453,169 @@ class UserController extends Controller
 
     public function appList(Request $request)
     {
-        $data = AppStore::where('user', auth()->user()->id)->get();
+        $dat = AppStore::where('status', 'active')->get();
+
+        $data = [];
+        foreach($dat as $dt){
+            $data[] = [
+                "id" => encrypt($dt->id),
+                "developer" => $dt->userId->name,
+                "app_name" => $dt->name,
+                "description" => $dt->description,
+                "category" => $dt->category,
+                "email" => $dt->email,
+                "phone" => $dt->phone,
+                "phone_opt" => $dt->phone_opt,
+                "os" => $dt->os,
+                "app_icon" => $dt->app_icon,
+                "feature_image" => $dt->feature_image,
+                "policy" => $dt->policy,
+                "app_bundle" => $dt->app_bundle,
+                "name_release" => $dt->name_release,
+                "version" => $dt->version,
+                "copyright" => $dt->copyright,
+                "release" => $dt->release,
+                "collect_data" => $dt->collect_data,
+                "contact_name" => $dt->contact_name,
+                "contact_email" => $dt->contact_email,
+                "contact_phone" => $dt->contact_phone,
+                "contact_address" => $dt->contact_address,
+                "contact_other" => $dt->contact_other,
+                "location_precise" => $dt->location_precise,
+                "location_coarse" => $dt->location_coarse,
+                "sensitive_info" => $dt->sensitive_info,
+                "app_id" => $dt->app_id,
+                "app_id_name" => $dt->app_id_name,
+                "app_id_prefix" => $dt->app_id_prefix,
+                "app_id_surfix" => $dt->app_id_surfix,
+                "rc_number" => $dt->rc_number,
+                "tin_number" => $dt->tin_number,
+                "status" => $dt->status,
+                "active_date" => $dt->active_date,
+                "disable_date" => $dt->disable_date,
+                "reject_date" => $dt->reject_date,
+                "resubmit_date" => $dt->resubmit_date,
+                "comment" => $dt->comment,
+                "created_at" => $dt->created_at,
+                "updated_at" => $dt->updated_at,
+            ];
+        }
+
+        return response()->json(
+            [
+                'status' => '200',
+                'message' => 'Record listed',
+                'data' => $data
+            ],
+            201
+        );
+    }
+
+    public function appListId($id)
+    {
+        $dt = AppStore::find(decrypt($id));
+        $data[] = [
+            "id" => encrypt($dt->id),
+            "developer" => $dt->userId->name,
+            "app_name" => $dt->name,
+            "description" => $dt->description,
+            "category" => $dt->category,
+            "email" => $dt->email,
+            "phone" => $dt->phone,
+            "phone_opt" => $dt->phone_opt,
+            "os" => $dt->os,
+            "app_icon" => $dt->app_icon,
+            "feature_image" => $dt->feature_image,
+            "policy" => $dt->policy,
+            "app_bundle" => $dt->app_bundle,
+            "name_release" => $dt->name_release,
+            "version" => $dt->version,
+            "copyright" => $dt->copyright,
+            "release" => $dt->release,
+            "collect_data" => $dt->collect_data,
+            "contact_name" => $dt->contact_name,
+            "contact_email" => $dt->contact_email,
+            "contact_phone" => $dt->contact_phone,
+            "contact_address" => $dt->contact_address,
+            "contact_other" => $dt->contact_other,
+            "location_precise" => $dt->location_precise,
+            "location_coarse" => $dt->location_coarse,
+            "sensitive_info" => $dt->sensitive_info,
+            "app_id" => $dt->app_id,
+            "app_id_name" => $dt->app_id_name,
+            "app_id_prefix" => $dt->app_id_prefix,
+            "app_id_surfix" => $dt->app_id_surfix,
+            "rc_number" => $dt->rc_number,
+            "tin_number" => $dt->tin_number,
+            "status" => $dt->status,
+            "active_date" => $dt->active_date,
+            "disable_date" => $dt->disable_date,
+            "reject_date" => $dt->reject_date,
+            "resubmit_date" => $dt->resubmit_date,
+            "comment" => $dt->comment,
+            "created_at" => $dt->created_at,
+            "updated_at" => $dt->updated_at,
+        ];
+
+        return response()->json(
+            [
+                'status' => '200',
+                'message' => 'Record listed',
+                'data' => $data
+            ],
+            201
+        );
+    }
+
+    public function appOwnList(Request $request)
+    {
+        $dat = AppStore::where('user', auth()->user()->id)->get();
+
+        $data = [];
+        foreach ($dat as $dt) {
+            $data[] = [
+                "id" => encrypt($dt->id),
+                "developer" => $dt->userId->name,
+                "app_name" => $dt->name,
+                "description" => $dt->description,
+                "category" => $dt->category,
+                "email" => $dt->email,
+                "phone" => $dt->phone,
+                "phone_opt" => $dt->phone_opt,
+                "os" => $dt->os,
+                "app_icon" => $dt->app_icon,
+                "feature_image" => $dt->feature_image,
+                "policy" => $dt->policy,
+                "app_bundle" => $dt->app_bundle,
+                "name_release" => $dt->name_release,
+                "version" => $dt->version,
+                "copyright" => $dt->copyright,
+                "release" => $dt->release,
+                "collect_data" => $dt->collect_data,
+                "contact_name" => $dt->contact_name,
+                "contact_email" => $dt->contact_email,
+                "contact_phone" => $dt->contact_phone,
+                "contact_address" => $dt->contact_address,
+                "contact_other" => $dt->contact_other,
+                "location_precise" => $dt->location_precise,
+                "location_coarse" => $dt->location_coarse,
+                "sensitive_info" => $dt->sensitive_info,
+                "app_id" => $dt->app_id,
+                "app_id_name" => $dt->app_id_name,
+                "app_id_prefix" => $dt->app_id_prefix,
+                "app_id_surfix" => $dt->app_id_surfix,
+                "rc_number" => $dt->rc_number,
+                "tin_number" => $dt->tin_number,
+                "status" => $dt->status,
+                "active_date" => $dt->active_date,
+                "disable_date" => $dt->disable_date,
+                "reject_date" => $dt->reject_date,
+                "resubmit_date" => $dt->resubmit_date,
+                "comment" => $dt->comment,
+                "created_at" => $dt->created_at,
+                "updated_at" => $dt->updated_at,
+            ];
+        }
 
         return response()->json(
             [
