@@ -234,7 +234,7 @@ class SuperAdminController extends Controller
     {
         $data = User::with('appStore')->whereHas('appStore')->get();
         $userPen = User::where('app_role', 'developer')->where('statusApp', 'pending')->get();
-        $userApp = User::where('app_role', 'developer')->where('statusApp', 'approved')->get();
+        $userApp = User::where('app_role', 'developer')->where('statusApp', 'verified')->get();
         $userRej = User::where('app_role', 'developer')->where('statusApp', 'reject')->get();
         $userBlk = User::where('app_role', 'developer')->where('statusApp', 'block')->get();
         return view('super.storeuser', [

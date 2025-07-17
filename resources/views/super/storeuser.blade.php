@@ -7,7 +7,7 @@
         <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#pending" type="button">Pending</button>
     </li>
     <li class="nav-item">
-        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#approved" type="button">Approved</button>
+        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#verified" type="button">verified</button>
     </li>
     <li class="nav-item">
         <button class="nav-link" data-bs-toggle="tab" data-bs-target="#reject" type="button">Rejected</button>
@@ -94,7 +94,7 @@
         </div>
         <!--end::Card-->
     </div>
-    <div class="tab-pane fade" id="approved">
+    <div class="tab-pane fade" id="verified">
         <!--begin::Card-->
         <div class="card">
             <!--begin::Card header-->
@@ -352,32 +352,32 @@
                                 </div>
                             </td>
                             <td>{{$dt->name}}</td>
-                            <td>{{$dt->appStore->count()}}</td>
-                            <td>{{$dt->email}}</td>
-                            <td>{{$dt->phone}}</td>
-                            <td>{{$dt->app_role}}</td>
-                            <td class="text-end">
-                                <a href="#" class="btn btn-light btn-active-light-primary btn-flex btn-center btn-sm" data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end">Actions
-                                    <i class="ki-outline ki-down fs-5 ms-1"></i></a>
-                                <!--begin::Menu-->
-                                <div class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-600 menu-state-bg-light-primary fw-semibold fs-7 w-125px py-4" data-kt-menu="true">
-                                    <!--begin::Menu item-->
-                                    <div class="menu-item px-3">
-                                        <a href="{{route('super.store.user.detail', ['id'=>encrypt($dt->id)])}}" class="menu-link px-3">View App</a>
-                                    </div>
-                                </div>
-                                <!--end::Menu-->
-                            </td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-                <!--end::Table-->
+    <td>{{$dt->appStore->count()}}</td>
+    <td>{{$dt->email}}</td>
+    <td>{{$dt->phone}}</td>
+    <td>{{$dt->app_role}}</td>
+    <td class="text-end">
+        <a href="#" class="btn btn-light btn-active-light-primary btn-flex btn-center btn-sm" data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end">Actions
+            <i class="ki-outline ki-down fs-5 ms-1"></i></a>
+        <!--begin::Menu-->
+        <div class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-600 menu-state-bg-light-primary fw-semibold fs-7 w-125px py-4" data-kt-menu="true">
+            <!--begin::Menu item-->
+            <div class="menu-item px-3">
+                <a href="{{route('super.store.user.detail', ['id'=>encrypt($dt->id)])}}" class="menu-link px-3">View App</a>
             </div>
-            <!--end::Card body-->
         </div>
-        <!--end::Card-->
-    </div>--}}
+        <!--end::Menu-->
+    </td>
+    </tr>
+    @endforeach
+    </tbody>
+    </table>
+    <!--end::Table-->
+</div>
+<!--end::Card body-->
+</div>
+<!--end::Card-->
+</div>--}}
 </div>
 
 @endsection
