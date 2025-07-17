@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::table('users', function (Blueprint $table) {
             $table->string('developer_display_name')->nullable();
             $table->string('website')->nullable();
+            $table->text('commentApp')->nullable();
             $table->string('selfie')->nullable();
             $table->string('id_card_front')->nullable();
             $table->string('id_card_back')->nullable();
@@ -27,6 +28,7 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->dropColumn('developer_display_name');
+            $table->dropColumn('commentApp');
             $table->dropColumn('website');
             $table->dropColumn('selfie');
             $table->dropColumn('id_card_front');

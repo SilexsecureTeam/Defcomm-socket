@@ -79,7 +79,7 @@
                                 <div class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-600 menu-state-bg-light-primary fw-semibold fs-7 w-125px py-4" data-kt-menu="true">
                                     <!--begin::Menu item-->
                                     <div class="menu-item px-3">
-                                        <a href="{{route('super.store.app', ['id'=>encrypt($dt->id)])}}" class="menu-link px-3">View App</a>
+                                        <a href="{{route('super.store.user.detail', ['id'=>encrypt($dt->id)])}}" class="menu-link px-3">View App</a>
                                     </div>
                                 </div>
                                 <!--end::Menu-->
@@ -94,7 +94,7 @@
         </div>
         <!--end::Card-->
     </div>
-    <div class="tab-pane fade show active" id="approved">
+    <div class="tab-pane fade" id="approved">
         <!--begin::Card-->
         <div class="card">
             <!--begin::Card header-->
@@ -150,7 +150,7 @@
                                 <div class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-600 menu-state-bg-light-primary fw-semibold fs-7 w-125px py-4" data-kt-menu="true">
                                     <!--begin::Menu item-->
                                     <div class="menu-item px-3">
-                                        <a href="{{route('super.store.app', ['id'=>encrypt($dt->id)])}}" class="menu-link px-3">View App</a>
+                                        <a href="{{route('super.store.user.detail', ['id'=>encrypt($dt->id)])}}" class="menu-link px-3">View App</a>
                                     </div>
                                 </div>
                                 <!--end::Menu-->
@@ -165,7 +165,7 @@
         </div>
         <!--end::Card-->
     </div>
-    <div class="tab-pane fade show active" id="reject">
+    <div class="tab-pane fade" id="reject">
         <!--begin::Card-->
         <div class="card">
             <!--begin::Card header-->
@@ -221,7 +221,7 @@
                                 <div class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-600 menu-state-bg-light-primary fw-semibold fs-7 w-125px py-4" data-kt-menu="true">
                                     <!--begin::Menu item-->
                                     <div class="menu-item px-3">
-                                        <a href="{{route('super.store.app', ['id'=>encrypt($dt->id)])}}" class="menu-link px-3">View App</a>
+                                        <a href="{{route('super.store.user.detail', ['id'=>encrypt($dt->id)])}}" class="menu-link px-3">View App</a>
                                     </div>
                                 </div>
                                 <!--end::Menu-->
@@ -236,7 +236,7 @@
         </div>
         <!--end::Card-->
     </div>
-    <div class="tab-pane fade show active" id="disable">
+    <div class="tab-pane fade" id="disable">
         <!--begin::Card-->
         <div class="card">
             <!--begin::Card header-->
@@ -292,7 +292,7 @@
                                 <div class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-600 menu-state-bg-light-primary fw-semibold fs-7 w-125px py-4" data-kt-menu="true">
                                     <!--begin::Menu item-->
                                     <div class="menu-item px-3">
-                                        <a href="{{route('super.store.app', ['id'=>encrypt($dt->id)])}}" class="menu-link px-3">View App</a>
+                                        <a href="{{route('super.store.user.detail', ['id'=>encrypt($dt->id)])}}" class="menu-link px-3">View App</a>
                                     </div>
                                 </div>
                                 <!--end::Menu-->
@@ -307,7 +307,7 @@
         </div>
         <!--end::Card-->
     </div>
-    {{--<div class="tab-pane fade show active" id="active">
+    {{--<div class="tab-pane fade" id="active">
         <!--begin::Card-->
         <div class="card">
             <!--begin::Card header-->
@@ -363,7 +363,7 @@
                                 <div class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-600 menu-state-bg-light-primary fw-semibold fs-7 w-125px py-4" data-kt-menu="true">
                                     <!--begin::Menu item-->
                                     <div class="menu-item px-3">
-                                        <a href="{{route('super.store.app', ['id'=>encrypt($dt->id)])}}" class="menu-link px-3">View App</a>
+                                        <a href="{{route('super.store.user.detail', ['id'=>encrypt($dt->id)])}}" class="menu-link px-3">View App</a>
                                     </div>
                                 </div>
                                 <!--end::Menu-->

@@ -159,6 +159,10 @@ class AuthController extends Controller
             $user->update(['otp' => $otp]);
             $this->smsSent($request->get('phone'), $otp);
             Mail::to($user->email)->send(new OtpMail($user->name, $otp));
+
+            $bodysms = 'Welcome to Defcomm!, Your OTP is ' . $otp . ' or use https://cloud.defcomm.ng/onboarding to join.';
+
+            $this->TermiiSms($request->phone, $bodysms);
             return response()->json(['status' => 200, 'message' => 'OTP has been sent', 'otp' => $otp], 200);
         } else {
             return response()->json(['status' => 400, 'error' => "This user does not exist."], 400);
@@ -344,22 +348,46 @@ class AuthController extends Controller
             $user->update(['rc_number' => $request->rc_number]);
         }
 
-        if($request->rc_doc){
+        if ($request->hasFile('rc_doc')) {
             $rc_doc = $request->file('rc_doc');
-            $rc_doc_name = time() . "secure." . $rc_doc->getClientOriginalExtension();
-            $rc_doc->move(public_path('storeuser'), $rc_doc_name);
-            $user->update(['rc_doc' => "storeuser/". $rc_doc_name]);
+            $rc_doc_name = time() . '_rc_doc.' . $rc_doc->getClientOriginalExtension();
+            $rc_doc->move(public_path('storeuser/rc_doc'), $rc_doc_name);
+
+            // Delete the old file if it exists
+            if ($user->rc_doc && file_exists(public_path($user->rc_doc))) {
+                try {
+                    unlink(public_path($user->rc_doc));
+                } catch (\Exception $e) {
+                    // Log the error if needed
+                    // Log::error("Failed to delete old rc_doc: " . $e->getMessage());
+                }
+            }
+
+            // Update the new file path in the database
+            $user->update(['rc_doc' => 'storeuser/rc_doc/' . $rc_doc_name]);
         }
 
         if($request->tin){
             $user->update(['tin' => $request->tin]);
         }
 
-        if($request->tin_doc){
+        if ($request->hasFile('tin_doc')) {
             $tin_doc = $request->file('tin_doc');
-            $tin_doc_name = time() . "secure." . $tin_doc->getClientOriginalExtension();
-            $tin_doc->move(public_path('storeuser'), $tin_doc_name);
-            $user->update(['tin_doc' => "storeuser/" . $tin_doc_name]);
+            $tin_doc_name = time() . '_tin_doc.' . $tin_doc->getClientOriginalExtension();
+            $tin_doc->move(public_path('storeuser/tin_doc'), $tin_doc_name);
+
+            // Delete the old file if it exists
+            if ($user->tin_doc && file_exists(public_path($user->tin_doc))) {
+                try {
+                    unlink(public_path($user->tin_doc));
+                } catch (\Exception $e) {
+                    // Log the error if needed
+                    // Log::error("Failed to delete old tin_doc: " . $e->getMessage());
+                }
+            }
+
+            // Update the new file path in the database
+            $user->update(['tin_doc' => 'storeuser/tin_doc/' . $tin_doc_name]);
         }
 
         if($request->developer_display_name ){
@@ -370,11 +398,61 @@ class AuthController extends Controller
             $user->update(['website' => $request->website ]);
         }
 
-        if($request->selfie ){
+        if ($request->hasFile('selfie')) {
             $selfie = $request->file('selfie');
-            $selfie_name = time() . "secure." . $selfie->getClientOriginalExtension();
-            $selfie->move(public_path('storeuser'), $selfie_name);
-            $user->update(['selfie' => "storeuser/" . $selfie_name]);
+            $selfie_name = time() . '_selfie.' . $selfie->getClientOriginalExtension();
+            $selfie->move(public_path('storeuser/selfie'), $selfie_name);
+
+            // Delete the old file if it exists
+            if ($user->selfie && file_exists(public_path($user->selfie))) {
+                try {
+                    unlink(public_path($user->selfie));
+                } catch (\Exception $e) {
+                    // Log the error if needed
+                    // Log::error("Failed to delete old selfie: " . $e->getMessage());
+                }
+            }
+
+            // Update the new file path in the database
+            $user->update(['selfie' => 'storeuser/selfie/' . $selfie_name]);
+        }
+
+        if ($request->hasFile('id_card_front')) {
+            $id_card_front = $request->file('id_card_front');
+            $id_card_front_name = time() . '_id_card_front.' . $id_card_front->getClientOriginalExtension();
+            $id_card_front->move(public_path('storeuser/id_card_front'), $id_card_front_name);
+
+            // Delete the old file if it exists
+            if ($user->id_card_front && file_exists(public_path($user->id_card_front))) {
+                try {
+                    unlink(public_path($user->id_card_front));
+                } catch (\Exception $e) {
+                    // Log the error if needed
+                    // Log::error("Failed to delete old id_card_front: " . $e->getMessage());
+                }
+            }
+
+            // Update the new file path in the database
+            $user->update(['id_card_front' => 'storeuser/id_card_front/' . $id_card_front_name]);
+        }
+
+        if ($request->hasFile('id_card_back')) {
+            $id_card_back = $request->file('id_card_back');
+            $id_card_back_name = time() . '_id_card_back.' . $id_card_back->getClientOriginalExtension();
+            $id_card_back->move(public_path('storeuser/id_card_back'), $id_card_back_name);
+
+            // Delete the old file if it exists
+            if ($user->id_card_back && file_exists(public_path($user->id_card_back))) {
+                try {
+                    unlink(public_path($user->id_card_back));
+                } catch (\Exception $e) {
+                    // Log the error if needed
+                    // Log::error("Failed to delete old id_card_back: " . $e->getMessage());
+                }
+            }
+
+            // Update the new file path in the database
+            $user->update(['id_card_back' => 'storeuser/id_card_back/' . $id_card_back_name]);
         }
 
         $user->update([

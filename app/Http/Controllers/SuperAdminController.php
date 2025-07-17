@@ -247,6 +247,25 @@ class SuperAdminController extends Controller
             'userBlk' => $userBlk
         ]);
     }
+
+    public function storeUserDetail($id)
+    {
+        $data = User::find(decrypt($id));
+        return view('super.storeuserdetail', [
+            'page' => "Store User",
+            'opt' => 'admin',
+            'data' => $data
+        ]);
+    }
+
+    public function storeuserdetailSub(Request $request)
+    {
+        User::find(decrypt($request->id))->update([
+            'statusApp' => $request->statusApp,
+            'commentApp' => $request->commentApp
+        ]);
+        return redirect()->back()->with('success', "App status successfully updated");
+    }
     
     public function storeApp($id=null)
     {

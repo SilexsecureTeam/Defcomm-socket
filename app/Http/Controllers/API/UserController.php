@@ -1268,6 +1268,25 @@ class UserController extends Controller
         return response()->json(['token' => $jwt]);
     }
 
+    public function appstatus(Request $request)
+    {
+        $data = AppStore::where('user', auth()->user()->id)->where('id', decrypt($request->id))->first();
+        $data->update([
+            'status' => $request->status,
+            'active_date' => $request->status == "active" ? Carbon::now() : null,
+            'disable_date' => $request->status == "disable" ? Carbon::now() : null
+        ]);
+
+        return response()->json(
+            [
+                'status' => '200',
+                'message' => 'Record listed',
+                'data' => $data
+            ],
+            201
+        );
+    }
+
     public function appcreate(Request $request)
     {
         if ($request->id) {
@@ -1337,51 +1356,64 @@ class UserController extends Controller
         if ($request->os) {
             $app->update(['os' => $request->os]);
         }
-        if ($request->app_icon) {
+
+        if ($request->hasFile('app_icon')) {
             $fileIcon = $request->file('app_icon');
-            $fileIcon_name = time() . "app_icon." . $fileIcon->getClientOriginalExtension();
+            $fileIcon_name = time() . '_app_icon.' . $fileIcon->getClientOriginalExtension();
             $fileIcon->move(public_path('app/app_icon'), $fileIcon_name);
 
-            if ($app->app_icon) {
+            // Delete the old file if it exists
+            if ($app->app_icon && file_exists(public_path($app->app_icon))) {
                 try {
                     unlink(public_path($app->app_icon));
                 } catch (\Exception $e) {
-                    // Optionally log the error
+                    // Log the error if needed
+                    // Log::error("Failed to delete old app_icon: " . $e->getMessage());
                 }
             }
 
-            $app->update(['app_icon' => "app/icon/" . $fileIcon]);
+            // Update the new file path in the database
+            $app->update(['app_icon' => 'app/app_icon/' . $fileIcon_name]);
         }
-        if ($request->feature_image) {
+
+        if ($request->hasFile('feature_image')) {
             $fileFeatureimage = $request->file('feature_image');
-            $fileFeatureimage_name = time() . "feature_image." . $fileFeatureimage->getClientOriginalExtension();
+            $fileFeatureimage_name = time() . '_feature_image.' . $fileFeatureimage->getClientOriginalExtension();
             $fileFeatureimage->move(public_path('app/feature_image'), $fileFeatureimage_name);
 
-            if ($app->feature_image) {
+            // Delete the old feature image if it exists
+            if ($app->feature_image && file_exists(public_path($app->feature_image))) {
                 try {
                     unlink(public_path($app->feature_image));
                 } catch (\Exception $e) {
                     // Optionally log the error
+                    // Log::error("Failed to delete old feature image: " . $e->getMessage());
                 }
             }
 
-            $app->update(['feature_image' => "app/Featureimage/" . $fileFeatureimage]);
+            // Update the new file path in the database
+            $app->update(['feature_image' => 'app/feature_image/' . $fileFeatureimage_name]);
         }
-        if ($request->app_bundle) {
+
+        if ($request->hasFile('app_bundle')) {
             $fileBundle = $request->file('app_bundle');
-            $fileBundle_name = time() . "app_bundle." . $fileBundle->getClientOriginalExtension();
+            $fileBundle_name = time() . '_app_bundle.' . $fileBundle->getClientOriginalExtension();
             $fileBundle->move(public_path('app/app_bundle'), $fileBundle_name);
 
-            if ($app->app_bundle) {
+            // Delete the old bundle file if it exists
+            if ($app->app_bundle && file_exists(public_path($app->app_bundle))) {
                 try {
                     unlink(public_path($app->app_bundle));
                 } catch (\Exception $e) {
                     // Optionally log the error
+                    // Log::error("Failed to delete old app_bundle: " . $e->getMessage());
                 }
             }
 
-            $app->update(['app_bundle' => "app/Bundle/" . $fileBundle]);
+            // Update the new file path in the database
+            $app->update(['app_bundle' => 'app/app_bundle/' . $fileBundle_name]);
         }
+
         if ($request->policy) {
             $app->update(['policy' => $request->policy]);
         }

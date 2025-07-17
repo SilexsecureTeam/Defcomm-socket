@@ -13,67 +13,49 @@
 
     <div class="card mb-4 shadow-sm">
         <div class="card-header d-flex justify-content-between align-items-center">
-            <h5>{{ $app->name }} <span class="badge bg-primary text-capitalize">{{ $app->status }}</span></h5>
-            <small>Submitted by: User #{{ $app->userId->name }}</small>
+            <h5>{{ $data->name }} <span class="badge bg-primary text-capitalize">{{ $data->statusApp }}</span></h5>
+            <small>Submitted by: User #{{ $data->name }}</small>
         </div>
 
         <div class="card-body">
             <div class="row">
                 <div class="col-md-3">
-                    <h2>App Icon</h2>
-                    @if($app->app_icon)
-                    <img src="{{ asset('/'. $app->app_icon) }}" alt="App Icon" class="img-thumbnail mb-3" style="width: 100px;">
+                    <h2>RC: {{$data->rc_number}}</h2>
+                    @if($data->rc_doc)
+                    <a href="{{url('/'.$data->rc_doc)}}"><i class="fas fa-download"></i></a>
                     @endif
 
-                    <h2>App Feature Image</h2>
-                    @if($app->feature_image)
-                    <img src="{{ asset('/'. $app->feature_image) }}" alt="Feature Image" class="img-fluid">
+                    <h2>TIN: {{$data->tin}}</h2>
+                    @if($data->tin_doc)
+                    <a href="{{url('/'.$data->rc_doc)}}"><i class="fas fa-download"></i></a>
+                    @endif
+
+                    <h2>Selfie</h2>
+                    @if($data->selfie)
+                    <a href="{{url('/'.$data->selfie)}}"><i class="fas fa-download"></i></a>
+                    @endif
+
+                    <h2>ID Card Front</h2>
+                    @if($data->id_card_front)
+                    <a href="{{url('/'.$data->id_card_front)}}"><i class="fas fa-download"></i></a>
+                    @endif
+
+                    <h2>ID Card Back</h2>
+                    @if($data->id_card_back)
+                    <a href="{{url('/'.$data->id_card_back)}}"><i class="fas fa-download"></i></a>
                     @endif
                 </div>
                 <div class="col-md-9">
-                    <p><strong>Description:</strong> {{ $app->description }}</p>
-                    <p><strong>Category:</strong> {{ $app->category }}</p>
-                    <p><strong>OS:</strong> {{ $app->os }}</p>
-                    <p><strong>Version:</strong> {{ $app->version }} ({{ $app->name_release }})</p>
-                    <p><strong>App Bundle:</strong> {{ $app->app_bundle }}</p>
-                    <p><strong>Policy:</strong> {{ $app->policy }}</p>
+                    <p><strong>Developer display name:</strong> {{ $data->developer_display_name }}</p>
+                    <p><strong>website:</strong> {{ $data->website }}</p>
 
                     <p><strong>Contact Info:</strong></p>
                     <ul>
-                        <li>Name: {{ $app->contact_name }}</li>
-                        <li>Email: {{ $app->contact_email }}</li>
-                        <li>Phone: {{ $app->contact_phone }}{{ $app->phone_opt ? ', ' . $app->phone_opt : '' }}</li>
-                        <li>Address: {{ $app->contact_address }}</li>
-                        <li>Other: {{ $app->contact_other }}</li>
+                        <li>Name: {{ $data->name }}</li>
+                        <li>Email: {{ $data->email }}</li>
+                        <li>Phone: {{ $data->phone }}</li>
+                        <li>Address: {{ $data->address }}</li>
                     </ul>
-
-                    <p><strong>Location Access:</strong> Precise: {{ $app->location_precise }}, Coarse: {{ $app->location_coarse }}</p>
-                    <p><strong>Sensitive Info:</strong> {{ $app->sensitive_info }}</p>
-
-                    <p><strong>Release Type:</strong> {{ $app->release }}</p>
-                    <p><strong>Data Collection:</strong> {{ $app->collect_data }}</p>
-
-                    <p><strong>App ID:</strong> {{ $app->app_id_prefix }}{{ $app->app_id_name }}{{ $app->app_id_surfix }}</p>
-
-                    <p><strong>Company Info:</strong></p>
-                    <ul>
-                        <li>RC Number: {{ $app->rc_number }}</li>
-                        <li>TIN Number: {{ $app->tin_number }}</li>
-                    </ul>
-
-                    @if($app->comment)
-                    <p><strong>Reviewer Comment:</strong> {{ $app->comment }}</p>
-                    @endif
-
-                    <p class="mb-0">
-                        <strong>Status Dates:</strong>
-                        <small>
-                            @if($app->active_date) Active: {{ $app->active_date }} | @endif
-                            @if($app->disable_date) Disabled: {{ $app->disable_date }} | @endif
-                            @if($app->reject_date) Rejected: {{ $app->reject_date }} | @endif
-                            @if($app->resubmit_date) Resubmitted: {{ $app->resubmit_date }} @endif
-                        </small>
-                    </p>
                 </div>
             </div>
         </div>
@@ -101,9 +83,9 @@
             <!--begin::Modal body-->
             <div class="modal-body px-5 my-7">
                 <!--begin::Form-->
-                <form id="kt_modal_add_user_form" method="post" class="form" action="{{route('super.store.app.detailSub')}}">
+                <form id="kt_modal_add_user_form" method="post" class="form" action="{{route('super.store.user.detailSub')}}">
                     @csrf
-                    <input type="hidden" value="{{encrypt($app->id)}}" name="id" />
+                    <input type="hidden" value="{{encrypt($data->id)}}" name="id" />
                     <!--begin::Scroll-->
                     <div class="d-flex flex-column scroll-y px-5 px-lg-10" id="kt_modal_add_user_scroll" data-kt-scroll="true" data-kt-scroll-activate="true" data-kt-scroll-max-height="auto" data-kt-scroll-dependencies="#kt_modal_add_user_header" data-kt-scroll-wrappers="#kt_modal_add_user_scroll" data-kt-scroll-offset="300px">
 
@@ -112,7 +94,7 @@
                             <!--begin::Label-->
                             <label class="required fw-semibold fs-6 mb-2">Message</label>
                             <!--end::Label-->
-                            <!--begin::Input--><textarea id="editor" name="comment">{{$app->comment}}</textarea>
+                            <!--begin::Input--><textarea id="editor" name="commentApp">{{$data->commentApp}}</textarea>
                             <!--end::Input-->
                         </div>
                         <!--end::Input group-->
@@ -122,10 +104,11 @@
                             <label class="required fw-semibold fs-6 mb-2">Status</label>
                             <!--end::Label-->
                             <!--begin::Input-->
-                            <select name="status" class="form-control form-control-solid mb-3 mb-lg-0">
-                                <option value="{{$app->status}}">{{$app->status}}</option>
-                                <option value="approved">Approved</option>
+                            <select name="statusApp" class="form-control form-control-solid mb-3 mb-lg-0">
+                                <option value="{{$data->statusApp}}">{{$data->statusApp}}</option>
+                                <option value="verified">Verified</option>
                                 <option value="reject">Reject</option>
+                                <option value="block">Block</option>
                             </select>
                             <!--end::Input-->
                         </div>

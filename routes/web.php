@@ -88,6 +88,8 @@ Route::middleware(['auth', 'user-role:super'])->group(function () {
     Route::post('/super/agreementsEdit', [SuperAdminController::class, 'agreementsEdit'])->name('super.agreementsEdit');
 
     Route::get('/super/store/user', [SuperAdminController::class, 'storeUser'])->name('super.store.user');
+    Route::get('/super/store/user/{id}', [SuperAdminController::class, 'storeUserDetail'])->name('super.store.user.detail');
+    Route::post('/super/store/user/detailSub', [SuperAdminController::class, 'storeuserdetailSub'])->name('super.store.user.detailSub');
     Route::get('/super/store/app/{id?}', [SuperAdminController::class, 'storeApp'])->name('super.store.app');
     Route::get('/super/store/app/detail/{id}', [SuperAdminController::class, 'storeappdetail'])->name('super.store.appt.detail');
     Route::post('/super/store/app/detailSub', [SuperAdminController::class, 'storeappdetailSub'])->name('super.store.app.detailSub');

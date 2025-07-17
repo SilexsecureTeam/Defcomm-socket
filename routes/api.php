@@ -95,5 +95,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user/notification', [UserController::class, 'notification']);
 
     Route::post('/app/create', [UserController::class, 'appcreate']);
+    Route::post('/app/status', [UserController::class, 'appstatus']);
     Route::get('/app/ownlist', [UserController::class, 'appOwnList']);
 });
