@@ -2,7 +2,7 @@
     <div style="background-color:white; padding: 20px 40px 20px 40px; border: 1px solid rgba(0, 0, 0, 0.209);">
         <div style="display: flex; align-items: center;  background-color:#36460A;justify-content: center; padding: 10px; text-align: center;">
             <div style="max-width:150px; margin: 0 auto;">
-                <img src="{{asset('img/icon.png')}}" alt="Defcomm Logo" style="max-width: 100%; height: auto;">
+                <img src="https://backend.defcomm.ng/img/Defcomm-Logo.png" alt="Defcomm Logo" style="max-width: 100%; height: auto;">
             </div>
         </div>
         <div style=" display:flex; align-items:center; margin-top:10px; justify-content:center; ">

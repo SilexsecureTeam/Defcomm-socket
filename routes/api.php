@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Broadcast;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\UserController;
+use App\Http\Controllers\API\WalkieTalkieController;
 
 /*
 |--------------------------------------------------------------------------
@@ -97,4 +98,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/app/create', [UserController::class, 'appcreate']);
     Route::post('/app/status', [UserController::class, 'appstatus']);
     Route::get('/app/ownlist', [UserController::class, 'appOwnList']);
+
+    Route::post('/walkietalkie/channelcreate', [WalkieTalkieController::class, 'channelcreate']);
+    Route::post('/walkietalkie/channelupdate', [WalkieTalkieController::class, 'channelupdate']);
+    Route::get('/walkietalkie/channecreatellist', [WalkieTalkieController::class, 'channecreatellist']);
+    Route::get('/walkietalkie/channedelete/{id}', [WalkieTalkieController::class, 'channedelete']);
+    Route::post('/walkietalkie/channelinvite', [WalkieTalkieController::class, 'channelinvite']);
+    Route::get('/walkietalkie/channellistinvited/{status}', [WalkieTalkieController::class, 'channellistinvited']);
+    Route::post('/walkietalkie/channelinvitedstatus', [WalkieTalkieController::class, 'channelinvitedstatus']);
+    Route::post('/walkietalkie/channelbroadcast', [WalkieTalkieController::class, 'channelbroadcast']);
+    Route::get('/walkietalkie/channelbroadcastlist/{id}', [WalkieTalkieController::class, 'channelbroadcastlist']);
+    Route::get('/walkietalkie/channelbroadcastdel/{id}', [WalkieTalkieController::class, 'channelbroadcastdel']);
 });

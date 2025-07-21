@@ -124,4 +124,19 @@ class User extends Authenticatable
     {
         return $this->hasMany(AppStore::class, 'user');
     }
+
+    public function wailkieTalkieChannel()
+    {
+        return $this->hasMany(WailkieTalkieChannel::class, 'user_id');
+    }
+
+    public function wailkieTalkieRecorder()
+    {
+        return $this->hasMany(WailkieTalkieRecorder::class, 'user_id');
+    }
+
+    public function wailkieTalkieSubscriber()
+    {
+        return $this->hasMany(WailkieTalkieSubscriber::class, 'user_id');
+    }
 }

@@ -7,17 +7,29 @@
         </div>
         <div style=" display:flex; align-items:center; margin-top:10px; justify-content:center; ">
             <p style="padding: 10px; display: inline-block; font-size: 20px; text-align: center; font-weight: bold; margin: 0 auto;">
-                {{$admail->title}}
+                New channel invation from {{$channel->user->name}}
             </p>
         </div>
 
 
         <p style="font-weight:bold;">Hi {{ $name ?? '' }},</p>
         <div style="margin-bottom:30px;">
-            <p>You have a call from {{$altname}}</p>
-        </div>
+            <p>You are invited to join a channel</p>
 
-        {!! $admail->message !!}
+            <p>
+                @if($channel->name)
+                Channel name: {{$channel->title}}<br />
+                @endif
+                @if($channel->frequency)
+                Channel frequency: {{$channel->frequency}}<br />
+                @endif
+                @if($channel->description)
+                Description: {{$channel->description}}<br />
+                @endif
+            </p>
+
+            <p>Kindly login to your defcomm account to proceed</p>
+        </div>
 
         <div style="line-height: 6px;">
             <p>Regards,</p>
