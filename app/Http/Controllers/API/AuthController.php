@@ -51,10 +51,10 @@ class AuthController extends Controller
     {
         $user = User::where('email', '=', $request->input('email'))->first();
 
-        if($user){
+        if ($user) {
             return response()->json(['status' => '400', 'message' => 'This email is already used', 'data' => []], 401);
-        }else{
-            return response()->json(['status' => '200','message' => 'This email is not yet taken', 'data' => []], 201);
+        } else {
+            return response()->json(['status' => '200', 'message' => 'This email is not yet taken', 'data' => []], 201);
         }
     }
 
@@ -86,7 +86,7 @@ class AuthController extends Controller
             'otp' => $otp
         ]);
 
-        if($request->role == "company"){
+        if ($request->role == "company") {
             $comp = CompanyUser::create([
                 'name' => $request->nameorg,
                 'user_id' => $user->id
@@ -94,15 +94,15 @@ class AuthController extends Controller
 
             $user->update(['company_id' => $comp->id]);
         }
-        if($request->verify_option == "sms"){
+        if ($request->verify_option == "sms") {
 
             $bodysms = 'Welcome to Defcomm!, Your OTP is ' . $otp . ' or use https://cloud.defcomm.ng/onboarding to join.';
 
             $this->TermiiSms($request->phone, $bodysms);
-        }else{
+        } else {
             Mail::to($request->email)->send(new Invitation($request->name, $request->email, encrypt($request->email), $otp));
         }
-        
+
         return response()->json(['message' => 'User registered successfully!', 'data' => $user], 201);
     }
 
@@ -128,6 +128,10 @@ class AuthController extends Controller
         }
 
         $user = $request->user();
+        if ($user->status !== "active") {
+            Auth::logout();
+            return response()->json(['status' => 400, 'error' => "Your account is not active. Contact support"], 401);
+        }
         $token = $user->createToken('auth_token')->plainTextToken;
 
         if ($request->device_token) {
@@ -175,6 +179,9 @@ class AuthController extends Controller
         if ($user->get()->isNotEmpty()) {
             $cur = Carbon::now()->subMinute(2)->format('Y-m-d H:i:s');
             if (strtotime($user->first()->updated_at->format('Y-m-d H:i:s')) >= strtotime($cur)) {
+                if ($user->first()->status !== "active") {
+                    return response()->json(['status' => 400, 'error' => "Your account is not active. Contact support"], 401);
+                }
 
                 $token = $user->first()->createToken('auth_token')->plainTextToken;
                 return response()->json([
@@ -344,7 +351,7 @@ class AuthController extends Controller
     {
         $user = User::find(auth()->user()->id);
 
-        if($request->rc_number){
+        if ($request->rc_number) {
             $user->update(['rc_number' => $request->rc_number]);
         }
 
@@ -367,7 +374,7 @@ class AuthController extends Controller
             $user->update(['rc_doc' => 'storeuser/rc_doc/' . $rc_doc_name]);
         }
 
-        if($request->tin){
+        if ($request->tin) {
             $user->update(['tin' => $request->tin]);
         }
 
@@ -390,12 +397,12 @@ class AuthController extends Controller
             $user->update(['tin_doc' => 'storeuser/tin_doc/' . $tin_doc_name]);
         }
 
-        if($request->developer_display_name ){
-            $user->update(['developer_display_name' => $request->developer_display_name ]);
+        if ($request->developer_display_name) {
+            $user->update(['developer_display_name' => $request->developer_display_name]);
         }
 
-        if($request->website ){
-            $user->update(['website' => $request->website ]);
+        if ($request->website) {
+            $user->update(['website' => $request->website]);
         }
 
         if ($request->hasFile('selfie')) {
@@ -459,7 +466,7 @@ class AuthController extends Controller
             'app_role' => "developer",
             'statusApp' => "pending"
         ]);
-        
+
         return response()->json(
             [
                 'status' => '200',
