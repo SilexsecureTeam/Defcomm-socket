@@ -28,7 +28,7 @@ Broadcast::channel('chat.{receiverId}', function ($user, $receiverId) {
 
 Broadcast::channel('group.{groupId}', function ($user, $groupId) {
     // You can validate user belongs to group here
-    return true;
+    return $user->groups->contains($groupId);
 });
 
 

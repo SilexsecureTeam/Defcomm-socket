@@ -28,8 +28,10 @@ use App\Models\CompanyGroupUser;
 use App\Events\PrivateMessageSent;
 use App\Http\Services\ChatService;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Mail;
 use App\Http\Services\FileUploadService;
+use App\Http\Services\FileEncryptorService;
 
 class UserController extends Controller
 {
@@ -183,8 +185,21 @@ class UserController extends Controller
         }
 
         $file_size = $fileSize = $file->getSize();
-        $file_name = time() . "secure." . $file->getClientOriginalExtension();
-        $file->move(public_path('secure'), $file_name);
+        $file_time = time();
+        $file_name = $file_time . $file->hashName() . '.enc';
+
+        $originalPath = $file->storeAs('secure/uploads', $file_time . $file->getClientOriginalName());
+        $encryptedPath = $file->storeAs('secure/encrypted',  $file_name);
+        
+        $encryptor = new FileEncryptorService();
+        $encryptor->processAndEncrypt(
+            storage_path('app/' . $originalPath),
+            storage_path('app/' . $encryptedPath),
+            [
+                'watermark_text' => 'Confidential',
+                // 'watermark_image' => public_path('logo.png')
+            ]
+        );
 
         if ($file_size >= 1073741824) {
             $file_size = number_format($file_size / 1073741824, 2) . ' GB';
@@ -199,7 +214,7 @@ class UserController extends Controller
         $file = Files::create([
             'name' => $request->name,
             'description' => $request->description,
-            'file' => $file_name,
+            'file' => encrypt("app/secure/encrypted/".$file_name),
             'file_size' => $file_size,
             'file_ext' => $file_ext,
             'fileSize_num' => $fileSize,
@@ -263,6 +278,30 @@ class UserController extends Controller
             ],
             401
         );
+    }
+
+    public function fileDownload($id)
+    {
+        $file = Files::find(decrypt($id));
+        FileShareLog::create(['user_id' => auth()->user()->id, 'file_id' => $file->id, 'company_id' => auth()->user()->company_id]);
+
+        $pathToEncrypted = storage_path(decrypt($file->file));
+        $fileExtension = $file->file_ext;
+        $pathToDecryptedWatermarked = storage_path('app/decrypted_' . uniqid() . '.' . $fileExtension);
+        File::put($pathToDecryptedWatermarked, "");
+
+        $encryptor = new FileEncryptorService();
+        $encryptor->decryptAndWatermark(
+            $pathToEncrypted,
+            $pathToDecryptedWatermarked,
+            $fileExtension,
+            [
+                'watermark_text' => 'Downloaded by: '. auth()->user()->name,
+                // 'watermark_image' => public_path('logo.png')
+            ]
+        );
+
+        return response()->download($pathToDecryptedWatermarked)->deleteFileAfterSend(true);
     }
 
     public function fileView($id)
@@ -437,6 +476,10 @@ class UserController extends Controller
             $user->update([
                 'avatar' => 'avatar/' . $file_name,
             ]);
+        }
+
+        if ($request->encryptorkey) {
+            $user->update(['encryptorkey' => encrypt($request->encryptorkey)]);
         }
 
         if ($request->name) {

@@ -197,7 +197,7 @@
                                 <div class="d-flex justify-content-end">
                                     <!--begin::Share link-->
                                     <div class="ms-2" data-kt-filemanger-table="copy_link">
-                                        <a href="{{route('admin.file.view', ['id' => encrypt($dt->id)])}}" class="btn btn-sm btn-icon btn-light">
+                                        <a href="{{route('admin.file.download', ['id' => encrypt($dt->id)])}}" class="btn btn-sm btn-icon btn-light">
                                             <i class="ki-duotone ki-fasten fs-5 m-0">
                                                 <span class="path1"></span>
                                                 <span class="path2"></span>

@@ -113,6 +113,7 @@ Route::middleware(['auth', 'user-role:admin'])->group(function () {
     Route::get('/admin/file/user', [AdminController::class, 'fileUser'])->name('admin.file.user');
     Route::get('/admin/file/request', [AdminController::class, 'fileRequest'])->name('admin.file.request');
     Route::get('/admin/file/view/{id}', [AdminController::class, 'fileView'])->name('admin.file.view');
+    Route::get('/admin/file/download/{id}', [AdminController::class, 'fileDownload'])->name('admin.file.download');
     Route::post('/admin/file/upload', [AdminController::class, 'fileUpload'])->name('admin.file.upload');
     Route::get('/admin/file/share/group/{id}', [AdminController::class, 'fileShareGroup'])->name('admin.file.share.group');
     Route::post('/admin/file/share/group/add', [AdminController::class, 'fileShareGroupAdd'])->name('admin.file.share.group.add');

@@ -17,6 +17,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Validator;
+use App\Http\Services\FileEncryptorService;
+use Illuminate\Support\Facades\File;
 
 class AdminController extends Controller
 {
@@ -251,6 +253,32 @@ class AdminController extends Controller
         ]);
     }
 
+    public function fileDownload($id)
+    {
+        $file = Files::find(decrypt($id));
+        FileShareLog::create(['user_id' => auth()->user()->id, 'file_id' => $file->id, 'company_id' => auth()->user()->company_id]);
+
+        $pathToEncrypted = storage_path(decrypt($file->file));
+        $fileExtension = $file->file_ext;
+        $pathToDecryptedWatermarked = storage_path('app/decrypted_' . uniqid() . '.' . $fileExtension);
+        File::put($pathToDecryptedWatermarked, "");
+
+        $encryptor = new FileEncryptorService();
+        $encryptor->decryptAndWatermark(
+            $pathToEncrypted,
+            $pathToDecryptedWatermarked,
+            $fileExtension,
+            [
+                'watermark_text' => 'Downloaded by: ' . auth()->user()->name,
+                // 'watermark_image' => public_path('logo.png')
+                "y" => 60,
+                "x" => 40
+            ]
+        );
+
+        return response()->download($pathToDecryptedWatermarked)->deleteFileAfterSend(true);
+    }
+
     public function fileUpload(Request $request)
     {
         $file = $request->file('file');
@@ -258,13 +286,26 @@ class AdminController extends Controller
 
         // return dd($file_ext != "pdf" || $file_ext != "PDF");
 
-        if ($file_ext != "pdf") {
-            return redirect()->back()->with('error', "Ensure the file is PDF");
-        }
+        // if ($file_ext != "pdf") {
+        //     return redirect()->back()->with('error', "Ensure the file is PDF");
+        // }
 
         $file_size = $fileSize = $file->getSize();
-        $file_name = time() . "secure." . $file->getClientOriginalExtension();
-        $file->move(public_path('secure'), $file_name);
+        $file_time = time();
+        $file_name = $file_time . $file->hashName() . '.enc';
+
+        $originalPath = $file->storeAs('secure/uploads', $file_time . $file->getClientOriginalName());
+        $encryptedPath = $file->storeAs('secure/encrypted',  $file_name);
+
+        $encryptor = new FileEncryptorService();
+        $encryptor->processAndEncrypt(
+            storage_path('app/' . $originalPath),
+            storage_path('app/' . $encryptedPath),
+            [
+                'watermark_text' => 'Uploaded by '.auth()->user()->name,
+                // 'watermark_image' => public_path('logo.png')
+            ]
+        );
 
         if ($file_size >= 1073741824) {
             $file_size = number_format($file_size / 1073741824, 2) . ' GB';
@@ -279,7 +320,7 @@ class AdminController extends Controller
         Files::create([
             'name' => $request->name,
             'description' => $request->description,
-            'file' => $file_name,
+            'file' => encrypt("app/secure/encrypted/" . $file_name),
             'file_size' => $file_size,
             'file_ext' => $file_ext,
             'fileSize_num' => $fileSize,

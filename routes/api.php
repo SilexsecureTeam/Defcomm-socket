@@ -50,6 +50,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user/file/request', [UserController::class, 'fileRequest']);
     Route::post('/user/file/upload', [UserController::class, 'fileUpload']);
     Route::post('/user/file/share', [UserController::class, 'fileShare']);
+    Route::get('/user/file/{id}/download', [UserController::class, 'fileDownload']);
     Route::get('/user/file/{id}/view', [UserController::class, 'fileView']);
     Route::get('/user/file/{id}/url', [UserController::class, 'fileViewUrl']);
     Route::get('/user/file/{id}/accept', [UserController::class, 'fileAccept']);
