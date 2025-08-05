@@ -41,14 +41,26 @@
         });
 
         // Group chat
-        //    const groupChannel = pusher.subscribe("group.1");
-        //    groupChannel.bind("group.message.sent", function (data) {
-        //        console.log("Group:", data.message);
-        //    });
-        //
-        //    groupChannel.bind('pusher:subscription_error', function(status) {
-        //        console.error('Subscription error:', status);
-        //    });
+        const groupChannel = pusher.subscribe(`private-group.1`);
+        groupChannel.bind("group.message.sent", function (data) {
+            console.log(`Group:`, data.message);
+            document.getElementById('log').textContent += `Group: ${JSON.stringify(data)}\n`;
+        });
+
+        groupChannel.bind('pusher:subscription_error', function (status) {
+            console.error(`Group Subscription error:`, status);
+        });
+
+        // Group chat
+        const walkieChannel = pusher.subscribe(`private-walkie.4`);
+        walkieChannel.bind("walkie.message.sent", function (data) {
+            console.log(`walkie:`, data.message);
+            document.getElementById('log').textContent += `walkie: ${JSON.stringify(data)}\n`;
+        });
+
+        walkieChannel.bind('pusher:subscription_error', function (status) {
+            console.error(`walkie Subscription error:`, status);
+        });
 
     </script>
 </body>

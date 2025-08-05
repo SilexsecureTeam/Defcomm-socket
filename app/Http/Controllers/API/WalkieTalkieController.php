@@ -9,6 +9,7 @@ use App\Models\WailkieTalkieChannel;
 use Illuminate\Support\Facades\Mail;
 use App\Models\WailkieTalkieRecorder;
 use App\Models\WailkieTalkieSubscriber;
+use App\Events\PrivateWalkieMessageSent;
 use App\Mail\WailkieTalkieChannelInvitation;
 
 class WalkieTalkieController extends Controller
@@ -108,14 +109,17 @@ class WalkieTalkieController extends Controller
 
     public function channecreatellist()
     {
-        $res = WailkieTalkieChannel::where('user_id', auth()->user()->id)->get();
+        $chan = WailkieTalkieSubscriber::where('user_id', auth()->user()->id)->where('user_type', 'creator')->get();
+
         $data = [];
-        foreach($res as $rs){
+        foreach ($chan as $ch) {
             $data[] = [
-                'id' => encrypt($rs->id),
-                'name' => $rs->name,
-                'frequency' => $rs->frequency,
-                'description' => $rs->description
+                'sub_id' => encrypt($ch->id),
+                'channel_id' => encrypt($ch->channel->id),
+                'name' => $ch->channel->name,
+                'frequency' => $ch->channel->frequency,
+                'description' => $ch->channel->description,
+                'status' => $ch->status
             ];
         }
 
@@ -205,12 +209,41 @@ class WalkieTalkieController extends Controller
             $filerecord_name = time() . '_record.' . $filerecord->getClientOriginalExtension();
             $filerecord->move(public_path('WailkieTalkie'), $filerecord_name);
 
-            WailkieTalkieRecorder::create([
+            $rec = WailkieTalkieRecorder::create([
                 'channel_id' => $chan->channel->id,
                 'subscriber_id' => $chan->id,
                 'user_id' => auth()->user()->id,
                 'record' => "WailkieTalkie/". $filerecord_name
             ]);
+
+            $sendData = [
+                'state' => 'walkie',
+                'sender' => [
+                    'id' => $chan->user_id,
+                    'id_en' => encrypt($chan->user_id),
+                    'name' => $chan->user->name,
+                    'phone' => $chan->user->phone,
+                    'email' => $chan->user->email,
+                ],
+                'receiver' => [
+                    'id' => $chan->channel_id,
+                    'id_en' => encrypt($chan->channel_id),
+                    'name' => $chan->channel->name,
+                    'frequency' => $chan->channel->frequency
+                ],
+                'mss_chat' => [
+                    'recording_id' => encrypt($rec->id),
+                    'channel_id' => encrypt($rec->channel_id),
+                    'channel_name' => $rec->channel->name,
+                    'user_id' => encrypt($rec->user_id),
+                    'user_name' => $rec->user->name,
+                    'record' => $rec->record,
+                    'record_text' => $rec->record_text,
+                    'created_at' => $rec->created_at,
+                ]
+            ];
+
+            broadcast(new PrivateWalkieMessageSent(auth()->user()->id, $chan->channel->id, $sendData))->toOthers();
 
             return response()->json(
                 [

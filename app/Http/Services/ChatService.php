@@ -16,6 +16,7 @@ use App\Events\GroupMessageSent;
 use App\Models\CompanyGroupUser;
 use App\Events\PrivateMessageSent;
 use Illuminate\Support\Facades\Mail;
+use App\Events\PrivateGroupMessageSent;
 
 class ChatService
 {
@@ -28,16 +29,16 @@ class ChatService
             $altuser = User::find($current_chat_user);
         }
 
-        if ($userLastLog) {
-            $userLog = $userLastLog;
-        } else {
-            $userLog = $current_chat_user_type == 'user' ? uniqid() : $current_chat_user->id;
-        }
+        // if ($userLastLog) {
+        //     $userLog = $userLastLog;
+        // } else {
+        //     $userLog = $current_chat_user_type == 'user' ? uniqid() : $current_chat_user->id;
+        // }
 
         ChatLastLog::updateOrCreate([
             'user_id' => auth()->user()->id,
-            'user_to' => $current_chat_user_type == 'user' ? $current_chat_user : null,
-            'group_to' => $current_chat_user_type == 'group' ? $current_chat_user : $userLog,
+            'user_to' => $current_chat_user,
+            'group_to' => $userLog,
         ], [
             'unseen_count' => null,
             'user_group' => $current_chat_user_type,
@@ -60,8 +61,8 @@ class ChatService
 
         $chatmss = ChatMessage::create([
             'user_id' => auth()->user()->id,
-            'user_to' => $current_chat_user_type == 'user' ? $current_chat_user : null,
-            'group_to' => $current_chat_user_type == 'group' ? $current_chat_user : $userLog,
+            'user_to' => $current_chat_user,
+            'group_to' => $userLog,
             'reference_chat' => null,
             'user_group' => $current_chat_user_type,
             'is_file' => $is_file,
@@ -88,40 +89,42 @@ class ChatService
             }
         }
 
+        $sendData = [
+            'state' => $mss_type,
+            'user_type' => $current_chat_user_type,
+            'sender' => [
+                'id' => $chatmss->user_id,
+                'id_en' => encrypt($chatmss->user_id),
+                'name' => $chatmss->user->name,
+                'phone' => $chatmss->user->phone,
+                'email' => $chatmss->user->email,
+            ],
+            'receiver' => [
+                'id' => $chatmss->user_to,
+                'id_en' => encrypt($chatmss->user_to),
+                'name' => $current_chat_user_type == 'group' ? $chatmss->companyGroup->name : $chatmss->userTo->name,
+                'phone' => $current_chat_user_type == 'group' ? '' : $chatmss->userTo->phone,
+                'email' => $current_chat_user_type == 'group' ? '' : $chatmss->userTo->email,
+            ],
+            'message' => $message,
+            'data' => $chatmss,
+            'mss_chat' => [
+                "id" => encrypt($chatmss->id),
+                "user_id" => encrypt($chatmss->user_id),
+                "user_to" => encrypt($chatmss->user_to),
+                "group_to" => $chatmss->group_to,
+                "reference_chat" => $chatmss->reference_chat,
+                "user_group" => $chatmss->user_group,
+                "is_file" => $chatmss->is_file,
+                "file_type" => $chatmss->file_type,
+                "is_read" => $chatmss->is_read,
+            ]
+        ];
 
         if ($current_chat_user_type == 'group') {
-            broadcast(new GroupMessageSent(auth()->user()->id, $current_chat_user, $message))->toOthers();
+            broadcast(new PrivateGroupMessageSent(auth()->user()->id, $current_chat_user, $sendData))->toOthers();
         } else {
-            broadcast(new PrivateMessageSent(auth()->user()->id, $current_chat_user, [
-                'state' => $mss_type,
-                'sender' => [
-                    'id' => $chatmss->user_id,
-                    'id_en' => encrypt($chatmss->user_id),
-                    'name' => $chatmss->user->name,
-                    'phone' => $chatmss->user->phone,
-                    'email' => $chatmss->user->email,
-                ],
-                'receiver' => [
-                    'id' => $chatmss->user_to,
-                    'id_en' => encrypt($chatmss->user_to),
-                    'name' => $chatmss->userTo->name,
-                    'phone' => $chatmss->userTo->phone,
-                    'email' => $chatmss->userTo->email,
-                ],                
-                'message' => $message,
-                'data' => $chatmss,
-                'mss_chat' => [
-                    "id" => encrypt($chatmss->id),
-                    "user_id" => encrypt($chatmss->user_id),
-                    "user_to" => encrypt($chatmss->user_to),
-                    "group_to" => $chatmss->group_to,
-                    "reference_chat" => $chatmss->reference_chat,
-                    "user_group" => $chatmss->user_group,
-                    "is_file" => $chatmss->is_file,
-                    "file_type" => $chatmss->file_type,
-                    "is_read" => $chatmss->is_read,
-                ]
-            ]))->toOthers();
+            broadcast(new PrivateMessageSent(auth()->user()->id, $current_chat_user, $sendData))->toOthers();
         }
 
         $chat_meta = [

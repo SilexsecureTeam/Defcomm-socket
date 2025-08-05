@@ -9,10 +9,14 @@ use PhpOffice\PhpWord\IOFactory;
 use Illuminate\Encryption\Encrypter;
 use Illuminate\Support\Facades\File;
 use Intervention\Image\Facades\Image;
+use Illuminate\Support\Str;
+use RuntimeException;
 
 class FileEncryptorService
 {
     protected $encrypter;
+    protected string $cipher;
+    protected string $key;
 
     private function userkey()
     {
@@ -28,7 +32,11 @@ class FileEncryptorService
     public function __construct()
     {
         $key = base64_decode($this->userkey());
+        $cipher =  'AES-256-CBC';
         $this->encrypter = new Encrypter($key, 'AES-256-CBC');
+
+        $this->cipher = $cipher;
+        $this->key = $key;
     }
 
     public function processAndEncrypt(string $inputPath, string $outputEncryptedPath, array $options = [])
@@ -183,4 +191,39 @@ class FileEncryptorService
         $writer = IOFactory::createWriter($phpWord, 'Word2007');
         $writer->save($outputPath);
     }
+
+    public function encrypt(string $plaintext): string
+    {
+        $ivLength = openssl_cipher_iv_length($this->cipher);
+        $iv = random_bytes($ivLength);
+
+        $ciphertext = openssl_encrypt($plaintext, $this->cipher, $this->key, 0, $iv);
+        if ($ciphertext === false) {
+            throw new RuntimeException('Encryption failed.');
+        }
+
+        return base64_encode($iv . $ciphertext);
+    }
+
+    public function decrypt(string $encrypted): string
+    {
+        $ivLength = openssl_cipher_iv_length($this->cipher);
+        $data = base64_decode($encrypted);
+
+        if ($data === false || strlen($data) <= $ivLength) {
+            throw new RuntimeException('Invalid encrypted string.');
+        }
+
+        $iv = substr($data, 0, $ivLength);
+        $ciphertext = substr($data, $ivLength);
+
+        $plaintext = openssl_decrypt($ciphertext, $this->cipher, $this->key, 0, $iv);
+
+        if ($plaintext === false) {
+            throw new RuntimeException('Decryption failed.');
+        }
+
+        return $plaintext;
+    }
+
 }

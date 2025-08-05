@@ -27,8 +27,9 @@ Broadcast::channel('chat.{receiverId}', function ($user, $receiverId) {
 });
 
 Broadcast::channel('group.{groupId}', function ($user, $groupId) {
-    // You can validate user belongs to group here
-    return $user->groups->contains($groupId);
+    return $user->companyGroupUser()->where('group_id', $groupId)->exists();
 });
 
-
+Broadcast::channel('walkie.{walkieId}', function ($user, $walkieId) {
+    return $user->wailkieTalkieSubscriber()->where('channel_id', $walkieId)->exists();
+});
