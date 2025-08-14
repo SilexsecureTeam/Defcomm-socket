@@ -94,14 +94,14 @@ class ChatService
             'user_type' => $current_chat_user_type,
             'sender' => [
                 'id' => $chatmss->user_id,
-                'id_en' => encrypt($chatmss->user_id),
+                'id_en' => encryptHelper($chatmss->user_id),
                 'name' => $chatmss->user->name,
                 'phone' => $chatmss->user->phone,
                 'email' => $chatmss->user->email,
             ],
             'receiver' => [
                 'id' => $chatmss->user_to,
-                'id_en' => encrypt($chatmss->user_to),
+                'id_en' => encryptHelper($chatmss->user_to),
                 'name' => $current_chat_user_type == 'group' ? $chatmss->companyGroup->name : $chatmss->userTo->name,
                 'phone' => $current_chat_user_type == 'group' ? '' : $chatmss->userTo->phone,
                 'email' => $current_chat_user_type == 'group' ? '' : $chatmss->userTo->email,
@@ -109,9 +109,9 @@ class ChatService
             'message' => $message,
             'data' => $chatmss,
             'mss_chat' => [
-                "id" => encrypt($chatmss->id),
-                "user_id" => encrypt($chatmss->user_id),
-                "user_to" => encrypt($chatmss->user_to),
+                "id" => encryptHelper($chatmss->id),
+                "user_id" => encryptHelper($chatmss->user_id),
+                "user_to" => encryptHelper($chatmss->user_to),
                 "group_to" => $chatmss->group_to,
                 "reference_chat" => $chatmss->reference_chat,
                 "user_group" => $chatmss->user_group,
@@ -122,21 +122,21 @@ class ChatService
         ];
 
         if ($current_chat_user_type == 'group') {
-            broadcast(new PrivateGroupMessageSent(auth()->user()->id, $current_chat_user, $sendData))->toOthers();
+            broadcast(new PrivateGroupMessageSent(encryptHelper(auth()->user()->id), encryptHelper($current_chat_user), $sendData))->toOthers();
         } else {
-            broadcast(new PrivateMessageSent(auth()->user()->id, $current_chat_user, $sendData))->toOthers();
+            broadcast(new PrivateMessageSent(encryptHelper(auth()->user()->id), encryptHelper($current_chat_user), $sendData))->toOthers();
         }
 
         $chat_meta = [
             'chat_user_id' => $chatmss->userTo->id,
-            'chat_user_id_en' => encrypt($chatmss->userTo->id),
+            'chat_user_id_en' => encryptHelper($chatmss->userTo->id),
             'chat_id' => $userLog,
             'chat_user_type' => $chatmss->user_group
         ];
 
         $data = [
             'id' => $chatmss->id,
-            'id_en' => encrypt($chatmss->id),
+            'id_en' => encryptHelper($chatmss->id),
             'is_my_chat' => $chatmss->user_id == auth()->user()->id ? 'yes' : 'no',
             'user_id' => $chatmss->user_id,
             'user_to' => $chatmss->user_to,
@@ -187,8 +187,8 @@ class ChatService
 
     public function meetingInvitationGroup($meetings_id, $group_id)
     {
-        $meet = Meeting::find(decrypt($meetings_id));
-        $group = CompanyGroupUser::where('group_id', decrypt($group_id))->get();
+        $meet = Meeting::find(decryptHelper($meetings_id));
+        $group = CompanyGroupUser::where('group_id', decryptHelper($group_id))->get();
         foreach ($group as $value) {
             MeetingLog::updateOrCreate([
                 'meetings_id' => $meet->id,
@@ -216,18 +216,18 @@ class ChatService
 
     public function meetingInvitation($meetings_id, $users)
     {
-        $meet = Meeting::find(decrypt($meetings_id));
+        $meet = Meeting::find(decryptHelper($meetings_id));
         $json = str_replace("'", '"', $users);
         $array = json_decode($json, true);
         foreach ($array as $value) {
             MeetingLog::updateOrCreate([
                 'meetings_id' => $meet->id,
-                'user_id' => decrypt($value),
+                'user_id' => decryptHelper($value),
             ], [
                 'join_status' => 'invite'
             ]);
 
-            $usr = User::find(decrypt($value));
+            $usr = User::find(decryptHelper($value));
             if ($usr) {
                 Mail::to($usr->email)->send(new MeetingInvitation($usr->name, $usr->email, $meet));
             }

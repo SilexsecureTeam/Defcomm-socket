@@ -50,7 +50,7 @@ class UserController extends Controller
         $data = [];
         foreach ($file as $key => $dt) {
             $data[$key] = [
-                'id' => encrypt($dt->id),
+                'id' => encryptHelper($dt->id),
                 'name' => $dt->name,
                 'file' => $dt->file,
                 'file_size' => $dt->file_size,
@@ -80,8 +80,8 @@ class UserController extends Controller
         $data = [];
         foreach ($file as $key => $dt) {
             $data[$key] = [
-                'id' => encrypt($dt->id),
-                'file_id' => encrypt($dt->file->id),
+                'id' => encryptHelper($dt->id),
+                'file_id' => encryptHelper($dt->file->id),
                 'file_name' => $dt->file->name,
                 'file_size' => $dt->file->file_size,
                 'file_ext' => $dt->file->file_ext,
@@ -111,8 +111,8 @@ class UserController extends Controller
         $data = [];
         foreach ($file as $key => $dt) {
             $data[$key] = [
-                'id' => encrypt($dt->id),
-                'file_id' => encrypt($dt->file->id),
+                'id' => encryptHelper($dt->id),
+                'file_id' => encryptHelper($dt->file->id),
                 'file_name' => $dt->file->name,
                 'file_size' => $dt->file->file_size,
                 'file_ext' => $dt->file->file_ext,
@@ -142,8 +142,8 @@ class UserController extends Controller
         $data = [];
         foreach ($file as $key => $dt) {
             $data[$key] = [
-                'id' => encrypt($dt->id),
-                'file_id' => encrypt($dt->file->id),
+                'id' => encryptHelper($dt->id),
+                'file_id' => encryptHelper($dt->file->id),
                 'file_name' => $dt->file->name,
                 'file_size' => $dt->file->file_size,
                 'file_ext' => $dt->file->file_ext,
@@ -189,12 +189,12 @@ class UserController extends Controller
         $file_name = $file_time . $file->hashName() . '.enc';
 
         $originalPath = $file->storeAs('secure/uploads', $file_time . $file->getClientOriginalName());
-        $encryptedPath = $file->storeAs('secure/encrypted',  $file_name);
+        $encryptHelperedPath = $file->storeAs('secure/encryptHelpered',  $file_name);
         
         $encryptor = new FileEncryptorService();
-        $encryptor->processAndEncrypt(
+        $encryptor->processAndencrypt(
             storage_path('app/' . $originalPath),
-            storage_path('app/' . $encryptedPath),
+            storage_path('app/' . $encryptHelperedPath),
             [
                 'watermark_text' => 'Confidential',
                 // 'watermark_image' => public_path('logo.png')
@@ -214,7 +214,7 @@ class UserController extends Controller
         $file = Files::create([
             'name' => $request->name,
             'description' => $request->description,
-            'file' => encrypt("app/secure/encrypted/".$file_name),
+            'file' => encryptHelper("app/secure/encryptHelpered/".$file_name),
             'file_size' => $file_size,
             'file_ext' => $file_ext,
             'fileSize_num' => $fileSize,
@@ -227,7 +227,7 @@ class UserController extends Controller
             FileFolder::create([
                 'user_id' => auth()->user()->id,
                 'file_id' => $file->id,
-                'folder_id' => decrypt($request->folder_id)
+                'folder_id' => decryptHelper($request->folder_id)
             ]);
         }
 
@@ -243,7 +243,7 @@ class UserController extends Controller
 
     public function fileShare(Request $request)
     {
-        $id = decrypt($request->id);
+        $id = decryptHelper($request->id);
         $user = json_decode($request->users, true);
         if (!empty($user)) {
             foreach ($user as $dt) {
@@ -282,18 +282,18 @@ class UserController extends Controller
 
     public function fileDownload($id)
     {
-        $file = Files::find(decrypt($id));
+        $file = Files::find(decryptHelper($id));
         FileShareLog::create(['user_id' => auth()->user()->id, 'file_id' => $file->id, 'company_id' => auth()->user()->company_id]);
 
-        $pathToEncrypted = storage_path(decrypt($file->file));
+        $pathToencryptHelpered = storage_path(decryptHelper($file->file));
         $fileExtension = $file->file_ext;
-        $pathToDecryptedWatermarked = storage_path('app/decrypted_' . uniqid() . '.' . $fileExtension);
-        File::put($pathToDecryptedWatermarked, "");
+        $pathTodecryptHelperedWatermarked = storage_path('app/decryptHelpered_' . uniqid() . '.' . $fileExtension);
+        File::put($pathTodecryptHelperedWatermarked, "");
 
         $encryptor = new FileEncryptorService();
         $encryptor->decryptAndWatermark(
-            $pathToEncrypted,
-            $pathToDecryptedWatermarked,
+            $pathToencryptHelpered,
+            $pathTodecryptHelperedWatermarked,
             $fileExtension,
             [
                 'watermark_text' => 'Downloaded by: '. auth()->user()->name,
@@ -301,12 +301,12 @@ class UserController extends Controller
             ]
         );
 
-        return response()->download($pathToDecryptedWatermarked)->deleteFileAfterSend(true);
+        return response()->download($pathTodecryptHelperedWatermarked)->deleteFileAfterSend(true);
     }
 
     public function fileView($id)
     {
-        $file = Files::find(decrypt($id));
+        $file = Files::find(decryptHelper($id));
         FileShareLog::create(['user_id' => auth()->user()->id, 'file_id' => $file->id, 'company_id' => auth()->user()->company_id]);
         return view('admin.fileView', [
             'file' => $file,
@@ -316,12 +316,12 @@ class UserController extends Controller
 
     public function fileViewUrl($id)
     {
-        $file = Files::find(decrypt($id));
+        $file = Files::find(decryptHelper($id));
         FileShareLog::create(['user_id' => auth()->user()->id, 'file_id' => $file->id, 'company_id' => auth()->user()->company_id]);
         return response()->json(
             [
                 'status' => '200',
-                'url' => route('user.com.file.view', ['id' => encrypt($file->id), 'user' => encrypt(auth()->user()->id)]),
+                'url' => route('user.com.file.view', ['id' => encryptHelper($file->id), 'user' => encryptHelper(auth()->user()->id)]),
                 'data' => null
             ],
             201
@@ -330,7 +330,7 @@ class UserController extends Controller
 
     public function fileAccept($id)
     {
-        $idUser = decrypt($id);
+        $idUser = decryptHelper($id);
         FilesShares::find($idUser)->update(['status' => 'access']);
         return response()->json(
             [
@@ -344,7 +344,7 @@ class UserController extends Controller
 
     public function fileDecline($id)
     {
-        $idUser = decrypt($id);
+        $idUser = decryptHelper($id);
         FilesShares::find($idUser)->delete();
         return response()->json(
             [
@@ -363,9 +363,9 @@ class UserController extends Controller
         $data = [];
         foreach ($group as $key => $dt) {
             $data[$key] = [
-                'id' => encrypt($dt->id),
+                'id' => encryptHelper($dt->id),
                 'company_name' => $dt->companyUser->name,
-                'group_id' => encrypt($dt->companyGroup->id),
+                'group_id' => encryptHelper($dt->companyGroup->id),
                 'group_id_un' => $dt->companyGroup->id,
                 'group_name' => $dt->companyGroup->name,
                 'join_date' => $dt->join_date,
@@ -392,7 +392,7 @@ class UserController extends Controller
         $data = [];
         foreach ($group as $key => $dt) {
             $data[$key] = [
-                'id' => encrypt($dt->id),
+                'id' => encryptHelper($dt->id),
                 'company_name' => $dt->companyUser->name,
                 'group_name' => $dt->companyGroup->name,
                 'join_date' => $dt->join_date,
@@ -414,7 +414,7 @@ class UserController extends Controller
 
     public function groupAccept($id)
     {
-        $idUser = decrypt($id);
+        $idUser = decryptHelper($id);
         CompanyGroupUser::find($idUser)->update(['status' => 'joined']);
         return response()->json(
             [
@@ -428,7 +428,7 @@ class UserController extends Controller
 
     public function groupDecline($id)
     {
-        $idUser = decrypt($id);
+        $idUser = decryptHelper($id);
         CompanyGroupUser::find($idUser)->delete();
         return response()->json(
             [
@@ -480,7 +480,7 @@ class UserController extends Controller
         }
 
         if ($request->encryptorkey) {
-            $user->update(['encryptorkey' => encrypt($request->encryptorkey)]);
+            $user->update(['encryptorkey' => encryptHelper($request->encryptorkey)]);
         }
 
         if ($request->name) {
@@ -512,7 +512,7 @@ class UserController extends Controller
         }
 
         if ($request->pin) {
-            $user->update(['pin' => encrypt($request->pin)]);
+            $user->update(['pin' => encryptHelper($request->pin)]);
         }
 
         if ($request->onboarding_stage) {
@@ -540,8 +540,8 @@ class UserController extends Controller
         $data = [];
         foreach ($record as $key => $dt) {
             $data[$key] = [
-                'id' => encrypt($dt->id),
-                'contact_id_encrypt' => encrypt($dt->userLink->id),
+                'id' => encryptHelper($dt->id),
+                'contact_id_encrypt' => encryptHelper($dt->userLink->id),
                 'contact_id' => $dt->userLink->id,
                 'contact_name' => $dt->userLink->name,
                 'contact_email' => $dt->userLink->email,
@@ -562,7 +562,7 @@ class UserController extends Controller
 
     public function contactAdd($id)
     {
-        $idUser = decrypt($id);
+        $idUser = decryptHelper($id);
 
         ContactList::firstOrCreate([
             'user_id' => auth()->user()->id,
@@ -583,7 +583,7 @@ class UserController extends Controller
 
     public function contactRemove($id)
     {
-        $idUser = decrypt($id);
+        $idUser = decryptHelper($id);
         ContactList::find($idUser)->delete();
 
         return response()->json(
@@ -603,11 +603,11 @@ class UserController extends Controller
         $data = [];
         foreach ($datas as $dt) {
             $data[] = [
-                'send_user_id' => encrypt($dt->send_user_id),
+                'send_user_id' => encryptHelper($dt->send_user_id),
                 'send_user_name' => $dt->userSender->name,
                 'send_user_phone' => $dt->userSender->phone,
                 'send_user_email' => $dt->userSender->email,
-                'recieve_user_id' => encrypt($dt->recieve_user_id),
+                'recieve_user_id' => encryptHelper($dt->recieve_user_id),
                 'recieve_user_name' => $dt->userReciever->name,
                 'recieve_user_phone' => $dt->userReciever->phone,
                 'recieve_user_email' => $dt->userReciever->email,
@@ -637,7 +637,7 @@ class UserController extends Controller
         $data = [];
         foreach ($record as $key => $dt) {
             $data[$key] = [
-                'id' => encrypt($dt->id),
+                'id' => encryptHelper($dt->id),
                 'chat_id' => $dt->group_to,
                 'chat_user_to_id' => $dt->userTo->id,
                 'chat_user_to_name' => $dt->userTo->name,
@@ -659,27 +659,32 @@ class UserController extends Controller
 
     public function chatMessages($chat_user_id, $chat_user_type)
     {
-        $this->current_chat_user = $chat_user_id;
+        $this->current_chat_user = decryptHelper($chat_user_id);
 
-        $thisuserLastLog = $chat_user_type == 'user' ? ChatLastLog::where('user_id', auth()->user()->id)->where('user_to', $chat_user_id)->first() : ChatLastLog::where('group_to', $chat_user_id)->first();
+        $thisuserLastLog = $chat_user_type == 'user' ? ChatLastLog::where('user_id', auth()->user()->id)->where('user_to', $this->current_chat_user)->first() : ChatLastLog::where('user_to', $this->current_chat_user)->first();
 
         $userLastLog = $thisuserLastLog ? $thisuserLastLog->group_to : null;
 
-        $record = ChatMessage::where(function ($query) {
-            $query->where('user_id', $this->current_chat_user)
-                ->orWhere('group_to', $this->current_chat_user)
-                ->orWhere('user_to', $this->current_chat_user);
-        })->where(function ($query) {
-            $query->where('user_id', auth()->user()->id)
-                ->orWhere('group_to', auth()->user()->id)
-                ->orWhere('user_to', auth()->user()->id);
-        })->orderBy('created_at', 'ASC')->get();
+        $record = [];
+        if ($chat_user_type == 'group') {
+            $record = ChatMessage::where('user_to',$this->current_chat_user)->orderBy('created_at', 'ASC')->get();
+        }else{
+            $record = ChatMessage::where(function ($query) {
+                $query->where('user_id', $this->current_chat_user)
+                    ->orWhere('group_to', $this->current_chat_user)
+                    ->orWhere('user_to', $this->current_chat_user);
+            })->where(function ($query) {
+                $query->where('user_id', auth()->user()->id)
+                    ->orWhere('group_to', auth()->user()->id)
+                    ->orWhere('user_to', auth()->user()->id);
+            })->orderBy('created_at', 'ASC')->get();
+        }
 
         $data = [];
         foreach ($record as $key => $dt) {
             $data[$key] = [
                 'id' => $dt->id,
-                'id_en' => encrypt($dt->id),
+                'id_en' => encryptHelper($dt->id),
                 'is_my_chat' => $dt->user_id == auth()->user()->id ? 'yes' : 'no',
                 'user_id' => $dt->user_id,
                 'user_to' => $dt->user_to,
@@ -706,8 +711,8 @@ class UserController extends Controller
         }
 
         $chat_meta = [
-            'chat_user_id' => $chat_user_id,
-            'chat_user_id_en' => encrypt($chat_user_id),
+            'chat_user_id' => decryptHelper($chat_user_id),
+            'chat_user_id_en' => $chat_user_id,
             'chat_id' => $userLastLog,
             'chat_user_type' => $chat_user_type
         ];
@@ -730,7 +735,7 @@ class UserController extends Controller
         $data = [];
         foreach ($datas as $dt) {
             $data[] = [
-                'id' => encrypt($dt->id),
+                'id' => encryptHelper($dt->id),
                 'meeting_link' => $dt->meeting_link,
                 'meeting_id' => $dt->meeting_id,
                 'subject' => $dt->subject,
@@ -754,10 +759,10 @@ class UserController extends Controller
 
     public function getmeetingDetail($id)
     {
-        $datas = Meeting::find(decrypt($id));
+        $datas = Meeting::find(decryptHelper($id));
 
         $data = [
-            'id' => encrypt($datas->id),
+            'id' => encryptHelper($datas->id),
             'meeting_link' => $datas->meeting_link,
             'meeting_id' => $datas->meeting_id,
             'subject' => $datas->subject,
@@ -780,13 +785,13 @@ class UserController extends Controller
 
     public function getmeetingid($id, $type)
     {
-        $datas = Meeting::where('group_user_id', decrypt($id))->where('group_user', $type)->get();
+        $datas = Meeting::where('group_user_id', decryptHelper($id))->where('group_user', $type)->get();
 
         $data = [];
         foreach ($datas as $dt) {
             $data[] = [
-                'id' => encrypt($dt->id),
-                'group_user_id' => encrypt($dt->group_user_id),
+                'id' => encryptHelper($dt->id),
+                'group_user_id' => encryptHelper($dt->group_user_id),
                 'group_user' => $dt->group_user,
                 'meeting_link' => $dt->meeting_link,
                 'meeting_id' => $dt->meeting_id,
@@ -816,8 +821,8 @@ class UserController extends Controller
         $data = [];
         foreach ($datas as $dt) {
             $data[] = [
-                'id' => encrypt($dt->meeting->id),
-                'meeting_id' => encrypt($dt->meeting->id),
+                'id' => encryptHelper($dt->meeting->id),
+                'meeting_id' => encryptHelper($dt->meeting->id),
                 'meeting_link' => $dt->meeting->meeting_link,
                 'meeting_id' => $dt->meeting->meeting_id,
                 'subject' => $dt->meeting->subject,
@@ -843,8 +848,8 @@ class UserController extends Controller
     {
         $data = FolderFile::updateOrCreate([
             'user_id' => auth()->user()->id,
-            'folder_id' => decrypt($request->folder_id),
-            'file_id' => decrypt($request->file_id),
+            'folder_id' => decryptHelper($request->folder_id),
+            'file_id' => decryptHelper($request->file_id),
         ]);
 
         return response()->json(
@@ -862,7 +867,7 @@ class UserController extends Controller
         $data = Folders::updateOrCreate([
             'user_id' => auth()->user()->id,
             'name' => $request->name,
-            'rel' => $request->rel ? decrypt($request->rel) : null,
+            'rel' => $request->rel ? decryptHelper($request->rel) : null,
         ], [
             'description' => $request->description,
         ]);
@@ -879,10 +884,10 @@ class UserController extends Controller
 
     public function folderUpdate(Request $request)
     {
-        $data = Folders::find(decrypt($request->id));
+        $data = Folders::find(decryptHelper($request->id));
         $data->update([
             'name' => $request->name,
-            'rel' => $request->rel ? decrypt($request->rel) : $data->rel,
+            'rel' => $request->rel ? decryptHelper($request->rel) : $data->rel,
             'description' => $request->description,
         ]);
 
@@ -898,7 +903,7 @@ class UserController extends Controller
 
     public function folderdelete($id)
     {
-        $data = Folders::find(decrypt($id))->delete();
+        $data = Folders::find(decryptHelper($id))->delete();
 
         return response()->json(
             [
@@ -917,7 +922,7 @@ class UserController extends Controller
 
         foreach ($folder as $fl) {
             $data[] = [
-                'id' => encrypt($fl->id),
+                'id' => encryptHelper($fl->id),
                 'name' => $fl->name,
                 'description' => $fl->description,
             ];
@@ -935,21 +940,21 @@ class UserController extends Controller
 
     public function foldergetId($id)
     {
-        $folder = Folders::where('user_id', auth()->user()->id)->where('rel', decrypt($id))->get();
+        $folder = Folders::where('user_id', auth()->user()->id)->where('rel', decryptHelper($id))->get();
         $data = [];
 
         foreach ($folder as $fl) {
             $data['folder'][] = [
-                'id' => encrypt($fl->id),
+                'id' => encryptHelper($fl->id),
                 'name' => $fl->name,
                 'description' => $fl->description,
             ];
         }
 
-        $file = FileFolder::where('folder_id', decrypt($id))->get();
+        $file = FileFolder::where('folder_id', decryptHelper($id))->get();
         foreach ($file as $fi) {
             $data['file'][] = [
-                'id' => encrypt($fi->id),
+                'id' => encryptHelper($fi->id),
                 'name' => $fi->file->name,
                 'file_size' => $fi->file->file_size,
                 'file_ext' => $fi->file->file_ext,
@@ -972,9 +977,9 @@ class UserController extends Controller
         broadcast(new PrivateMessageSent(auth()->user()->id, $request->current_chat_user, [
             'state' => $request->typing,
             'sender_id' => auth()->user()->id,
-            'sender_iden' => encrypt(auth()->user()->id),
+            'sender_iden' => encryptHelper(auth()->user()->id),
             'receiver_id' => $request->current_chat_user,
-            'receiver_iden' => encrypt($request->current_chat_user),
+            'receiver_iden' => encryptHelper($request->current_chat_user),
             'message' => '',
             'name' => '',
             'data' => ''
@@ -996,11 +1001,11 @@ class UserController extends Controller
         ]);
 
         if ($request->group_user == "users" && $request->group_user_id) {
-            $this->ChatService->meetingInvitation(encrypt($data->id), $request->group_user_id);
+            $this->ChatService->meetingInvitation(encryptHelper($data->id), $request->group_user_id);
         }
 
         if ($request->group_user == "group" && $request->group_user_id) {
-            $this->ChatService->meetingInvitationGroup(encrypt($data->id), $request->group_user_id);
+            $this->ChatService->meetingInvitationGroup(encryptHelper($data->id), $request->group_user_id);
         }
 
         return response()->json(
@@ -1008,8 +1013,8 @@ class UserController extends Controller
                 'status' => '200',
                 'message' => 'Record listed',
                 'data' => [
-                    'id' => encrypt($data->id),
-                    'meeting_link' => $data->meeting_link . '/' . encrypt($data->id),
+                    'id' => encryptHelper($data->id),
+                    'meeting_link' => $data->meeting_link . '/' . encryptHelper($data->id),
                     'meeting_id' => $data->meeting_id,
                     'subject' => $data->subject,
                     'title' => $data->title,
@@ -1023,7 +1028,7 @@ class UserController extends Controller
 
     public function meetingUpdate(Request $request)
     {
-        $data = Meeting::find(decrypt($request->id));
+        $data = Meeting::find(decryptHelper($request->id));
 
         if ($request->meeting_link) {
             $data->update(['meeting_link' => $request->meeting_link]);
@@ -1061,7 +1066,7 @@ class UserController extends Controller
             $data->update(['status' => $request->status]);
         }
 
-        $data = Meeting::find(decrypt($request->id));
+        $data = Meeting::find(decryptHelper($request->id));
 
         return response()->json(
             [
@@ -1089,7 +1094,7 @@ class UserController extends Controller
 
     public function meetingInvitationJoin($id)
     {
-        $meet = Meeting::find(decrypt($id));
+        $meet = Meeting::find(decryptHelper($id));
         $user = MeetingLog::where('meetings_id', $meet->id)->where('user_id', auth()->user()->id)->first();
         if ($user->join_status == 'invite') {
             if ($meet->status == 'start') {
@@ -1118,8 +1123,8 @@ class UserController extends Controller
 
     public function sendMessageCall(Request $request)
     {
-        $calllog = ChatCallLog::where('mss_id', decrypt($request->mss_id))->first();
-        $mss = ChatMessage::find(decrypt($request->mss_id));
+        $calllog = ChatCallLog::where('mss_id', decryptHelper($request->mss_id))->first();
+        $mss = ChatMessage::find(decryptHelper($request->mss_id));
 
         if ($calllog) {
             if ($request->call_duration) {
@@ -1136,23 +1141,23 @@ class UserController extends Controller
 
             broadcast(new PrivateMessageSent(auth()->user()->id, $calllog->userReciever->id, [
                 'state' => 'callUpdate',
-                'user' => encrypt($calllog->userReciever->id),
+                'user' => encryptHelper($calllog->userReciever->id),
                 'sender' => [
                     'id' => $calllog->userSender->id,
-                    'id_en' => encrypt($calllog->userSender->id),
+                    'id_en' => encryptHelper($calllog->userSender->id),
                     'name' => $calllog->userSender->name,
                     'phone' => $calllog->userSender->phone,
                     'email' => $calllog->userSender->email,
                 ],
                 'receiver' => [
                     'id' => $calllog->userReciever->id,
-                    'id_en' => encrypt($calllog->userReciever->id),
+                    'id_en' => encryptHelper($calllog->userReciever->id),
                     'name' => $calllog->userReciever->name,
                     'phone' => $calllog->userReciever->phone,
                     'email' => $calllog->userReciever->email,
                 ],
                 'call' => [
-                    "chat_id" => encrypt($calllog->chatMess->id),
+                    "chat_id" => encryptHelper($calllog->chatMess->id),
                     "call_duration" => $request->call_duration,
                     "call_state" => $request->call_state
                 ],
@@ -1247,7 +1252,7 @@ class UserController extends Controller
 
     public function groupMember($id)
     {
-        $idUser = decrypt($id);
+        $idUser = decryptHelper($id);
         $record = CompanyGroupUser::where('group_id', $idUser)->where('user_id', '!=', auth()->user()->id)->where('status', 'joined')->get();
         $group = CompanyGroup::find($idUser);
 
@@ -1257,7 +1262,7 @@ class UserController extends Controller
                 'id' => $dt->id,
                 'join_date' => $dt->join_date,
                 'hide_member_detail' => $dt->hide,
-                'member_id_encrpt' => encrypt($dt->user_id),
+                'member_id_encrpt' => encryptHelper($dt->user_id),
                 'member_id' => $dt->user_id,
                 'member_name' => $dt->user->name,
             ];
@@ -1314,7 +1319,7 @@ class UserController extends Controller
 
     public function appstatus(Request $request)
     {
-        $data = AppStore::where('user', auth()->user()->id)->where('id', decrypt($request->id))->first();
+        $data = AppStore::where('user', auth()->user()->id)->where('id', decryptHelper($request->id))->first();
         $data->update([
             'status' => $request->status,
             'active_date' => $request->status == "active" ? Carbon::now() : null,
@@ -1334,7 +1339,7 @@ class UserController extends Controller
     public function appcreate(Request $request)
     {
         if ($request->id) {
-            $app = AppStore::where('user', auth()->user()->id)->where('id', decrypt($request->id))->first();
+            $app = AppStore::where('user', auth()->user()->id)->where('id', decryptHelper($request->id))->first();
             if (empty($app)) {
                 return response()->json(
                     [
@@ -1534,7 +1539,7 @@ class UserController extends Controller
         $data = [];
         foreach($dat as $dt){
             $data[] = [
-                "id" => encrypt($dt->id),
+                "id" => encryptHelper($dt->id),
                 "developer" => $dt->userId->name,
                 "app_name" => $dt->name,
                 "description" => $dt->description,
@@ -1589,9 +1594,9 @@ class UserController extends Controller
 
     public function appListId($id)
     {
-        $dt = AppStore::find(decrypt($id));
+        $dt = AppStore::find(decryptHelper($id));
         $data[] = [
-            "id" => encrypt($dt->id),
+            "id" => encryptHelper($dt->id),
             "developer" => $dt->userId->name,
             "app_name" => $dt->name,
             "description" => $dt->description,
@@ -1650,7 +1655,7 @@ class UserController extends Controller
         $data = [];
         foreach ($dat as $dt) {
             $data[] = [
-                "id" => encrypt($dt->id),
+                "id" => encryptHelper($dt->id),
                 "developer" => $dt->userId->name,
                 "app_name" => $dt->name,
                 "description" => $dt->description,

@@ -139,4 +139,14 @@ class User extends Authenticatable
     {
         return $this->hasMany(WailkieTalkieSubscriber::class, 'user_id');
     }
+
+    public function loginDevice()
+    {
+        return $this->hasMany(UserLoginDevice::class, 'user_id');
+    }
+
+    public function loginLog()
+    {
+        return $this->hasMany(UserLoginLog::class, 'user_id');
+    }
 }

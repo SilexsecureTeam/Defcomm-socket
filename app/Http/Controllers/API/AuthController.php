@@ -9,8 +9,11 @@ use App\Mail\Invitation;
 use App\Models\Language;
 use App\Models\CompanyUser;
 use Illuminate\Support\Str;
+use App\Models\UserLoginLog;
 use Illuminate\Http\Request;
 use App\Mail\PasswordResetMail;
+use App\Models\UserLoginDevice;
+use App\Http\Services\AuthService;
 use App\Models\StatementAgreement;
 use App\Http\Controllers\Controller;
 use Illuminate\Auth\Events\Verified;
@@ -132,6 +135,12 @@ class AuthController extends Controller
             Auth::logout();
             return response()->json(['status' => 400, 'error' => "Your account is not active. Contact support"], 401);
         }
+
+        if((new AuthService())->loginLog($user, $request) == 'block'){
+            Auth::logout();
+            return response()->json(['status' => 400, 'error' => "This device does not have access to this account"], 401);
+        }
+
         $token = $user->createToken('auth_token')->plainTextToken;
 
         if ($request->device_token) {
@@ -142,12 +151,15 @@ class AuthController extends Controller
             $user->update(['device_type' => $request->device_type]);
         }
 
+        
+
         return response()->json([
             'message' => 'Login successfully',
             'data' => [
                 'access_token' => $token,
                 'token_type' => 'Bearer',
                 'user_enid' => encrypt($user->id),
+                'user_en' => encryptHelper($user->id),
                 'user' => $user
             ],
         ], 201);
@@ -182,7 +194,10 @@ class AuthController extends Controller
                 if ($user->first()->status !== "active") {
                     return response()->json(['status' => 400, 'error' => "Your account is not active. Contact support"], 401);
                 }
-
+                if ((new AuthService())->loginLog($user, $request) == 'block') {
+                    Auth::logout();
+                    return response()->json(['status' => 400, 'error' => "This device does not have access to this account"], 401);
+                }
                 $token = $user->first()->createToken('auth_token')->plainTextToken;
                 return response()->json([
                     'status' => 200,
@@ -503,5 +518,76 @@ class AuthController extends Controller
             ],
             201
         );
+    }
+
+    public function logindevicelog(){
+        $logs = UserLoginLog::where('user_id', Auth::user()->id)->with('device')->orderBy('created_at', 'desc')->get();
+
+        $data = [];
+        foreach ($logs as $log) {
+            $data[] = [
+                'id' => encryptHelper($log->id),
+                'ip_address' => $log->ip_address,
+                'browser'    => $log->browser,
+                'device'     => $log->device,
+                'os'         => $log->os,
+                'country'    => $log->country,
+                'region'     => $log->region,
+                'city'       => $log->city,
+                'lat'        => $log->lat,
+                'lon'        => $log->lon,
+                'user_agent' => $log->userAgent,
+                'status' => $log->status,
+                'created_at' => $log->created_at,
+                'updated_at' => $log->updated_at,
+            ];
+        }
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'Login device log retrieved successfully',
+            'data' => $data
+        ]); 
+    }
+
+    public function logindevice($status){
+        $logs = UserLoginDevice::where('user_id', Auth::user()->id)->where('status', $status)->orderBy('created_at', 'desc')->get();
+
+        $data = [];
+        foreach ($logs as $log) {
+            $data[] = [
+                'id' => encrypt($log->id),
+                'ip_address' => $log->ip_address,
+                'browser'    => $log->browser,
+                'device'     => $log->device,
+                'os'         => $log->os,
+                'country'    => $log->country,
+                'region'     => $log->region,
+                'city'       => $log->city,
+                'lat'        => $log->lat,
+                'lon'        => $log->lon,
+                'user_agent' => $log->userAgent,
+                'status' => $log->status,
+                'created_at' => $log->created_at,
+                'updated_at' => $log->updated_at,
+            ];      
+        }            
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'Login device log retrieved successfully',
+            'data' => $data
+        ]); 
+    }
+
+    public function logindevicestatus($id, $status){
+        return decryptHelper($id);
+        $logs = UserLoginDevice::find(decrypt($id))->update(['status' => $status]);
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'Login device updated successfully',
+            'data' => $logs
+        ]); 
     }
 }

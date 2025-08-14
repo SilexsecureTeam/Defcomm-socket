@@ -40,7 +40,7 @@ class WalkieTalkieController extends Controller
                     'status' => '200',
                     'message' => 'Record listed',
                     'data' => [
-                        'id' => encrypt($data->id),
+                        'id' => encryptHelper($data->id),
                         'name' => $data->name,
                         'frequency' => $data->frequency,
                         'description' => $data->description
@@ -66,7 +66,7 @@ class WalkieTalkieController extends Controller
 
     public function channelupdate(Request $request)
     {
-        $data = WailkieTalkieChannel::find(decrypt($request->id));
+        $data = WailkieTalkieChannel::find(decryptHelper($request->id));
 
         if($request->name){
             $data->update(['name' => $request->name]);
@@ -83,7 +83,7 @@ class WalkieTalkieController extends Controller
                 'status' => '200',
                 'message' => 'Record listed',
                 'data' => [
-                    'id' => encrypt($data->id),
+                    'id' => encryptHelper($data->id),
                     'name' => $data->name,
                     'frequency' => $data->frequency,
                     'description' => $data->description
@@ -95,7 +95,7 @@ class WalkieTalkieController extends Controller
 
     public function channedelete($id)
     {
-        $data = WailkieTalkieChannel::find(decrypt($id))->delete();
+        $data = WailkieTalkieChannel::find(decryptHelper($id))->delete();
     
         return response()->json(
             [
@@ -114,8 +114,8 @@ class WalkieTalkieController extends Controller
         $data = [];
         foreach ($chan as $ch) {
             $data[] = [
-                'sub_id' => encrypt($ch->id),
-                'channel_id' => encrypt($ch->channel->id),
+                'sub_id' => encryptHelper($ch->id),
+                'channel_id' => encryptHelper($ch->channel->id),
                 'channel_id_un' => $ch->channel->id,
                 'name' => $ch->channel->name,
                 'frequency' => $ch->channel->frequency,
@@ -135,18 +135,18 @@ class WalkieTalkieController extends Controller
     }
 
     public function channelinvite(Request $request){
-        $channel = WailkieTalkieChannel::find(decrypt($request->channel_id));
+        $channel = WailkieTalkieChannel::find(decryptHelper($request->channel_id));
         $json = str_replace("'", '"', $request->users);
         $array = json_decode($json, true);
         foreach ($array as $value) {
             WailkieTalkieSubscriber::updateOrCreate([
                 'channel_id' => $channel->id,
-                'user_id' => decrypt($value),
+                'user_id' => decryptHelper($value),
             ], [
                 'status' => 'pending'
             ]);
 
-            $usr = User::find(decrypt($value));
+            $usr = User::find(decryptHelper($value));
             if ($usr) {
                 Mail::to($usr->email)->send(new WailkieTalkieChannelInvitation($usr->name, $usr->email, $channel));
             }
@@ -169,8 +169,8 @@ class WalkieTalkieController extends Controller
         $data = [];
         foreach($chan as $ch){
             $data[] = [
-                'sub_id' => encrypt($ch->id),
-                'channel_id' => encrypt($ch->channel->id),
+                'sub_id' => encryptHelper($ch->id),
+                'channel_id' => encryptHelper($ch->channel->id),
                 'channel_id_un' => $ch->channel->id,
                 'name' => $ch->channel->name,
                 'frequency' => $ch->channel->frequency,
@@ -191,7 +191,7 @@ class WalkieTalkieController extends Controller
 
     public function channelinvitedstatus(Request $request)
     {
-        WailkieTalkieSubscriber::find(decrypt($request->sub_id))->update(['status' => $request->status]);
+        WailkieTalkieSubscriber::find(decryptHelper($request->sub_id))->update(['status' => $request->status]);
         return response()->json(
             [
                 'status' => '200',
@@ -204,7 +204,7 @@ class WalkieTalkieController extends Controller
 
     public function channelbroadcast(Request $request)
     {
-        $chan = WailkieTalkieSubscriber::where('user_id', auth()->user()->id)->where('channel_id', decrypt($request->channel))->first();
+        $chan = WailkieTalkieSubscriber::where('user_id', auth()->user()->id)->where('channel_id', decryptHelper($request->channel))->first();
 
         if($request->hasFile('record')) {
             $filerecord = $request->file('record');
@@ -222,22 +222,22 @@ class WalkieTalkieController extends Controller
                 'state' => 'walkie',
                 'sender' => [
                     'id' => $chan->user_id,
-                    'id_en' => encrypt($chan->user_id),
+                    'id_en' => encryptHelper($chan->user_id),
                     'name' => $chan->user->name,
                     'phone' => $chan->user->phone,
                     'email' => $chan->user->email,
                 ],
                 'receiver' => [
                     'id' => $chan->channel_id,
-                    'id_en' => encrypt($chan->channel_id),
+                    'id_en' => encryptHelper($chan->channel_id),
                     'name' => $chan->channel->name,
                     'frequency' => $chan->channel->frequency
                 ],
                 'mss_chat' => [
-                    'recording_id' => encrypt($rec->id),
-                    'channel_id' => encrypt($rec->channel_id),
+                    'recording_id' => encryptHelper($rec->id),
+                    'channel_id' => encryptHelper($rec->channel_id),
                     'channel_name' => $rec->channel->name,
-                    'user_id' => encrypt($rec->user_id),
+                    'user_id' => encryptHelper($rec->user_id),
                     'user_name' => $rec->user->name,
                     'record' => $rec->record,
                     'record_text' => $rec->record_text,
@@ -245,7 +245,7 @@ class WalkieTalkieController extends Controller
                 ]
             ];
 
-            broadcast(new PrivateWalkieMessageSent(auth()->user()->id, $chan->channel->id, $sendData))->toOthers();
+            broadcast(new PrivateWalkieMessageSent(encryptHelper(auth()->user()->id), encryptHelper($chan->channel->id), $sendData))->toOthers();
 
             return response()->json(
                 [
@@ -269,15 +269,15 @@ class WalkieTalkieController extends Controller
 
     public function channelbroadcastlist($id)
     {
-        $record = WailkieTalkieRecorder::where('channel_id', decrypt($id))->get();
+        $record = WailkieTalkieRecorder::where('channel_id', decryptHelper($id))->get();
 
         $data = [];
         foreach($record as $rec){
             $data[] = [
-                'recording_id' => encrypt($rec->id),
-                'channel_id' => encrypt($rec->channel_id),
+                'recording_id' => encryptHelper($rec->id),
+                'channel_id' => encryptHelper($rec->channel_id),
                 'channel_name' => $rec->channel->name,
-                'user_id' => encrypt($rec->user_id),
+                'user_id' => encryptHelper($rec->user_id),
                 'user_name' => $rec->user->name,
                 'record' => $rec->record,
                 'record_text' => $rec->record_text,
@@ -297,7 +297,7 @@ class WalkieTalkieController extends Controller
 
     public function channelbroadcastdel($id)
     {
-        $wal = WailkieTalkieRecorder::find(decrypt($id));
+        $wal = WailkieTalkieRecorder::find(decryptHelper($id));
 
         try {
             unlink(public_path($wal->record));
