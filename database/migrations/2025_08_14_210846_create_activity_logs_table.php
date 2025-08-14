@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('activity_logs', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->nullable()->constrained()->cascadeOnDelete();
+            $table->integer('user_id')->nullable();
             $table->string('action'); // 'chat.send','call.start','meeting.create','ptt.push','file.upload'
             $table->json('context')->nullable();
             $table->timestamps();

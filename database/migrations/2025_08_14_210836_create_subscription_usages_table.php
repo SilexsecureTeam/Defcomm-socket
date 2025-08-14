@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('subscription_usages', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('feature_id')->constrained()->cascadeOnDelete();
+            $table->integer('user_id')->nullable();
+            $table->integer('feature_id')->nullable();
             $table->unsignedBigInteger('used')->default(0);
             $table->timestamp('period_start');
             $table->timestamp('period_end');

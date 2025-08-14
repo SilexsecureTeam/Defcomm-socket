@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('plan_features', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('plan_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('feature_id')->constrained()->cascadeOnDelete();
+            $table->integer('plan_id')->nullable();
+            $table->integer('feature_id')->nullable();
             $table->unsignedBigInteger('limit')->nullable(); // null = unlimited
             $table->enum('period', ['daily', 'weekly', 'monthly', 'quarterly', 'yearly', 'lifetime'])->default('monthly');
             $table->json('metadata')->nullable(); // e.g. per-file-size, max-participants
