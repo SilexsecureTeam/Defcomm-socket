@@ -10,5 +10,5 @@ function encryptHelper($data)
 
 function decryptHelper($data)
 {
-    return Hashids::decode($data);
+    return Hashids::decode($data)[0];
 }
