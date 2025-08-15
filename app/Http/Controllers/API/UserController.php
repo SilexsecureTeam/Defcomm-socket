@@ -1272,7 +1272,15 @@ class UserController extends Controller
             [
                 'status' => '200',
                 'message' => 'Record listed',
-                'group_meta' => $group,
+                'group_meta' => [
+                    "id" => encryptHelper($group->id),
+                    "company_id" => encryptHelper($group->company_id),
+                    "name" => $group->name,
+                    "decription" => $group->decription,
+                    "created_at" => $group->created_at,
+                    "updated_at" => $group->updated_at,
+                    "avatar" => $group->avatar
+                ],
                 'data' => $data
             ],
             201
