@@ -29,7 +29,7 @@
         });
 
         // Private chat
-        const privateChannel = pusher.subscribe("private-chat.37");
+        const privateChannel = pusher.subscribe("private-chat.5Lvr6JZ648Kg");
         privateChannel.bind("private.message.sent", function (data) {
             console.log("Private:", data.message);
             document.getElementById('log').textContent +=
