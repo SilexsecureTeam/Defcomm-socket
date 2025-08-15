@@ -194,7 +194,7 @@ class AuthController extends Controller
                 if ($user->first()->status !== "active") {
                     return response()->json(['status' => 400, 'error' => "Your account is not active. Contact support"], 401);
                 }
-                if ((new AuthService())->loginLog($user, $request) == 'block') {
+                if ((new AuthService())->loginLog($user->first(), $request) == 'block') {
                     Auth::logout();
                     return response()->json(['status' => 400, 'error' => "This device does not have access to this account"], 401);
                 }

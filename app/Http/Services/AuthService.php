@@ -47,6 +47,8 @@ class AuthService
             'last_used_at' => now(),
         ]);
 
+        $deve = $deviveLogin ? $deviveLogin->status : 'active';
+        
         UserLoginLog::create([
             'user_id'    => $user->id,
             'ip_address' => $ip,
@@ -60,9 +62,9 @@ class AuthService
             'lon'        => $locationData->longitude ?? null,
             'user_agent' => $userAgent,
             'device_id'  => $deviveLogin->id,
-            'attempt' => $deviveLogin ? $deviveLogin->status : 'active'
+            'attempt' => $deve ?? 'active',
         ]);
 
-        return $deviveLogin ? $deviveLogin->status : 'active';
+        return $deve ?? 'active';
     }
 }
