@@ -1209,8 +1209,8 @@ class UserController extends Controller
 
             $ret = $this->ChatService->submitChat(
                 $request->current_chat_user_type,
-                $request->current_chat_user,
-                $request->chat_id,
+                decryptHelper($request->current_chat_user),
+                decryptHelper($request->chat_id),
                 $message,
                 $request->is_file,
                 $request->mss_type
