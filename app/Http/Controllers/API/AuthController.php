@@ -527,7 +527,7 @@ class AuthController extends Controller
         $data = [];
         foreach ($logs as $log) {
             $data[] = [
-                'id' => encryptHelper($log->id),
+                'id' => encrypt($log->id),
                 'ip_address' => $log->ip_address,
                 'browser'    => $log->browser,
                 'device'     => $log->device,
@@ -584,7 +584,7 @@ class AuthController extends Controller
 
     public function logindevicestatus($id, $status)
     {
-        $logs = UserLoginDevice::find(decryptHelper($id));
+        $logs = UserLoginDevice::find(decrypt($id));
         if ($logs) {
             $logs->update(['status' => $status]);
         }
