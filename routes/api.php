@@ -47,6 +47,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('auth/logindevicelog', [AuthController::class, 'logindevicelog']);
     Route::get('auth/logindevice/{status}', [AuthController::class, 'logindevice']);
     Route::get('auth/logindevicestatus/{id}/{status}', [AuthController::class, 'logindevicestatus']);
+    Route::post('auth/loginblockip', [AuthController::class, 'loginblockip']);
+    Route::get('auth/loginblockip/list', [AuthController::class, 'loginblockipList']);
+    Route::post('auth/loginunblockip', [AuthController::class, 'loginunblockip']);
 
     Route::get('/user/file', [UserController::class, 'file']);
     Route::get('/user/file/pending', [UserController::class, 'fileOtherPending']);
@@ -77,6 +80,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/user/chat/messages/send', [UserController::class, 'sendMessage']);
     Route::post('/user/chat/messages/call', [UserController::class, 'sendMessageCall']);
     Route::post('/user/messages/{type}', [UserController::class, 'messagesTyping']);
+    Route::get('/user/messages/important/{id}', [UserController::class, 'messagesImportant']);
+    Route::get('/user/messages/isread/{id}', [UserController::class, 'messagesIsread']);
 
     Route::get('/user/meetingTokenGen', [UserController::class, 'meetingTokenGen']);
     Route::post('/user/meeting/create', [UserController::class, 'meetingCreate']);
@@ -112,6 +117,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/walkietalkie/channellistinvited/{status}', [WalkieTalkieController::class, 'channellistinvited']);
     Route::post('/walkietalkie/channelinvitedstatus', [WalkieTalkieController::class, 'channelinvitedstatus']);
     Route::post('/walkietalkie/channelbroadcast', [WalkieTalkieController::class, 'channelbroadcast']);
+    Route::post('/walkietalkie/channelisbroadcasting', [UserController::class, 'channelisbroadcasting']);
     Route::get('/walkietalkie/channelbroadcastlist/{id}', [WalkieTalkieController::class, 'channelbroadcastlist']);
     Route::get('/walkietalkie/channelbroadcastdel/{id}', [WalkieTalkieController::class, 'channelbroadcastdel']);
 });

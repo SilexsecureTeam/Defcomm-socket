@@ -20,7 +20,7 @@ use App\Events\PrivateGroupMessageSent;
 
 class ChatService
 {
-    public function submitChat($current_chat_user_type, $current_chat_user, $userLastLog, $message, $is_file, $mss_type = 'text')
+    public function submitChat($current_chat_user_type, $current_chat_user, $userLastLog, $message, $is_file, $mss_type = 'text', $tag_user = null)
     {
         $userLog = $userLastLog ?? uniqid();
 
@@ -74,7 +74,8 @@ class ChatService
             'is_star' => 'no',
             'view_once' => 'no',
             'expire_time' => null,
-            'message' => encrypt($message)
+            'message' => encrypt($message),
+            'tag_user' => $tag_user
         ]);
 
         if ($mss_type == 'call') {
@@ -118,6 +119,7 @@ class ChatService
                 "is_file" => $chatmss->is_file,
                 "file_type" => $chatmss->file_type,
                 "is_read" => $chatmss->is_read,
+                'tag_user' => convertBackToenHelper($chatmss->tag_user),
             ]
         ];
 

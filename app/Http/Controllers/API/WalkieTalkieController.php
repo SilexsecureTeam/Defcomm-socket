@@ -267,6 +267,23 @@ class WalkieTalkieController extends Controller
         );
     }
 
+    public function channelisbroadcasting(Request $request)
+    {
+
+        broadcast(new PrivateWalkieMessageSent(encryptHelper(auth()->user()->id), encryptHelper($request->channel_id), [
+            'state' => $request->recording,
+            'sender_id' => auth()->user()->id,
+            'sender_iden' => encryptHelper(auth()->user()->id),
+            'receiver_id' => $request->current_chat_user,
+            'receiver_iden' => encryptHelper($request->current_chat_user),
+            'message' => '',
+            'name' => '',
+            'data' => ''
+        ]))->toOthers();
+
+        return true;
+    }
+
     public function channelbroadcastlist($id)
     {
         $record = WailkieTalkieRecorder::where('channel_id', decryptHelper($id))->get();

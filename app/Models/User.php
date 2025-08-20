@@ -149,4 +149,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(UserLoginLog::class, 'user_id');
     }
+
+    public function blockip()
+    {
+        return $this->hasMany(UserBlockIp::class, 'user_id');
+    }
 }

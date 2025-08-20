@@ -704,6 +704,7 @@ class UserController extends Controller
                 'chatbtw' => $dt->mss_type == "call" ? $dt->chatCall->chatbtw : null,
                 'expire_time' => $dt->expire_time,
                 'message' => decrypt($dt->message),
+                'tag_user' => convertBackToenHelper($dt->tag_user),
                 'deleted_at' => $dt->deleted_at,
                 'created_at' => $dt->created_at,
                 'updated_at' => $dt->updated_at,
@@ -988,6 +989,34 @@ class UserController extends Controller
         return true;
     }
 
+    public function messagesImportant($id)
+    {
+        ChatMessage::find(decryptHelper($id))->update(['is_important' => 'yes']);
+
+        return response()->json(
+            [
+                'status' => '200',
+                'message' => 'Message marked as important',
+                'data' => null
+            ],
+            201
+        );
+    }
+    
+    public function messagesIsread($id)
+    {
+        ChatMessage::find(decryptHelper($id))->update(['is_read' => 'yes']);
+
+        return response()->json(
+            [
+                'status' => '200',
+                'message' => 'Message marked as read',
+                'data' => null
+            ],
+            201
+        );
+    }
+
     public function meetingCreate(Request $request)
     {
         $data = Meeting::create([
@@ -1207,13 +1236,22 @@ class UserController extends Controller
                 $message = $request->message;
             }
 
+
+            $decrypted = array_map(function ($item) {
+                return decryptHelper($item);
+            }, forceToArray($request->tag_user));
+
+            // convert to string (JSON is common for DB storage)
+            $tag_user = json_encode($decrypted);
+
             $ret = $this->ChatService->submitChat(
                 $request->current_chat_user_type,
                 decryptHelper($request->current_chat_user),
                 decryptHelper($request->chat_id),
                 $message,
                 $request->is_file,
-                $request->mss_type
+                $request->mss_type,
+                $tag_user
             );
         }
 
@@ -1259,7 +1297,7 @@ class UserController extends Controller
         $data = [];
         foreach ($record as $key => $dt) {
             $data[$key] = [
-                'id' => $dt->id,
+                'id' => encryptHelper($dt->id),
                 'join_date' => $dt->join_date,
                 'hide_member_detail' => $dt->hide,
                 'member_id_encrpt' => encryptHelper($dt->user_id),

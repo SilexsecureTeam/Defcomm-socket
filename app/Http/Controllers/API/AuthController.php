@@ -8,6 +8,7 @@ use App\Mail\OtpMail;
 use App\Mail\Invitation;
 use App\Models\Language;
 use App\Models\CompanyUser;
+use App\Models\UserBlockIp;
 use Illuminate\Support\Str;
 use App\Models\UserLoginLog;
 use Illuminate\Http\Request;
@@ -136,7 +137,7 @@ class AuthController extends Controller
             return response()->json(['status' => 400, 'error' => "Your account is not active. Contact support"], 401);
         }
 
-        if((new AuthService())->loginLog($user, $request) == 'block'){
+        if ((new AuthService())->loginLog($user, $request) == 'block') {
             Auth::logout();
             return response()->json(['status' => 400, 'error' => "This device does not have access to this account"], 401);
         }
@@ -151,7 +152,7 @@ class AuthController extends Controller
             $user->update(['device_type' => $request->device_type]);
         }
 
-        
+
 
         return response()->json([
             'message' => 'Login successfully',
@@ -519,7 +520,8 @@ class AuthController extends Controller
         );
     }
 
-    public function logindevicelog(){
+    public function logindevicelog()
+    {
         $logs = UserLoginLog::where('user_id', Auth::user()->id)->with('device')->orderBy('created_at', 'desc')->get();
 
         $data = [];
@@ -546,10 +548,11 @@ class AuthController extends Controller
             'status' => 200,
             'message' => 'Login device log retrieved successfully',
             'data' => $data
-        ]); 
+        ]);
     }
 
-    public function logindevice($status){
+    public function logindevice($status)
+    {
         $logs = UserLoginDevice::where('user_id', Auth::user()->id)->where('status', $status)->orderBy('created_at', 'desc')->get();
 
         $data = [];
@@ -569,24 +572,93 @@ class AuthController extends Controller
                 'status' => $log->status,
                 'created_at' => $log->created_at,
                 'updated_at' => $log->updated_at,
-            ];      
-        }            
+            ];
+        }
 
         return response()->json([
             'status' => 200,
             'message' => 'Login device log retrieved successfully',
             'data' => $data
-        ]); 
+        ]);
     }
 
-    public function logindevicestatus($id, $status){
-        return decryptHelper($id);
-        $logs = UserLoginDevice::find(decrypt($id))->update(['status' => $status]);
+    public function logindevicestatus($id, $status)
+    {
+        $logs = UserLoginDevice::find(decryptHelper($id));
+        if ($logs) {
+            $logs->update(['status' => $status]);
+        }
 
         return response()->json([
             'status' => 200,
             'message' => 'Login device updated successfully',
             'data' => $logs
-        ]); 
+        ]);
+    }
+
+    public function loginblockip(Request $request)
+    {
+        if (!$request->has('ip_address')) {
+            return response()->json(['status' => 400, 'error' => "IP address is required"], 400);
+        }
+
+        // if it's not already an array, wrap it in one
+        $ip_address = $request->ip_address;
+        if (!is_array($request->ip_address)) {
+            $ip_address = [$request->ip_address];
+        }
+
+
+        foreach ($ip_address as $value) {
+            UserBlockIp::updateOrCreate([
+                'user_id' => Auth::user()->id,
+                'ip_address' => $value,
+            ], [
+                'status' => 'blocked'
+            ]);
+        }
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'IP addresses blocked successfully',
+            'data' => ""
+        ]);
+    }
+
+    public function loginblockipList()
+    {
+        $ips = UserBlockIp::where('user_id', Auth::user()->id)->get();
+
+        $data = [];
+        foreach ($ips as $ip) {
+            $data[] = [
+                'id' => encrypt($ip->id),
+                'ip_address' => $ip->ip_address,
+                'status' => $ip->status
+            ];
+        }
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'IP addresses blocked successfully',
+            'data' => $data
+        ]);
+    }
+
+    public function loginunblockip(Request $request)
+    {
+        if (!$request->has('ip_address')) {
+            return response()->json(['status' => 400, 'error' => "IP address is required"], 400);
+        }
+
+        foreach ($request->ip_address as $value) {
+            UserBlockIp::where('user_id', Auth::user()->id)->where('id', decrypt($value))->delete();
+        }
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'IP addresses unblocked successfully',
+            'data' => ""
+        ]);
     }
 }
