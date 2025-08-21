@@ -1239,13 +1239,15 @@ class UserController extends Controller
                 $message = $request->message;
             }
 
+            $tag_user = null;
+            if($request->tag_user){
+                $decrypted = array_map(function ($item) {
+                    return decryptHelper($item);
+                }, forceToArray($request->tag_user));
 
-            $decrypted = array_map(function ($item) {
-                return decryptHelper($item);
-            }, forceToArray($request->tag_user));
-
-            // convert to string (JSON is common for DB storage)
-            $tag_user = json_encode($decrypted);
+                // convert to string (JSON is common for DB storage)
+                $tag_user = json_encode($decrypted);
+            }
 
             $ret = $this->ChatService->submitChat(
                 $request->current_chat_user_type,
