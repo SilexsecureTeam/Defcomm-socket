@@ -682,12 +682,15 @@ class UserController extends Controller
 
         $data = [];
         foreach ($record as $key => $dt) {
+            if($dt->user_id != auth()->user()->id){
+                $dt->update(['is_read' => 'yes']);
+            }
+
             $data[$key] = [
-                'id' => $dt->id,
-                'id_en' => encryptHelper($dt->id),
+                'id' => encryptHelper($dt->id),
                 'is_my_chat' => $dt->user_id == auth()->user()->id ? 'yes' : 'no',
-                'user_id' => $dt->user_id,
-                'user_to' => $dt->user_to,
+                'user_id' => encryptHelper($dt->user_id),
+                'user_to' => encryptHelper($dt->user_to),
                 'user_to_name' => $dt->userTo->name,
                 'group_to' => $dt->group_to,
                 'chat_user_type' => $dt->user_group,
@@ -705,6 +708,7 @@ class UserController extends Controller
                 'expire_time' => $dt->expire_time,
                 'message' => decrypt($dt->message),
                 'tag_user' => convertBackToenHelper($dt->tag_user),
+                'tag_mess' => encryptHelper($dt->tag_mess),
                 'deleted_at' => $dt->deleted_at,
                 'created_at' => $dt->created_at,
                 'updated_at' => $dt->updated_at,
@@ -1002,10 +1006,10 @@ class UserController extends Controller
             201
         );
     }
-    
+
     public function messagesIsread($id)
     {
-        ChatMessage::find(decryptHelper($id))->update(['is_read' => 'yes']);
+        $chat = ChatMessage::find(decryptHelper($id))->update(['is_read' => 'yes']);
 
         return response()->json(
             [
@@ -1251,7 +1255,8 @@ class UserController extends Controller
                 $message,
                 $request->is_file,
                 $request->mss_type,
-                $tag_user
+                $tag_user,
+                decryptHelper($request->tag_mess)
             );
         }
 

@@ -41,7 +41,7 @@
         });
 
         // Group chat
-        const groupChannel = pusher.subscribe(`private-group.1`);
+        const groupChannel = pusher.subscribe(`private-group.2MKqRBW6jLGO`);
         groupChannel.bind("group.message.sent", function (data) {
             console.log(`Group:`, data.message);
             document.getElementById('log').textContent += `Group: ${JSON.stringify(data)}\n`;

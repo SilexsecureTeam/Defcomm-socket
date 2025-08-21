@@ -13,6 +13,8 @@ return new class extends Migration
     {
         Schema::table('chat_messages', function (Blueprint $table) {
             $table->json("tag_user")->nullable();
+            $table->integer("tag_mess")->nullable();
+            $table->enum("is_edit",['no','yes'])->default('no');
         });
     }
 
@@ -23,6 +25,8 @@ return new class extends Migration
     {
         Schema::table('chat_messages', function (Blueprint $table) {
             $table->dropColumn("tag_user");
+            $table->dropColumn("tag_mess");
+            $table->dropColumn("is_edit");
         });
     }
 };

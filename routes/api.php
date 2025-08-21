@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Broadcast;
+use App\Http\Controllers\API\WebController;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\WalkieTalkieController;
@@ -38,6 +39,16 @@ Route::get('app/language', [AuthController::class, 'appLanguage']);
 Route::get('app/agreements/{term?}', [AuthController::class, 'appAgreements']);
 Route::get('/app/list', [UserController::class, 'appList']);
 Route::get('/app/listId/{id}', [UserController::class, 'appListId']);
+
+Route::prefix('web')->group(function () {
+    Route::post('/contact', [WebController::class, 'contact']); // submit form
+    Route::post('/booking', [WebController::class, 'booking']); // submit form
+
+
+    Route::get('/', [WebController::class, 'index']); // list all
+    Route::get('/{id}', [WebController::class, 'show']); // single
+    Route::delete('/{id}', [WebController::class, 'destroy']); // delete
+});
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('app/resetPassword', [AuthController::class, 'appresetPassword']);

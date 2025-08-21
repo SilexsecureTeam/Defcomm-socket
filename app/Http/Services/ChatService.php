@@ -20,7 +20,7 @@ use App\Events\PrivateGroupMessageSent;
 
 class ChatService
 {
-    public function submitChat($current_chat_user_type, $current_chat_user, $userLastLog, $message, $is_file, $mss_type = 'text', $tag_user = null)
+    public function submitChat($current_chat_user_type, $current_chat_user, $userLastLog, $message, $is_file, $mss_type = 'text', $tag_user = null, $tag_mess = null)
     {
         $userLog = $userLastLog ?? uniqid();
 
@@ -75,7 +75,8 @@ class ChatService
             'view_once' => 'no',
             'expire_time' => null,
             'message' => encrypt($message),
-            'tag_user' => $tag_user
+            'tag_user' => $tag_user,
+            'tag_mess' => $tag_mess
         ]);
 
         if ($mss_type == 'call') {
@@ -120,6 +121,7 @@ class ChatService
                 "file_type" => $chatmss->file_type,
                 "is_read" => $chatmss->is_read,
                 'tag_user' => convertBackToenHelper($chatmss->tag_user),
+                'tag_mess' => encryptHelper($chatmss->tag_mess),
             ]
         ];
 
@@ -158,6 +160,8 @@ class ChatService
             'chatbtw' => $chatmss->mss_type == "call" ? $chatmss->chatCall->chatbtw : null,
             'expire_time' => $chatmss->expire_time,
             'message' => decrypt($chatmss->message),
+            'tag_user' => convertBackToenHelper($chatmss->tag_user),
+            'tag_mess' => encryptHelper($chatmss->tag_mess),
             'deleted_at' => $chatmss->deleted_at,
             'created_at' => $chatmss->created_at,
             'updated_at' => $chatmss->updated_at,
