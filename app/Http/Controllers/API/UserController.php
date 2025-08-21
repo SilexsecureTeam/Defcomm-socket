@@ -1257,7 +1257,7 @@ class UserController extends Controller
                 $request->is_file,
                 $request->mss_type,
                 $tag_user,
-                decryptHelper($request->tag_mess)
+                $request->tag_mess ? decryptHelper($request->tag_mess) : null
             );
         }
 
