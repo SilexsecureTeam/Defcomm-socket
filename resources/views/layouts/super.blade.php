@@ -68,9 +68,9 @@
                 <div class="aside-footer flex-column-auto" id="kt_aside_footer">
                     <!--begin::Menu-->
                     <div class="d-flex justify-content-center">
-                        <button type="button" class="btn btm-sm btn-icon btn-custom btn-active-color-primary" data-kt-menu-trigger="click" data-kt-menu-overflow="true" data-kt-menu-placement="top-start" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-dismiss="click" title="Quick actions">
+                        <a href="{{ url('logout')}}" class="btn btm-sm btn-icon btn-custom btn-active-color-primary" data-kt-menu-trigger="click" data-kt-menu-overflow="true" data-kt-menu-placement="top-start" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-dismiss="click" title="Logout">
                             <i class="ki-outline ki-notification-status fs-1"></i>
-                        </button>
+                        </a>
                     </div>
                     <!--end::Menu-->
                 </div>

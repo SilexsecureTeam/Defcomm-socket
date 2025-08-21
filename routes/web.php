@@ -73,6 +73,7 @@ Route::middleware(['auth', 'user-role:super'])->group(function () {
     Route::post('/super/accountCreate', [SuperAdminController::class, 'accountCreate'])->name('super.accountCreate');
     Route::post('/super/accountEdit', [SuperAdminController::class, 'accountEdit'])->name('super.accountEdit');
     Route::get('/super/accountView/{id}', [SuperAdminController::class, 'accountView'])->name('super.accountView');
+    Route::get('/super/accessLog/{id}', [SuperAdminController::class, 'accessLog'])->name('super.accessLog');
     Route::get('/super/accountDelete/{id}', [SuperAdminController::class, 'accountDelete'])->name('super.accountDelete');
     Route::get('/super/accountToken', [SuperAdminController::class, 'accountToken'])->name('super.accountToken');
 
@@ -93,6 +94,11 @@ Route::middleware(['auth', 'user-role:super'])->group(function () {
     Route::get('/super/store/app/{id?}', [SuperAdminController::class, 'storeApp'])->name('super.store.app');
     Route::get('/super/store/app/detail/{id}', [SuperAdminController::class, 'storeappdetail'])->name('super.store.appt.detail');
     Route::post('/super/store/app/detailSub', [SuperAdminController::class, 'storeappdetailSub'])->name('super.store.app.detailSub');
+    Route::get('/super/web/contact', [SuperAdminController::class, 'webContact'])->name('super.web.contact');
+    Route::get('/super/web/booking', [SuperAdminController::class, 'webBooking'])->name('super.web.booking');
+    Route::get('/super/plan', [SuperAdminController::class, 'plan'])->name('super.plan');
+    Route::post('/super/planAdd', [SuperAdminController::class, 'planAdd'])->name('super.planAdd');
+    Route::post('/super/planEdit', [SuperAdminController::class, 'planEdit'])->name('super.planEdit');
 });
 
 Route::middleware(['auth', 'user-role:admin'])->group(function () {

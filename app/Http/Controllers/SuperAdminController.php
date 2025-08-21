@@ -2,13 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Plan;
 use App\Models\User;
 use App\Mail\Invitation;
 use App\Models\AppStore;
 use App\Models\Language;
+use App\Models\UserPlan;
 use App\Models\SystemMail;
 use App\Models\CompanyUser;
+use App\Models\UserLoginLog;
 use Illuminate\Http\Request;
+use App\Models\ContactBooking;
+use App\Models\UserLoginDevice;
+use App\Models\ContactSubmission;
 use App\Models\StatementAgreement;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
@@ -19,20 +25,24 @@ class SuperAdminController extends Controller
     public function dashboard()
     {
         $usr = User::where('role', 'admin')->get();
+        $plan = UserPlan::where('status', 'active')->get();
         return view('super.dashboard', [
             'page' => "Dashboard",
             'opt' => 'admin',
-            'usr' => $usr
+            'usr' => $usr,
+            'plan' => $plan
         ]);
     }
 
     public function account()
     {
         $usr = User::where('role', 'admin')->get();
+        $plan = UserPlan::where('status', 'active')->get();
         return view('super.account', [
             'page' => "Account",
             'opt' => 'admin',
-            'usr' => $usr
+            'usr' => $usr,
+            'plan' => $plan
         ]);
     }
 
@@ -48,6 +58,20 @@ class SuperAdminController extends Controller
             ]);
         }
         return redirect()->back()->with('error', 'No data found for this account');
+    }
+
+    public function accessLog($id)
+    {
+        $device = UserLoginDevice::where('user_id', decrypt($id))->get();
+        $log = UserLoginLog::where('user_id', decrypt($id))->get();
+        $user = User::find(decrypt($id));
+
+        return view('common.deviceaccesslog', [
+            'page' => $user->name . " User's Device Access",
+            'opt' => 'user',
+            'device' => $device,
+            'log' => $log
+        ]);
     }
 
     public function accountDelete($id){
@@ -76,8 +100,7 @@ class SuperAdminController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'phone' => $request->phone,
-            'number_user' => $request->number_user,
-            'number_app' => $request->number_app,
+            'plan_id' => $request->plan_id,
             'role' => 'admin',
             'password' => Hash::make($request->password),
             'access_token' => uniqid()
@@ -125,8 +148,7 @@ class SuperAdminController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'phone' => $request->phone,
-            'number_user' => $request->number_user,
-            'number_app' => $request->number_app,
+            'plan_id' => $request->plan_id,
         ]);
 
         if($request->password){
@@ -300,5 +322,71 @@ class SuperAdminController extends Controller
             'comment' => $request->comment
         ]);
         return redirect()->back()->with('success', "App status successfully updated");
+    }
+
+    public function webContact()
+    {
+        $data = ContactSubmission::get();
+
+        return view('super.webcontact', [
+            'page' => "Web Contact",
+            'opt' => 'admin',
+            'data' => $data
+        ]);
+    }
+
+    public function webBooking()
+    {
+        $data = ContactBooking::get();
+
+        return view('super.webbooking', [
+            'page' => "Web Booking",
+            'opt' => 'admin',
+            'data' => $data
+        ]);
+    }
+
+    public function plan()
+    {
+        $data = UserPlan::get();
+
+        return view('super.plan', [
+            'page' => "Plan",
+            'opt' => 'admin',
+            'data' => $data
+        ]);
+    }
+
+    public function planAdd(Request $request) 
+    {
+        UserPlan::create([
+            'name' => $request->name,
+            'file_size' => $request->file_size,
+            'no_user' => $request->no_user,
+            'no_group' => $request->no_group,
+            'enable_chat' => $request->enable_chat,
+            'enable_meeting' => $request->enable_meeting,
+            'enable_walkie' => $request->enable_walkie,
+            'enable_call' => $request->enable_call,
+            'description' => $request->description,
+        ]);
+        return redirect()->back()->with('success', "Plan successfully added");      
+    }
+
+    public function planEdit(Request $request) 
+    {
+        UserPlan::find(decrypt($request->id))->update([
+            'name' => $request->name,
+            'file_size' => $request->file_size,
+            'no_user' => $request->no_user,
+            'no_group' => $request->no_group,
+            'enable_chat' => $request->enable_chat,
+            'enable_meeting' => $request->enable_meeting,
+            'enable_walkie' => $request->enable_walkie,
+            'enable_call' => $request->enable_call,
+            'description' => $request->description,
+            'status' => $request->status,
+        ]);
+        return redirect()->back()->with('success', "Plan successfully updated");      
     }
 }

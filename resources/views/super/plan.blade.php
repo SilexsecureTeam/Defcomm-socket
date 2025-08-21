@@ -1,3 +1,6 @@
+@extends('layouts.super')
+
+@section('content')
 <!--begin::Card-->
 <div class="card">
     <!--begin::Card header-->
@@ -18,7 +21,7 @@
             <div class="d-flex justify-content-end" data-kt-user-table-toolbar="base">
                 <!--begin::Add user-->
                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#kt_modal_add_user">
-                    <i class="ki-outline ki-plus fs-2"></i>Add User</button>
+                    <i class="ki-outline ki-plus fs-2"></i>Add Plan</button>
                 <!--end::Add user-->
             </div>
             <!--end::Toolbar-->
@@ -59,7 +62,7 @@
                                     <!--end::Label-->
                                     <!--begin::Input-->
                                     <select name="role" data-control="select2" data-placeholder="Select a role" data-hide-search="true" class="form-select form-select-solid fw-bold">
-                                        <option></option>
+                                        <option value="no"></option>
                                         <option value="Administrator">Administrator</option>
                                         <option value="Analyst">Analyst</option>
                                         <option value="Developer">Developer</option>
@@ -76,7 +79,7 @@
                                     <!--end::Label-->
                                     <!--begin::Input-->
                                     <select name="format" data-control="select2" data-placeholder="Select a format" data-hide-search="true" class="form-select form-select-solid fw-bold">
-                                        <option></option>
+                                        <option value="no"></option>
                                         <option value="excel">Excel</option>
                                         <option value="pdf">PDF</option>
                                         <option value="cvs">CVS</option>
@@ -114,7 +117,7 @@
                         <!--begin::Modal header-->
                         <div class="modal-header" id="kt_modal_add_user_header">
                             <!--begin::Modal title-->
-                            <h2 class="fw-bold">Add User</h2>
+                            <h2 class="fw-bold">Add Plan</h2>
                             <!--end::Modal title-->
                             <!--begin::Close-->
                             <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal">
@@ -126,75 +129,117 @@
                         <!--begin::Modal body-->
                         <div class="modal-body px-5 my-7">
                             <!--begin::Form-->
-                            <form id="kt_modal_add_user_form" method="post" class="form" action="{{route('super.accountCreate')}}">
+                            <form id="kt_modal_add_user_form" method="post" class="form" action="{{route('super.planAdd')}}">
                                 @csrf
                                 <!--begin::Scroll-->
                                 <div class="d-flex flex-column scroll-y px-5 px-lg-10" id="kt_modal_add_user_scroll" data-kt-scroll="true" data-kt-scroll-activate="true" data-kt-scroll-max-height="auto" data-kt-scroll-dependencies="#kt_modal_add_user_header" data-kt-scroll-wrappers="#kt_modal_add_user_scroll" data-kt-scroll-offset="300px">
                                     <!--begin::Input group-->
                                     <div class="fv-row mb-7">
                                         <!--begin::Label-->
-                                        <label class="required fw-semibold fs-6 mb-2">Organization Name</label>
-                                        <!--end::Label-->
-                                        <!--begin::Input-->
-                                        <input type="text" name="nameorg" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="Organization name" />
-                                        <!--end::Input-->
-                                    </div>
-                                    <!--end::Input group-->
-                                    <!--begin::Input group-->
-                                    <div class="fv-row mb-7">
-                                        <!--begin::Label-->
-                                        <label class="required fw-semibold fs-6 mb-2">Full Name</label>
-                                        <!--end::Label-->
-                                        <!--begin::Input-->
-                                        <input type="text" name="name" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="Full name" />
-                                        <!--end::Input-->
-                                    </div>
-                                    <!--end::Input group-->
-                                    <!--begin::Input group-->
-                                    <div class="fv-row mb-7">
-                                        <!--begin::Label-->
-                                        <label class="required fw-semibold fs-6 mb-2">Email</label>
-                                        <!--end::Label-->
-                                        <!--begin::Input-->
-                                        <input type="email" name="email" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="example@domain.com" />
-                                        <!--end::Input-->
-                                    </div>
-                                    <!--end::Input group-->
-                                    <!--begin::Input group-->
-                                    <div class="fv-row mb-7">
-                                        <!--begin::Label-->
-                                        <label class="required fw-semibold fs-6 mb-2">Phone</label>
-                                        <!--end::Label-->
-                                        <!--begin::Input-->
-                                        <input type="text" name="phone" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="example@domain.com" />
-                                        <!--end::Input-->
-                                    </div>
-                                    <!--end::Input group-->
-                                    <!--begin::Input group-->
-                                    <div class="fv-row mb-7">
-                                        <!--begin::Label-->
-                                        <label class="required fw-semibold fs-6 mb-2">Password</label>
-                                        <!--end::Label-->
-                                        <!--begin::Input-->
-                                        <input type="password" name="password" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="**************" />
-                                        <!--end::Input-->
-                                    </div>
-                                    <!--end::Input group-->
-                                    <!--begin::Input group-->
-                                    <div class="fv-row mb-7">
-                                        <!--begin::Label-->
                                         <label class="required fw-semibold fs-6 mb-2">Plan</label>
                                         <!--end::Label-->
                                         <!--begin::Input-->
-                                        <select name="plan_id" class="form-control form-control-solid mb-3 mb-lg-0">
-                                            <option>Select</option>
-                                            @foreach($plan as $pl)
-                                            <option value="{{$pl->id}}">{{$pl->name}}</option>
-                                            @endforeach
+                                        <input type="text" name="name" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="Label" required />
+                                        <!--end::Input-->
+                                    </div>
+                                    <!--end::Input group-->
+                                    <!--begin::Input group-->
+                                    <div class="fv-row mb-7">
+                                        <!--begin::Label-->
+                                        <label class="required fw-semibold fs-6 mb-2">File Size (Gig)</label>
+                                        <!--end::Label-->
+                                        <!--begin::Input-->
+                                        <input type="number" name="file_size" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="File Size" />
+                                        <!--end::Input-->
+                                    </div>
+                                    <!--end::Input group-->
+                                    <!--begin::Input group-->
+                                    <div class="fv-row mb-7">
+                                        <!--begin::Label-->
+                                        <label class="required fw-semibold fs-6 mb-2">Number of User</label>
+                                        <!--end::Label-->
+                                        <!--begin::Input-->
+                                        <input type="number" name="no_user" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="Number of user" />
+                                        <!--end::Input-->
+                                    </div>
+                                    <!--end::Input group-->
+                                    <!--begin::Input group-->
+                                    <div class="fv-row mb-7">
+                                        <!--begin::Label-->
+                                        <label class="required fw-semibold fs-6 mb-2">Number of group</label>
+                                        <!--end::Label-->
+                                        <!--begin::Input-->
+                                        <input type="number" name="no_group" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="Number of group" />
+                                        <!--end::Input-->
+                                    </div>
+                                    <!--end::Input group-->
+                                    <!--begin::Input group-->
+                                    <div class="fv-row mb-7">
+                                        <!--begin::Label-->
+                                        <label class="required fw-semibold fs-6 mb-2">Enable Chat</label>
+                                        <!--end::Label-->
+                                        <!--begin::Input-->
+                                        <select name="enable_chat" class="form-control form-control-solid mb-3 mb-lg-0">
+                                            <option value="no"></option>
+                                            <option value="yes">Yes</option>
+                                            <option value="no">No</option>
                                         </select>
                                         <!--end::Input-->
                                     </div>
                                     <!--end::Input group-->
+                                    <!--begin::Input group-->
+                                    <div class="fv-row mb-7">
+                                        <!--begin::Label-->
+                                        <label class="required fw-semibold fs-6 mb-2">Enable Meeting</label>
+                                        <!--end::Label-->
+                                        <!--begin::Input-->
+                                        <select name="enable_meeting" class="form-control form-control-solid mb-3 mb-lg-0">
+                                            <option value="no"></option>
+                                            <option value="yes">Yes</option>
+                                            <option value="no">No</option>
+                                        </select>
+                                        <!--end::Input-->
+                                    </div>
+                                    <!--end::Input group-->
+                                    <!--begin::Input group-->
+                                    <div class="fv-row mb-7">
+                                        <!--begin::Label-->
+                                        <label class="required fw-semibold fs-6 mb-2">Enable Walkie</label>
+                                        <!--end::Label-->
+                                        <!--begin::Input-->
+                                        <select name="enable_walkie" class="form-control form-control-solid mb-3 mb-lg-0">
+                                            <option value="no"></option>
+                                            <option value="yes">Yes</option>
+                                            <option value="no">No</option>
+                                        </select>
+                                        <!--end::Input-->
+                                    </div>
+                                    <!--end::Input group-->
+                                    <!--begin::Input group-->
+                                    <div class="fv-row mb-7">
+                                        <!--begin::Label-->
+                                        <label class="required fw-semibold fs-6 mb-2">Enable Call</label>
+                                        <!--end::Label-->
+                                        <!--begin::Input-->
+                                        <select name="enable_call" class="form-control form-control-solid mb-3 mb-lg-0">
+                                            <option value="no"></option>
+                                            <option value="yes">Yes</option>
+                                            <option value="no">No</option>
+                                        </select>
+                                        <!--end::Input-->
+                                    </div>
+                                    <!--end::Input group-->
+                                    <!--begin::Input group-->
+                                    <div class="fv-row mb-7">
+                                        <!--begin::Label-->
+                                        <label class="required fw-semibold fs-6 mb-2">Description</label>
+                                        <!--end::Label-->
+                                        <!--begin::Input-->
+                                        <input type="text" name="description" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="Description" />
+                                        <!--end::Input-->
+                                    </div>
+                                    <!--end::Input group-->
+
                                 </div>
                                 <!--end::Scroll-->
                                 <!--begin::Actions-->
@@ -232,41 +277,31 @@
                             <input class="form-check-input" type="checkbox" data-kt-check="true" data-kt-check-target="#kt_table_users .form-check-input" value="1" />
                         </div>
                     </th>
-                    <th class="min-w-125px">User</th>
-                    <th class="min-w-125px">Role</th>
-                    <th class="min-w-125px">Joined Date</th>
+                    <th class="min-w-125px">name</th>
+                    <th class="min-w-125px">Detail</th>
+                    <th class="min-w-125px">Status</th>
                     <th class="text-end min-w-100px">Actions</th>
                 </tr>
             </thead>
             <tbody class="text-gray-600 fw-semibold">
-                @foreach($usr as $sur)
+                @foreach($data as $dt)
                 <tr>
                     <td>
                         <div class="form-check form-check-sm form-check-custom form-check-solid">
                             <input class="form-check-input" type="checkbox" value="1" />
                         </div>
                     </td>
-                    <td class="d-flex align-items-center">
-                        <!--begin:: Avatar -->
-                        <div class="symbol symbol-circle symbol-50px overflow-hidden me-3">
-                            <a href="#">
-                                <div class="symbol-label">
-                                    <img src="{{asset('img/icon.png')}}" alt="Emma Smith" class="w-100" />
-                                </div>
-                            </a>
-                        </div>
-                        <!--end::Avatar-->
-                        <!--begin::User details-->
-                        <div class="d-flex flex-column">
-                            <a href="#" class="text-gray-800 text-hover-primary mb-1">{{$sur->name}}</a>
-                            <span>{{$sur->email}}</span>
-                            <span>{{$sur->CompanyUsers->name}}</span>
-                            <span>{{$sur->otp}}</span>
-                        </div>
-                        <!--begin::User details-->
+                    <td>{{$dt->name}}</td>
+                    <td>
+                        File size: {{$dt->file_size}} (Gig)<br>
+                        No user: {{$dt->no_user}}<br>
+                        No group: {{$dt->no_group}}<br>
+                        Chat: {{$dt->enable_chat}}<br>
+                        Meeting: {{$dt->enable_meeting}}<br>
+                        Walkies: {{$dt->enable_walkie}}<br>
+                        Call: {{$dt->enable_call}}<br>
                     </td>
-                    <td>Administrator</td>
-                    <td>{{$sur->created_at}}</td>
+                    <td>{{$dt->status}}</td>
                     <td class="text-end">
                         <a href="#" class="btn btn-light btn-active-light-primary btn-flex btn-center btn-sm" data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end">Actions
                             <i class="ki-outline ki-down fs-5 ms-1"></i></a>
@@ -274,26 +309,8 @@
                         <div class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-600 menu-state-bg-light-primary fw-semibold fs-7 w-125px py-4" data-kt-menu="true">
                             <!--begin::Menu item-->
                             <div class="menu-item px-3">
-                                <a href="#" data-bs-toggle="modal" data-bs-target="#kt_modal_add_user-{{$sur->id}}" class="menu-link px-3">Edit</a>
+                                <a href="#" data-bs-toggle="modal" data-bs-target="#kt_modal_add_user-{{$dt->id}}" class="menu-link px-3">Edit</a>
                             </div>
-                            <!--end::Menu item-->
-                            @if($opt == 'admin')
-                            <!--begin::Menu item-->
-                            <div class="menu-item px-3">
-                                <a href="{{ route('super.accountView',['id' => encrypt($sur->company_id)])}}" class="menu-link px-3">View User</a>
-                            </div>
-                            <!--end::Menu item-->
-                            @endif
-                            <!--begin::Menu item-->
-                            <div class="menu-item px-3">
-                                <a href="{{ route('super.accessLog',['id' => encrypt($sur->id)])}}" class="menu-link px-3">Access Log</a>
-                            </div>
-                            <!--end::Menu item-->
-                            <!--begin::Menu item-->
-                            <div class="menu-item px-3">
-                                <a href="{{ route('super.accountDelete',['id' => encrypt($sur->id)])}}" class="menu-link px-3">Delete</a>
-                            </div>
-                            <!--end::Menu item-->
                         </div>
                         <!--end::Menu-->
                     </td>
@@ -307,9 +324,9 @@
 </div>
 <!--end::Card-->
 
-@foreach($usr as $sur)
+@foreach($data as $dt)
 <!--begin::Modal - Add task-->
-<div class="modal fade" id="kt_modal_add_user-{{$sur->id}}" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="kt_modal_add_user-{{$dt->id}}" tabindex="-1" aria-hidden="true">
     <!--begin::Modal dialog-->
     <div class="modal-dialog modal-dialog-centered mw-650px">
         <!--begin::Modal content-->
@@ -317,7 +334,7 @@
             <!--begin::Modal header-->
             <div class="modal-header" id="kt_modal_add_user_header">
                 <!--begin::Modal title-->
-                <h2 class="fw-bold">Add User</h2>
+                <h2 class="fw-bold">Edit Plan</h2>
                 <!--end::Modal title-->
                 <!--begin::Close-->
                 <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal">
@@ -329,80 +346,136 @@
             <!--begin::Modal body-->
             <div class="modal-body px-5 my-7">
                 <!--begin::Form-->
-                <form id="kt_modal_add_user_form" method="post" class="form" action="{{route('super.accountEdit')}}">
+                <form id="kt_modal_add_user_form" method="post" class="form" action="{{route('super.planEdit')}}">
                     @csrf
-                    <input type="hidden" value="{{encrypt($sur->id)}}" name="id" />
+                    <input type="hidden" name="id" value="{{encrypt($dt->id)}}" />
                     <!--begin::Scroll-->
                     <div class="d-flex flex-column scroll-y px-5 px-lg-10" id="kt_modal_add_user_scroll" data-kt-scroll="true" data-kt-scroll-activate="true" data-kt-scroll-max-height="auto" data-kt-scroll-dependencies="#kt_modal_add_user_header" data-kt-scroll-wrappers="#kt_modal_add_user_scroll" data-kt-scroll-offset="300px">
-                        <!--begin::Input group-->
-                        <div class="fv-row mb-7">
-                            <!--begin::Label-->
-                            <label class="required fw-semibold fs-6 mb-2">Organization Name</label>
-                            <!--end::Label-->
-                            <!--begin::Input-->
-                            <input type="text" name="nameorg" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="Organization name" value="{{$sur->CompanyUsers->name}}" />
-                            <!--end::Input-->
-                        </div>
-                        <!--end::Input group-->
-                        <!--begin::Input group-->
-                        <div class="fv-row mb-7">
-                            <!--begin::Label-->
-                            <label class="required fw-semibold fs-6 mb-2">Full Name</label>
-                            <!--end::Label-->
-                            <!--begin::Input-->
-                            <input type="text" name="name" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="Full name" value="{{$sur->name}}" />
-                            <!--end::Input-->
-                        </div>
-                        <!--end::Input group-->
-                        <!--begin::Input group-->
-                        <div class="fv-row mb-7">
-                            <!--begin::Label-->
-                            <label class="required fw-semibold fs-6 mb-2">Email</label>
-                            <!--end::Label-->
-                            <!--begin::Input-->
-                            <input type="email" name="email" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="example@domain.com" value="{{$sur->email}}" />
-                            <!--end::Input-->
-                        </div>
-                        <!--end::Input group-->
-                        <!--begin::Input group-->
-                        <div class="fv-row mb-7">
-                            <!--begin::Label-->
-                            <label class="required fw-semibold fs-6 mb-2">Phone</label>
-                            <!--end::Label-->
-                            <!--begin::Input-->
-                            <input type="text" name="phone" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="example@domain.com" value="{{$sur->phone}}" />
-                            <!--end::Input-->
-                        </div>
-                        <!--end::Input group-->
-                        <!--begin::Input group-->
-                        <div class="fv-row mb-7">
-                            <!--begin::Label-->
-                            <label class="required fw-semibold fs-6 mb-2">Password</label>
-                            <!--end::Label-->
-                            <!--begin::Input-->
-                            <input type="password" name="password" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="**************" />
-                            <!--end::Input-->
-                        </div>
-                        <!--end::Input group-->
                         <!--begin::Input group-->
                         <div class="fv-row mb-7">
                             <!--begin::Label-->
                             <label class="required fw-semibold fs-6 mb-2">Plan</label>
                             <!--end::Label-->
                             <!--begin::Input-->
-                            <select name="plan_id" class="form-control form-control-solid mb-3 mb-lg-0">
-                                <option>Select</option>
-                                @foreach($plan as $pl)
-                                <option value="{{$pl->id}}" {{$sur->plan_id == $pl->id ? 'selected' : ''}}>{{$pl->name}}</option>
-                                @endforeach
+                            <input type="text" name="name" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="Label" value="{{$dt->name}}" required />
+                            <!--end::Input-->
+                        </div>
+                        <!--end::Input group-->
+                        <!--begin::Input group-->
+                        <div class="fv-row mb-7">
+                            <!--begin::Label-->
+                            <label class="required fw-semibold fs-6 mb-2">File Size (Gig)</label>
+                            <!--end::Label-->
+                            <!--begin::Input-->
+                            <input type="number" name="file_size" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="File Size" value="{{$dt->file_size}}" />
+                            <!--end::Input-->
+                        </div>
+                        <!--end::Input group-->
+                        <!--begin::Input group-->
+                        <div class="fv-row mb-7">
+                            <!--begin::Label-->
+                            <label class="required fw-semibold fs-6 mb-2">Number of User</label>
+                            <!--end::Label-->
+                            <!--begin::Input-->
+                            <input type="number" name="no_user" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="Number of user" value="{{$dt->no_user}}" />
+                            <!--end::Input-->
+                        </div>
+                        <!--end::Input group-->
+                        <!--begin::Input group-->
+                        <div class="fv-row mb-7">
+                            <!--begin::Label-->
+                            <label class="required fw-semibold fs-6 mb-2">Number of group</label>
+                            <!--end::Label-->
+                            <!--begin::Input-->
+                            <input type="number" name="no_group" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="Number of group" value="{{$dt->no_group}}" />
+                            <!--end::Input-->
+                        </div>
+                        <!--end::Input group-->
+                        <!--begin::Input group-->
+                        <div class="fv-row mb-7">
+                            <!--begin::Label-->
+                            <label class="required fw-semibold fs-6 mb-2">Enable Chat</label>
+                            <!--end::Label-->
+                            <!--begin::Input-->
+                            <select name="enable_chat" class="form-control form-control-solid mb-3 mb-lg-0">
+                                <option value="{{$dt->enable_chat}}">{{$dt->enable_chat}}</option>
+                                <option value="yes">Yes</option>
+                                <option value="no">No</option>
                             </select>
                             <!--end::Input-->
                         </div>
                         <!--end::Input group-->
+                        <!--begin::Input group-->
+                        <div class="fv-row mb-7">
+                            <!--begin::Label-->
+                            <label class="required fw-semibold fs-6 mb-2">Enable Meeting</label>
+                            <!--end::Label-->
+                            <!--begin::Input-->
+                            <select name="enable_meeting" class="form-control form-control-solid mb-3 mb-lg-0">
+                                <option value="{{$dt->enable_meeting}}">{{$dt->enable_meeting}}</option>
+                                <option value="yes">Yes</option>
+                                <option value="no">No</option>
+                            </select>
+                            <!--end::Input-->
+                        </div>
+                        <!--end::Input group-->
+                        <!--begin::Input group-->
+                        <div class="fv-row mb-7">
+                            <!--begin::Label-->
+                            <label class="required fw-semibold fs-6 mb-2">Enable Walkie</label>
+                            <!--end::Label-->
+                            <!--begin::Input-->
+                            <select name="enable_walkie" class="form-control form-control-solid mb-3 mb-lg-0">
+                                <option value="{{$dt->enable_walkie}}">{{$dt->enable_walkie}}</option>
+                                <option value="yes">Yes</option>
+                                <option value="no">No</option>
+                            </select>
+                            <!--end::Input-->
+                        </div>
+                        <!--end::Input group-->
+                        <!--begin::Input group-->
+                        <div class="fv-row mb-7">
+                            <!--begin::Label-->
+                            <label class="required fw-semibold fs-6 mb-2">Enable Call</label>
+                            <!--end::Label-->
+                            <!--begin::Input-->
+                            <select name="enable_call" class="form-control form-control-solid mb-3 mb-lg-0">
+                                <option value="{{$dt->enable_call}}">{{$dt->enable_call}}</option>
+                                <option value="yes">Yes</option>
+                                <option value="no">No</option>
+                            </select>
+                            <!--end::Input-->
+                        </div>
+                        <!--end::Input group-->
+                        <!--begin::Input group-->
+                        <div class="fv-row mb-7">
+                            <!--begin::Label-->
+                            <label class="required fw-semibold fs-6 mb-2">Status</label>
+                            <!--end::Label-->
+                            <!--begin::Input-->
+                            <select name="status" class="form-control form-control-solid mb-3 mb-lg-0">
+                                <option value="{{$dt->status}}">{{$dt->status}}</option>
+                                <option value="active">Active</option>
+                                <option value="block">Block</option>
+                            </select>
+                            <!--end::Input-->
+                        </div>
+                        <!--end::Input group-->
+                        <!--begin::Input group-->
+                        <div class="fv-row mb-7">
+                            <!--begin::Label-->
+                            <label class="required fw-semibold fs-6 mb-2">Description</label>
+                            <!--end::Label-->
+                            <!--begin::Input-->
+                            <input type="text" name="description" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="Description" value="{{$dt->description}}" />
+                            <!--end::Input-->
+                        </div>
+                        <!--end::Input group-->
+
                     </div>
                     <!--end::Scroll-->
                     <!--begin::Actions-->
-                    <div class="text-center pt-10">
+                    <div class=" text-center pt-10">
                         <button type="reset" class="btn btn-light me-3" data-kt-users-modal-action="cancel">Discard</button>
                         <button type="submit" class="btn btn-primary" data-kt-users-modal-action="submit">
                             <span class="indicator-label">Submit</span>
@@ -422,3 +495,5 @@
 </div>
 <!--end::Modal - Add task-->
 @endforeach
+
+@endsection

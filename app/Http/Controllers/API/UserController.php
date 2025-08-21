@@ -366,7 +366,6 @@ class UserController extends Controller
                 'id' => encryptHelper($dt->id),
                 'company_name' => $dt->companyUser->name,
                 'group_id' => encryptHelper($dt->companyGroup->id),
-                'group_id_un' => $dt->companyGroup->id,
                 'group_name' => $dt->companyGroup->name,
                 'join_date' => $dt->join_date,
                 'invitation_date' => $dt->created_at,
