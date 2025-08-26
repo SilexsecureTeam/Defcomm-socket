@@ -5,6 +5,7 @@
 /public/storage
 /storage/*.key
 /storage
+/storage/maptest-424812-f6cf4a6a848d.json
 /vendor
 .env
 .env.backup
