@@ -3,9 +3,11 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Broadcast;
+use App\Http\Controllers\GoogleAiTransController;
 use App\Http\Controllers\API\WebController;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\UserController;
+use App\Http\Controllers\TranslateController;
 use App\Http\Controllers\API\WalkieTalkieController;
 
 /*
@@ -131,4 +133,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/walkietalkie/channelisbroadcasting', [UserController::class, 'channelisbroadcasting']);
     Route::get('/walkietalkie/channelbroadcastlist/{id}', [WalkieTalkieController::class, 'channelbroadcastlist']);
     Route::get('/walkietalkie/channelbroadcastdel/{id}', [WalkieTalkieController::class, 'channelbroadcastdel']);
+
+    Route::post('/trans/speech-to-text', [GoogleAiTransController::class, 'speechToText']);
+    Route::post('/trans/text-to-speech', [GoogleAiTransController::class, 'textToSpeech']);
+    Route::post('/trans/translate-text', [GoogleAiTransController::class, 'translateText']);
+    Route::post('/trans/speech-to-speech', [GoogleAiTransController::class, 'speechToSpeech']);
 });
