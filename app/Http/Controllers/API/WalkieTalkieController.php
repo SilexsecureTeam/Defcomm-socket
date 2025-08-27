@@ -204,6 +204,7 @@ class WalkieTalkieController extends Controller
 
     public function channelbroadcast(Request $request)
     {
+        $user = User::find(auth()->user()->id);
         $chan = WailkieTalkieSubscriber::where('user_id', auth()->user()->id)->where('channel_id', decryptHelper($request->channel))->first();
 
         if($request->hasFile('record')) {
@@ -215,7 +216,9 @@ class WalkieTalkieController extends Controller
                 'channel_id' => $chan->channel->id,
                 'subscriber_id' => $chan->id,
                 'user_id' => auth()->user()->id,
-                'record' => "WailkieTalkie/". $filerecord_name
+                'record' => "WailkieTalkie/". $filerecord_name,
+                'record_text' => encrypt(googleAiTransSTHelper("WailkieTalkie/" . $filerecord_name, $user->chatSettings->chat_language)),
+                'source_language' => $user->chatSettings->chat_language
             ]);
 
             $sendData = [
@@ -240,7 +243,7 @@ class WalkieTalkieController extends Controller
                     'user_id' => encryptHelper($rec->user_id),
                     'user_name' => $rec->user->name,
                     'record' => $rec->record,
-                    'record_text' => $rec->record_text,
+                    'record_text' => decrypt($rec->record_text),
                     'created_at' => $rec->created_at,
                 ]
             ];
@@ -270,7 +273,7 @@ class WalkieTalkieController extends Controller
     public function channelisbroadcasting(Request $request)
     {
 
-        broadcast(new PrivateWalkieMessageSent(encryptHelper(auth()->user()->id), encryptHelper($request->channel_id), [
+        broadcast(new PrivateWalkieMessageSent(encryptHelper(auth()->user()->id), $request->channel_id, [
             'state' => $request->recording,
             'sender_id' => auth()->user()->id,
             'sender_iden' => encryptHelper(auth()->user()->id),
@@ -297,7 +300,7 @@ class WalkieTalkieController extends Controller
                 'user_id' => encryptHelper($rec->user_id),
                 'user_name' => $rec->user->name,
                 'record' => $rec->record,
-                'record_text' => $rec->record_text,
+                'record_text' => decrypt($rec->record_text),
                 'created_at' => $rec->created_at,
             ];
         }

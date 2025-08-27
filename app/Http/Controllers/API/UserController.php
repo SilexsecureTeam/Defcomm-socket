@@ -21,6 +21,7 @@ use App\Models\FilesShares;
 use App\Models\ChatSettings;
 use App\Models\CompanyGroup;
 use App\Models\FileShareLog;
+use App\Models\LanguageCode;
 use App\Models\Notification;
 use Illuminate\Http\Request;
 use App\Mail\MeetingInvitation;
@@ -659,6 +660,7 @@ class UserController extends Controller
     public function chatMessages($chat_user_id, $chat_user_type)
     {
         $this->current_chat_user = decryptHelper($chat_user_id);
+        $user = User::find(auth()->user()->id);
 
         $thisuserLastLog = $chat_user_type == 'user' ? ChatLastLog::where('user_id', auth()->user()->id)->where('user_to', $this->current_chat_user)->first() : ChatLastLog::where('user_to', $this->current_chat_user)->first();
 
@@ -684,7 +686,7 @@ class UserController extends Controller
             if($dt->user_id != auth()->user()->id){
                 $dt->update(['is_read' => 'yes']);
             }
-
+            
             $data[$key] = [
                 'id' => encryptHelper($dt->id),
                 'is_my_chat' => $dt->user_id == auth()->user()->id ? 'yes' : 'no',
@@ -705,7 +707,7 @@ class UserController extends Controller
                 'call_state' => $dt->mss_type == "call" ? $dt->chatCall->call_state : null,
                 'chatbtw' => $dt->mss_type == "call" ? $dt->chatCall->chatbtw : null,
                 'expire_time' => $dt->expire_time,
-                'message' => decrypt($dt->message),
+                'message' => googleAiTransHelper(decrypt($dt->message), $dt->source_language, $user->chatSettings->chat_language),
                 'tag_user' => convertBackToenHelper($dt->tag_user),
                 'tag_mess' => encryptHelper($dt->tag_mess),
                 'deleted_at' => $dt->deleted_at,
@@ -1283,12 +1285,40 @@ class UserController extends Controller
                 'hide_message_style' => $request->hide_message_style,
             ]);
         }
+        if ($request->walkie_language) {
+            ChatSettings::updateOrCreate(['user_id' => auth()->user()->id], [
+                'walkie_language' => $request->walkie_language,
+            ]);
+        }
+        if ($request->chat_language) {
+            ChatSettings::updateOrCreate(['user_id' => auth()->user()->id], [
+                'chat_language' => $request->chat_language,
+            ]);
+        }
+        if ($request->app_language) {
+            ChatSettings::updateOrCreate(['user_id' => auth()->user()->id], [
+                'app_language' => $request->app_language,
+            ]);
+        }
 
         return response()->json(
             [
                 'status' => '200',
                 'message' => 'Setting updated',
                 'data' => null
+            ],
+            201
+        );
+    }
+
+    public function languagecode()
+    {
+        $data = LanguageCode::where('status', 'active')->get();
+        return response()->json(
+            [
+                'status' => '200',
+                'message' => 'Setting updated',
+                'data' => $data
             ],
             201
         );

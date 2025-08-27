@@ -22,6 +22,7 @@ class ChatService
 {
     public function submitChat($current_chat_user_type, $current_chat_user, $userLastLog, $message, $is_file, $mss_type = 'text', $tag_user = null, $tag_mess = null)
     {
+        $user = User::find(auth()->user()->id);
         $userLog = $userLastLog ?? uniqid();
 
         $altuser = "";
@@ -76,7 +77,8 @@ class ChatService
             'expire_time' => null,
             'message' => encrypt($message),
             'tag_user' => $tag_user,
-            'tag_mess' => $tag_mess
+            'tag_mess' => $tag_mess,
+            'source_language' => $user->chatSettings->chat_language
         ]);
 
         if ($mss_type == 'call') {
@@ -119,7 +121,7 @@ class ChatService
             'call_state' => $chatmss->mss_type == "call" ? $chatmss->chatCall->call_state : null,
             'chatbtw' => $chatmss->mss_type == "call" ? $chatmss->chatCall->chatbtw : null,
             'expire_time' => $chatmss->expire_time,
-            'message' => decrypt($chatmss->message),
+            'message' => $current_chat_user_type == 'group' ? $message : googleAiTransHelper($chatmss->message, $user->chatSettings->chat_language, $altuser->chatSettings->chat_language),
             'tag_user' => convertBackToenHelper($chatmss->tag_user),
             'tag_mess' => encryptHelper($chatmss->tag_mess),
             'deleted_at' => $chatmss->deleted_at,
@@ -144,7 +146,7 @@ class ChatService
                 'phone' => $current_chat_user_type == 'group' ? '' : $chatmss->userTo->phone,
                 'email' => $current_chat_user_type == 'group' ? '' : $chatmss->userTo->email,
             ],
-            'message' => $message,
+            'message' => $current_chat_user_type == 'group' ? $message : googleAiTransHelper($message, $user->chatSettings->chat_language, $altuser->chatSettings->chat_language),
             'data' => $data,
             'mss_chat' => [
                 "id" => encryptHelper($chatmss->id),

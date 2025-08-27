@@ -23,13 +23,13 @@
             authEndpoint: "http://127.0.0.1:3302/api/broadcasting/auth",
             auth: {
                 headers: {
-                    Authorization: "Bearer 25|t7r6vtVzjtUwlMBN0bZufNzvMHkG04EiuAXL8cdI7243fafa"
+                    Authorization: "Bearer 49|mLfSPdmIn6bHtIBaN2keA0fKdRuXIxraD7FP6KODc6694a47"
                 }
             }
         });
 
         // Private chat
-        const privateChannel = pusher.subscribe("private-chat.5Lvr6JZ648Kg");
+        const privateChannel = pusher.subscribe("private-chat.ndjb9N4RZqQe");
         privateChannel.bind("private.message.sent", function (data) {
             console.log("Private:", data.message);
             document.getElementById('log').textContent +=
@@ -51,8 +51,8 @@
             console.error(`Group Subscription error:`, status);
         });
 
-        // Group chat
-        const walkieChannel = pusher.subscribe(`private-walkie.4`);
+        // walkie chat
+        const walkieChannel = pusher.subscribe(`private-walkie.lBMY6zk9d1q4`);
         walkieChannel.bind("walkie.message.sent", function (data) {
             console.log(`walkie:`, data.message);
             document.getElementById('log').textContent += `walkie: ${JSON.stringify(data)}\n`;

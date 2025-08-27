@@ -1,6 +1,8 @@
 <?php
 
+use App\Models\LanguageCode;
 use Vinkla\Hashids\Facades\Hashids;
+use App\Http\Services\GoogleAiTransService;
 
 
 function encryptHelper($data)
@@ -72,4 +74,65 @@ function convertBackToenHelper($data)
     return array_map(function ($item) {
         return encryptHelper($item); // call the global helper
     }, $array);
+}
+
+function googleAiTransHelper($text, $source, $target)
+{
+    try {
+        if($source == $target){
+            return $text;
+        }
+
+        if ($target == null) {
+            $target_lang = LanguageCode::first()->code;
+        }else{
+            $target_lang = LanguageCode::find($target)->code;
+        }
+
+        if($source == null){
+            $source_lang = LanguageCode::first()->code;
+        }else{
+            $source_lang = LanguageCode::find($source)->code;
+        }
+
+        $res = (new GoogleAiTransService)->translateText($text, $target_lang, $source_lang);
+        return $res;
+    } catch (\Exception $e) {
+        return $text;
+    }
+}
+
+function googleAiTransSTHelper($audioPath, $source)
+{
+    try {
+        if($source == null){
+            $source_lang = LanguageCode::first()->code;
+        }else{
+            $source_lang = LanguageCode::find($source)->code;
+        }
+
+        $res = (new GoogleAiTransService)->speechToText($audioPath, $source_lang);
+        return $res;
+    } catch (\Exception $e) {
+        return $audioPath;
+    }
+}
+
+function googleAiTransTSHelper($text, $target)
+{
+
+    try {
+        if($target == null){
+            $target_lang = LanguageCode::first()->code;
+        }else{
+            $target_lang = LanguageCode::find($target)->code;
+        }
+
+        $res = (new GoogleAiTransService)->textToSpeech($text, $target_lang);
+        return $res;
+
+    } catch (\Exception $e) {
+        return $text;
+    }
+
 }

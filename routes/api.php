@@ -115,6 +115,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/user/folderFile', [UserController::class, 'folderFile']);
 
     Route::post('/user/setting', [UserController::class, 'setting']);
+    Route::get('/user/languagecode', [UserController::class, 'languagecode']);
 
     Route::get('/user/notification', [UserController::class, 'notification']);
 
@@ -130,7 +131,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/walkietalkie/channellistinvited/{status}', [WalkieTalkieController::class, 'channellistinvited']);
     Route::post('/walkietalkie/channelinvitedstatus', [WalkieTalkieController::class, 'channelinvitedstatus']);
     Route::post('/walkietalkie/channelbroadcast', [WalkieTalkieController::class, 'channelbroadcast']);
-    Route::post('/walkietalkie/channelisbroadcasting', [UserController::class, 'channelisbroadcasting']);
+    Route::post('/walkietalkie/channelisbroadcasting', [WalkieTalkieController::class, 'channelisbroadcasting']);
     Route::get('/walkietalkie/channelbroadcastlist/{id}', [WalkieTalkieController::class, 'channelbroadcastlist']);
     Route::get('/walkietalkie/channelbroadcastdel/{id}', [WalkieTalkieController::class, 'channelbroadcastdel']);
 

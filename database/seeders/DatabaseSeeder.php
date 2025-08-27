@@ -20,5 +20,6 @@ class DatabaseSeeder extends Seeder
         // ]);
 
         $this->call(SystemMailSeeder::class);
+        $this->call(LanguageCodeSeeder::class);
     }
 }
