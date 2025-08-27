@@ -299,6 +299,8 @@ class WalkieTalkieController extends Controller
                 'channel_name' => $rec->channel->name,
                 'user_id' => encryptHelper($rec->user_id),
                 'user_name' => $rec->user->name,
+                'source_language' => $rec->source_language,
+                'record' => $rec->record,
                 'record' => $rec->record,
                 'record_text' => $rec->record_text ? decrypt($rec->record_text) : null,
                 'created_at' => $rec->created_at,

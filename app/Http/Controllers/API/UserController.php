@@ -707,6 +707,7 @@ class UserController extends Controller
                 'call_state' => $dt->mss_type == "call" ? $dt->chatCall->call_state : null,
                 'chatbtw' => $dt->mss_type == "call" ? $dt->chatCall->chatbtw : null,
                 'expire_time' => $dt->expire_time,
+                'source_language' => $dt->source_language,
                 'message' => googleAiTransHelper(decrypt($dt->message), $dt->source_language, $user->chatSettings->chat_language),
                 'tag_user' => convertBackToenHelper($dt->tag_user),
                 'tag_mess' => encryptHelper($dt->tag_mess),
