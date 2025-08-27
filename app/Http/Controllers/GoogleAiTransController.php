@@ -106,7 +106,7 @@ class GoogleAiTransController extends Controller
         // ]);
 
         $audioPath = $request->type == 'file' ? $request->file('audio')->getRealPath() : $request->audio;
-        return dd($audioPath);
+        // return dd($audioPath);
         $sourceLang = $request->input('source_lang', 'en-US');
         $targetLang = $request->input('target_lang', 'fr');
 
