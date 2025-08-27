@@ -243,7 +243,7 @@ class WalkieTalkieController extends Controller
                     'user_id' => encryptHelper($rec->user_id),
                     'user_name' => $rec->user->name,
                     'record' => $rec->record,
-                    'record_text' => decrypt($rec->record_text),
+                    'record_text' => $rec->record_text ? decrypt($rec->record_text) : null,
                     'created_at' => $rec->created_at,
                 ]
             ];
@@ -300,7 +300,7 @@ class WalkieTalkieController extends Controller
                 'user_id' => encryptHelper($rec->user_id),
                 'user_name' => $rec->user->name,
                 'record' => $rec->record,
-                'record_text' => decrypt($rec->record_text),
+                'record_text' => $rec->record_text ? decrypt($rec->record_text) : null,
                 'created_at' => $rec->created_at,
             ];
         }
