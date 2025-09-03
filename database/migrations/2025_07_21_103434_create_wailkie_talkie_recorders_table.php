@@ -16,8 +16,11 @@ return new class extends Migration
             $table->integer('channel_id');
             $table->integer('user_id');
             $table->integer('subscriber_id');
-            $table->string('record');
+            $table->text('record');
             $table->text('record_text')->nullable();
+            $table->string('file_size')->nullable();
+            $table->string('file_ext')->nullable();
+            $table->string('fileSize_num')->nullable();
             $table->timestamps();
         });
     }

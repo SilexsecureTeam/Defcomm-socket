@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::table('chat_call_logs', function (Blueprint $table) {
             $table->integer('mss_id')->nullable();
             $table->string('call_duration')->nullable();
-            $table->enum('call_state',['pick','miss'])->default('miss');
+            $table->enum('call_state',['pick','miss', 'end'])->default('miss');
         });
     }
 

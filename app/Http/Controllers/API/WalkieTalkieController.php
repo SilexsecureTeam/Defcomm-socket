@@ -10,7 +10,9 @@ use Illuminate\Support\Facades\Mail;
 use App\Models\WailkieTalkieRecorder;
 use App\Models\WailkieTalkieSubscriber;
 use App\Events\PrivateWalkieMessageSent;
+use App\Http\Services\FileEncryptorService;
 use App\Mail\WailkieTalkieChannelInvitation;
+use Illuminate\Support\Facades\File;
 
 class WalkieTalkieController extends Controller
 {
@@ -208,17 +210,47 @@ class WalkieTalkieController extends Controller
         $chan = WailkieTalkieSubscriber::where('user_id', auth()->user()->id)->where('channel_id', decryptHelper($request->channel))->first();
 
         if($request->hasFile('record')) {
-            $filerecord = $request->file('record');
-            $filerecord_name = time() . '_record.' . $filerecord->getClientOriginalExtension();
-            $filerecord->move(public_path('WailkieTalkie'), $filerecord_name);
+            $file = $request->file('record');
+            $file_size = $fileSize = $file->getSize();
+            $file_ext = $file->getClientOriginalExtension();
+            $file_time = time();
+            $file_name = $file_time . $file->getClientOriginalName() . '.enc';
+            $fileName = $file_time . $file->getClientOriginalName();
+            $originalPath = $file->storeAs('secure/uploads', $fileName);
+            $encryptHelperedPath = $file->storeAs('secure/encryptWailkieTalkie',  $file_name);
+            $decryptedHelperedPath = public_path('storage/secure/decrypted/decrypted_'.  $fileName);
+            File::put($decryptedHelperedPath, "");
+
+            $encryptor = new FileEncryptorService();
+            $encryptor->encryptAudio(
+                public_path('storage/' . $originalPath),
+                public_path('storage/' . $encryptHelperedPath)
+            );
+
+            if ($file_size >= 1073741824) {
+                $file_size = number_format($file_size / 1073741824, 2) . ' GB';
+            } elseif ($file_size >= 1048576) {
+                $file_size = number_format($file_size / 1048576, 2) . ' MB';
+            } elseif ($file_size >= 1024) {
+                $file_size = number_format($file_size / 1024, 2) . ' KB';
+            } else {
+                $file_size = $file_size . ' bytes';
+            }
 
             $rec = WailkieTalkieRecorder::create([
                 'channel_id' => $chan->channel->id,
                 'subscriber_id' => $chan->id,
                 'user_id' => auth()->user()->id,
-                'record' => "WailkieTalkie/". $filerecord_name,
-                'record_text' => encrypt(googleAiTransSTHelper("WailkieTalkie/" . $filerecord_name, $user->chatSettings->chat_language)),
-                'source_language' => $user->chatSettings->chat_language
+                'record' => encrypt("storage/secure/encryptWailkieTalkie/" . $file_name),
+                'record_text' => encrypt(googleAiTransSTENHelper(
+                    public_path('storage/secure/encryptWailkieTalkie/' . $file_name),
+                    'storage/secure/decrypted/decrypted_'.  $fileName,
+                    $user->chatSettings->chat_language
+                )),
+                'source_language' => $user->chatSettings->chat_language,
+                'file_size' => $file_size,
+                'file_ext' => $file_ext,
+                'fileSize_num' => $fileSize,
             ]);
 
             $sendData = [
@@ -254,7 +286,7 @@ class WalkieTalkieController extends Controller
                 [
                     'status' => '200',
                     'message' => 'Record create',
-                    'data' => null
+                    'data' => $sendData
                 ],
                 201
             );

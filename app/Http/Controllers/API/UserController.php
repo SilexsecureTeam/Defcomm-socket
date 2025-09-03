@@ -194,8 +194,8 @@ class UserController extends Controller
         
         $encryptor = new FileEncryptorService();
         $encryptor->processAndencrypt(
-            storage_path('app/' . $originalPath),
-            storage_path('app/' . $encryptHelperedPath),
+            public_path('storage/' . $originalPath),
+            public_path('storage/' . $encryptHelperedPath),
             [
                 'watermark_text' => 'Confidential',
                 // 'watermark_image' => public_path('logo.png')
@@ -215,7 +215,7 @@ class UserController extends Controller
         $file = Files::create([
             'name' => $request->name,
             'description' => $request->description,
-            'file' => encryptHelper("app/secure/encryptHelpered/".$file_name),
+            'file' => encrypt("storage/secure/encryptHelpered/".$file_name),
             'file_size' => $file_size,
             'file_ext' => $file_ext,
             'fileSize_num' => $fileSize,
@@ -286,9 +286,9 @@ class UserController extends Controller
         $file = Files::find(decryptHelper($id));
         FileShareLog::create(['user_id' => auth()->user()->id, 'file_id' => $file->id, 'company_id' => auth()->user()->company_id]);
 
-        $pathToencryptHelpered = storage_path(decryptHelper($file->file));
+        $pathToencryptHelpered = public_path(decrypt($file->file));
         $fileExtension = $file->file_ext;
-        $pathTodecryptHelperedWatermarked = storage_path('app/decryptHelpered_' . uniqid() . '.' . $fileExtension);
+        $pathTodecryptHelperedWatermarked = public_path('storage/secure/decryptHelpered_' . uniqid() . '.' . $fileExtension);
         File::put($pathTodecryptHelperedWatermarked, "");
 
         $encryptor = new FileEncryptorService();
@@ -444,14 +444,63 @@ class UserController extends Controller
     {
         $user = User::find(auth()->user()->id);
         $data = [
-            'id' => $user->id,
-            $user
+            "id" => encryptHelper($user->id),
+            "name" => $user->name,
+            "email" => $user->email,
+            "email_verified_at" => $user->email_verified_at,
+            "created_at" => $user->created_at,
+            "updated_at" => $user->updated_at,
+            "otp" => $user->otp,
+            "otp_expire" => $user->otp_expire,
+            "phone" => $user->phone,
+            "role" => $user->role,
+            "company_id" => $user->company_id,
+            "status" => $user->status,
+            "avatar" => $user->avatar,
+            "address" => $user->address,
+            "enable_2fa" => $user->enable_2fa,
+            "is_online" => $user->is_online,
+            "username" => $user->username,
+            "recover_mail" => $user->recover_mail,
+            "device_type" => $user->device_type,
+            "device_token" => $user->device_token,
+            "pin" => $user->pin,
+            "onboarding_stage" => $user->onboarding_stage,
+            "deleted_at" => $user->deleted_at,
+            "access_token" => $user->access_token,
+            "device" => $user->device,
+            "signal_blocking" => $user->signal_blocking,
+            "remote_management" => $user->remote_management,
+            "encrypted_storage" => $user->encrypted_storage,
+            "self_wipe" => $user->self_wipe,
+            "imei" => $user->imei,
+            "app_role" => $user->app_role,
+            "number_app" => $user->number_app,
+            "number_user" => $user->number_user,
+            "statusNdpc" => $user->statusNdpc,
+            "ndpcCode" => $user->ndpcCode,
+            "rc_number" => $user->rc_number,
+            "rc_doc" => $user->rc_doc,
+            "tin" => $user->tin,
+            "tin_doc" => $user->tin_doc,
+            "country" => $user->country,
+            "dob" => $user->dob,
+            "gender" => $user->gender,
+            "developer_display_name" => $user->developer_display_name,
+            "website" => $user->website,
+            "selfie" => $user->selfie,
+            "statusApp" => $user->statusApp,
+            "id_card_front" => $user->id_card_front,
+            "id_card_back" => $user->id_card_back,
+            "commentApp" => $user->commentApp,
+            "encryptorkey" => $user->encryptorkey,
+            "plan_id" => $user->plan_id,
         ];
         return response()->json(
             [
                 'status' => '200',
                 'message' => 'Record List',
-                'data' => $user
+                'data' => $data
             ],
             201
         );
@@ -1174,7 +1223,7 @@ class UserController extends Controller
                 Mail::to($calllog->userReciever->email)->send(new MissCallMail($calllog->userSender->name, $calllog->userReciever->name));
             }
 
-            broadcast(new PrivateMessageSent(auth()->user()->id, $calllog->userReciever->id, [
+            broadcast(new PrivateMessageSent(encryptHelper(auth()->user()->id), encryptHelper($calllog->userReciever->id), [
                 'state' => 'callUpdate',
                 'user' => encryptHelper($calllog->userReciever->id),
                 'sender' => [
@@ -1269,6 +1318,27 @@ class UserController extends Controller
                 'status' => '200',
                 'message' => 'Message Sent',
                 'data' => $ret
+            ],
+            201
+        );
+    }
+
+    public function getsetting(Request $request)
+    {
+        $set = ChatSettings::where('user_id', auth()->user()->id)->first();
+        $data = [
+            'hide_message' => $set->hide_message,
+            'hide_message_style' => $set->hide_message_style,
+            'walkie_language' => $set->walkie_language,
+            'chat_language' => $set->chat_language,
+            'app_language' => $set->app_language,
+        ];
+                
+        return response()->json(
+            [
+                'status' => '200',
+                'message' => 'Setting updated',
+                'data' => $data
             ],
             201
         );

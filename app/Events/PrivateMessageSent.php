@@ -27,8 +27,12 @@ class PrivateMessageSent implements ShouldBroadcast
 
     public function broadcastOn()
     {
-        return new PrivateChannel("chat.{$this->receiverId}");
+        // return new PrivateChannel("chat.{$this->receiverId}");
         // return new Channel("chat.{$this->receiverId}");
+        return [
+            new PrivateChannel("chat.{$this->receiverId}"),
+            new PrivateChannel("chat.{$this->senderId}"),
+        ];
     }
 
     public function broadcastAs()

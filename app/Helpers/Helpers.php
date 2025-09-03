@@ -2,6 +2,7 @@
 
 use App\Models\LanguageCode;
 use Vinkla\Hashids\Facades\Hashids;
+use App\Http\Services\FileEncryptorService;
 use App\Http\Services\GoogleAiTransService;
 
 
@@ -135,4 +136,17 @@ function googleAiTransTSHelper($text, $target)
         return $text;
     }
 
+}
+
+function googleAiTransSTENHelper($encryptedPath, $decryptedPath, $source)
+{
+    try {
+        $decryptor = new FileEncryptorService();
+        $decryptor->decryptAudio($encryptedPath, $decryptedPath);
+        $res = googleAiTransSTHelper($decryptedPath, $source);
+        unlink($decryptedPath);
+        return $res;
+    } catch (\Exception $e) {
+        return null;
+    }
 }

@@ -1,4 +1,4 @@
 <div>
-    @include('chats.chat')
-    @include('chats.toggler')
+    {{--@include('chats.chat')
+    @include('chats.toggler')--}}
 </div>

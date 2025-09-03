@@ -32,6 +32,10 @@ class PrivateGroupMessageSent implements ShouldBroadcast
     public function broadcastOn(): PrivateChannel
     {
         return new PrivateChannel("group.{$this->groupId}");
+        // return [
+        //     new PrivateChannel("group.{$this->groupId}"),
+        //     new PrivateChannel("group.{$this->senderId}"),
+        // ];
     }
 
     /**

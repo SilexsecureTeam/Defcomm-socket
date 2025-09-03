@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Laravel WebSocket Chat Test</title>
+    <script src="https://js.pusher.com/7.2/pusher.min.js"></script>
+</head>
+
+<body>
+    <h2>Listening to private-chat.2</h2>
+    <pre id="log"></pre>
+
+    <script>
+        Pusher.logToConsole = true;
+        const pusher = new Pusher("l4ewjdxj5hilgin4smsv", {
+            wsHost: '127.0.0.1',
+            wsPort: 6001,
+            wssPort: 6001,
+            forceTLS: false,
+            disableStats: true,
+            encrypted: true,
+            enabledTransports: ['ws'],
+            authEndpoint: "http://127.0.0.1:3302/api/broadcasting/auth",
+            auth: {
+                headers: {
+                    Authorization: "Bearer 49|mLfSPdmIn6bHtIBaN2keA0fKdRuXIxraD7FP6KODc6694a47"
+                }
+            }
+        });
+
+        // Private chat
+        const privateChannel = pusher.subscribe("private-chat.ndjb9N4RZqQe");
+        privateChannel.bind("private.message.sent", function (data) {
+            console.log("Private:", data.message);
+            document.getElementById('log').textContent +=
+                'Received: ' + JSON.stringify(data) + '\n';
+        });
+
+        privateChannel.bind('pusher:subscription_error', function (status) {
+            console.error('Subscription error:', status);
+        });
+
+        // Group chat
+        const groupChannel = pusher.subscribe(`private-group.DmzER1ER2NKM`);
+        groupChannel.bind("group.message.sent", function (data) {
+            console.log(`Group:`, data.message);
+            document.getElementById('log').textContent += `Group: ${JSON.stringify(data)}\n`;
+        });
+
+        groupChannel.bind('pusher:subscription_error', function (status) {
+            console.error(`Group Subscription error:`, status);
+        });
+
+        // walkie chat
+        const walkieChannel = pusher.subscribe(`private-walkie.Xmyz9876x41W`);
+        walkieChannel.bind("walkie.message.sent", function (data) {
+            console.log(`walkie:`, data.message);
+            document.getElementById('log').textContent += `walkie: ${JSON.stringify(data)}\n`;
+        });
+
+        walkieChannel.bind('pusher:subscription_error', function (status) {
+            console.error(`walkie Subscription error:`, status);
+        });
+
+    </script>
+</body>
+
+</html>

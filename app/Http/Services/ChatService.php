@@ -121,7 +121,7 @@ class ChatService
             'call_state' => $chatmss->mss_type == "call" ? $chatmss->chatCall->call_state : null,
             'chatbtw' => $chatmss->mss_type == "call" ? $chatmss->chatCall->chatbtw : null,
             'expire_time' => $chatmss->expire_time,
-            'message' => $current_chat_user_type == 'group' ? $message : googleAiTransHelper($chatmss->message, $user->chatSettings->chat_language, $altuser->chatSettings->chat_language),
+            'message' => $current_chat_user_type == 'group' ? $message : googleAiTransHelper(decrypt($chatmss->message), $user->chatSettings->chat_language, $altuser->chatSettings->chat_language),
             'tag_user' => convertBackToenHelper($chatmss->tag_user),
             'tag_mess' => encryptHelper($chatmss->tag_mess),
             'deleted_at' => $chatmss->deleted_at,

@@ -115,6 +115,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/user/folderFile', [UserController::class, 'folderFile']);
 
     Route::post('/user/setting', [UserController::class, 'setting']);
+    Route::get('/user/getsetting', [UserController::class, 'getsetting']);
     Route::get('/user/languagecode', [UserController::class, 'languagecode']);
 
     Route::get('/user/notification', [UserController::class, 'notification']);

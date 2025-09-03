@@ -226,4 +226,60 @@ class FileEncryptorService
         return $plaintext;
     }
 
+    public function encryptAudio(string $inputPath, string $outputPath): void
+    {
+        $ivLength = openssl_cipher_iv_length($this->cipher);
+        $iv = random_bytes($ivLength);
+
+        $input = fopen($inputPath, 'rb');
+        if (!$input) {
+            throw new RuntimeException("Cannot open input file: $inputPath");
+        }
+
+        $output = fopen($outputPath, 'wb');
+        if (!$output) {
+            fclose($input);
+            throw new RuntimeException("Cannot open output file: $outputPath");
+        }
+
+        // Write IV to the beginning of the file
+        fwrite($output, $iv);
+
+        while (!feof($input)) {
+            $plaintext = fread($input, 4096);
+            $ciphertext = openssl_encrypt($plaintext, $this->cipher, $this->key, OPENSSL_RAW_DATA, $iv);
+            fwrite($output, $ciphertext);
+        }
+
+        fclose($input);
+        fclose($output);
+    }
+
+    public function decryptAudio(string $inputPath, string $outputPath): void
+    {
+        $ivLength = openssl_cipher_iv_length($this->cipher);
+
+        $input = fopen($inputPath, 'rb');
+        if (!$input) {
+            throw new RuntimeException("Cannot open encrypted file: $inputPath");
+        }
+
+        $iv = fread($input, $ivLength);
+
+        $output = fopen($outputPath, 'wb');
+        if (!$output) {
+            fclose($input);
+            throw new RuntimeException("Cannot open output file: $outputPath");
+        }
+
+        while (!feof($input)) {
+            $ciphertext = fread($input, 4096 + 16); // Slightly larger block for padding
+            $plaintext = openssl_decrypt($ciphertext, $this->cipher, $this->key, OPENSSL_RAW_DATA, $iv);
+            fwrite($output, $plaintext);
+        }
+
+        fclose($input);
+        fclose($output);
+    }
+
 }
