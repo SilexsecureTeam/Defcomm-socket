@@ -144,7 +144,7 @@ function googleAiTransSTENHelper($encryptedPath, $decryptedPath, $source)
         $decryptor = new FileEncryptorService();
         $decryptor->decryptAudio($encryptedPath, $decryptedPath);
         $res = googleAiTransSTHelper($decryptedPath, $source);
-        unlink($decryptedPath);
+        // unlink($decryptedPath);
         return $res;
     } catch (\Exception $e) {
         return null;

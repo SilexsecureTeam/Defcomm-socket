@@ -247,6 +247,7 @@ class WalkieTalkieController extends Controller
                     'storage/secure/decrypted/decrypted_'.  $fileName,
                     $user->chatSettings->chat_language
                 )),
+                'path' => encrypt('storage/secure/decrypted/decrypted_' .  $fileName),
                 'source_language' => $user->chatSettings->chat_language,
                 'file_size' => $file_size,
                 'file_ext' => $file_ext,
@@ -274,7 +275,7 @@ class WalkieTalkieController extends Controller
                     'channel_name' => $rec->channel->name,
                     'user_id' => encryptHelper($rec->user_id),
                     'user_name' => $rec->user->name,
-                    'record' => $rec->record,
+                    'record' => decrypt($rec->path),
                     'record_text' => $rec->record_text ? decrypt($rec->record_text) : null,
                     'created_at' => $rec->created_at,
                 ]
@@ -332,8 +333,7 @@ class WalkieTalkieController extends Controller
                 'user_id' => encryptHelper($rec->user_id),
                 'user_name' => $rec->user->name,
                 'source_language' => $rec->source_language,
-                'record' => $rec->record,
-                'record' => $rec->record,
+                'record' => $rec->path ? decrypt($rec->path) : null,
                 'record_text' => $rec->record_text ? decrypt($rec->record_text) : null,
                 'created_at' => $rec->created_at,
             ];
