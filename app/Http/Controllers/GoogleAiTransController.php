@@ -82,12 +82,12 @@ class GoogleAiTransController extends Controller
             $audioContent = $this->googleAi->textToSpeech($text, $language);
 
             // Save to file
-            $outputFile = storage_path('app/public/tts_' . time() . '.mp3');
+            $outputFile = public_path('storage/translate/tts_' . time() . '.mp3');
             file_put_contents($outputFile, $audioContent);
 
             return response()->json([
                 'text' => $text,
-                'audio_file_url' => asset('storage/' . basename($outputFile)),
+                'audio_file_url' => asset('storage/translate/' . basename($outputFile)),
             ]);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
@@ -121,13 +121,13 @@ class GoogleAiTransController extends Controller
             $audioContent = $this->googleAi->textToSpeech($translation, $targetLang);
 
             // Save MP3 file
-            $outputFile = storage_path('app/public/translated_audio_' . time() . '.mp3');
+            $outputFile = public_path('storage/translate/translated_audio_' . time() . '.mp3');
             file_put_contents($outputFile, $audioContent);
 
             return response()->json([
                 'original_text'   => $transcript,
                 'translated_text' => $translation,
-                'audio_file_url'  => asset('storage/' . basename($outputFile)),
+                'audio_file_url'  => asset('storage/translate/' . basename($outputFile)),
             ]);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
