@@ -3,11 +3,12 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Broadcast;
-use App\Http\Controllers\GoogleAiTransController;
 use App\Http\Controllers\API\WebController;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\TranslateController;
+use App\Http\Controllers\API\QrLoginController;
+use App\Http\Controllers\GoogleAiTransController;
 use App\Http\Controllers\API\WalkieTalkieController;
 
 /*
@@ -42,6 +43,11 @@ Route::get('app/agreements/{term?}', [AuthController::class, 'appAgreements']);
 Route::get('/app/list', [UserController::class, 'appList']);
 Route::get('/app/listId/{id}', [UserController::class, 'appListId']);
 
+// QR Login
+Route::post('/qr/create', [QrLoginController::class, 'create']);           // anonymous
+Route::get('/qr/{code}/status', [QrLoginController::class, 'status']);     // anonymous poll
+Route::post('/qr/{code}/exchange', [QrLoginController::class, 'exchange']); // desktop exchanges
+
 Route::prefix('web')->group(function () {
     Route::post('/contact', [WebController::class, 'contact']); // submit form
     Route::post('/booking', [WebController::class, 'booking']); // submit form
@@ -53,6 +59,8 @@ Route::prefix('web')->group(function () {
 });
 
 Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/qr/{code}/approve', [QrLoginController::class, 'approve']); // mobile approves
+    
     Route::post('app/resetPassword', [AuthController::class, 'appresetPassword']);
     Route::post('app/configuration', [AuthController::class, 'appConfiguration']);
     Route::post('app/developermode', [AuthController::class, 'appDevelopermode']);
@@ -63,6 +71,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('auth/loginblockip', [AuthController::class, 'loginblockip']);
     Route::get('auth/loginblockip/list', [AuthController::class, 'loginblockipList']);
     Route::post('auth/loginunblockip', [AuthController::class, 'loginunblockip']);
+    Route::post('auth/logout', [AuthController::class, 'logout']);
 
     Route::get('/user/file', [UserController::class, 'file']);
     Route::get('/user/file/pending', [UserController::class, 'fileOtherPending']);

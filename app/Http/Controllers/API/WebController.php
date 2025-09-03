@@ -4,8 +4,13 @@ namespace App\Http\Controllers\API;
 
 use Illuminate\Http\Request;
 use App\Models\ContactBooking;
+use App\Mail\ContactBookingMail;
 use App\Models\ContactSubmission;
+use App\Mail\ContactBookingAdmMail;
+use App\Mail\ContactSubmissionMail;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\ContactSubmissionAdmMail;
 
 class WebController extends Controller
 {
@@ -21,6 +26,9 @@ class WebController extends Controller
             "detail" => $request->detail,
             "req" => uniqid()
         ]);
+
+        Mail::to("business@defcomm.ng")->send(new ContactSubmissionAdmMail($submission));
+        Mail::to($request->email)->send(new ContactSubmissionMail($submission));
 
         return response()->json([
             'success' => true,
@@ -43,6 +51,9 @@ class WebController extends Controller
             "reason" => $request->reason,
             "req" => uniqid()
         ]);
+
+        Mail::to("business@defcomm.ng")->send(new ContactBookingAdmMail($submission));
+        Mail::to($request->email)->send(new ContactBookingMail($submission));
 
         return response()->json([
             'success' => true,
