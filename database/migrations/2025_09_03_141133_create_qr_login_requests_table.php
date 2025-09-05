@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->uuid('code')->unique();             // the QR code payload
             $table->enum('status', ['pending', 'approved', 'expired', 'redeemed'])->default('pending');
-            $table->foreignId('approved_user_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->integer('approved_user_id')->nullable();
             $table->timestamp('expires_at');
             $table->timestamp('approved_at')->nullable();
             $table->timestamp('redeemed_at')->nullable();
