@@ -154,4 +154,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(UserBlockIp::class, 'user_id');
     }
+
+    public function plan()
+    {
+        return $this->belongsTo(UserPlan::class, 'plan_id')->withDefault();
+    }
 }

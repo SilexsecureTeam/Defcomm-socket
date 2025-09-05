@@ -65,6 +65,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('app/configuration', [AuthController::class, 'appConfiguration']);
     Route::post('app/developermode', [AuthController::class, 'appDevelopermode']);
 
+    Route::get('auth/userplan', [AuthController::class, 'userplan']);
     Route::get('auth/logindevicelog', [AuthController::class, 'logindevicelog']);
     Route::get('auth/logindevice/{status}', [AuthController::class, 'logindevice']);
     Route::get('auth/logindevicestatus/{id}/{status}', [AuthController::class, 'logindevicestatus']);

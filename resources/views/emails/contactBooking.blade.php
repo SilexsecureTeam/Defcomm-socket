@@ -7,14 +7,14 @@
         </div>
         <div style=" display:flex; align-items:center; margin-top:10px; justify-content:center; ">
             <p style="padding: 10px; display: inline-block; font-size: 20px; text-align: center; font-weight: bold; margin: 0 auto;">
-                Bookings Defcomm
+                {{$admail->title}}
             </p>
         </div>
 
 
         <p style="font-weight:bold;">Hi {{ $data->name ?? '' }},</p>
         <div style="margin-bottom:30px;">
-            <p>Thanks for sendinging your details. We will get in touch with you soon.</p>
+            <p>{{$admail->message}}</p>
 
             <div>
                 <p>Visit us</p>

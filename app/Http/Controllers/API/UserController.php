@@ -169,6 +169,31 @@ class UserController extends Controller
 
     public function fileUpload(Request $request)
     {
+        $user = User::find(auth()->user()->id);
+
+        if($user->plan_id === null){
+            return response()->json(
+                [
+                    'status' => '400',
+                    'message' => 'You do not have an active plan. Please subscribe',
+                    'data' => null
+                ],
+                401
+            );
+        }
+
+        $userfile = Files::where('uploaded_by', auth()->user()->id)->sum('fileSize_num');
+        if (($user->plan->file_size * 1073741824) < $userfile) {
+            return response()->json(
+                [
+                    'status' => '400',
+                    'message' => 'You have reach your plan limit. Please subscribe',
+                    'data' => null
+                ],
+                401
+            );
+        }
+
         $file = $request->file('file');
         $file_ext = $file->getClientOriginalExtension();
 
@@ -1074,6 +1099,30 @@ class UserController extends Controller
 
     public function meetingCreate(Request $request)
     {
+        $user = User::find(auth()->user()->id);
+
+        if ($user->plan_id === null) {
+            return response()->json(
+                [
+                    'status' => '400',
+                    'message' => 'You do not have an active plan. Please subscribe',
+                    'data' => null
+                ],
+                401
+            );
+        }
+
+        if ($user->plan->enable_meeting == "no") {
+            return response()->json(
+                [
+                    'status' => '400',
+                    'message' => 'You do not have access to this feature. Please subscribe',
+                    'data' => null
+                ],
+                401
+            );
+        }
+
         $data = Meeting::create([
             'user_id' => auth()->user()->id,
             'meeting_link' => $request->meeting_link,
@@ -1208,7 +1257,7 @@ class UserController extends Controller
     public function sendMessageCall(Request $request)
     {
         $calllog = ChatCallLog::where('mss_id', decryptHelper($request->mss_id))->first();
-        $mss = ChatMessage::find(decryptHelper($request->mss_id));
+        $chatmss = ChatMessage::find(decryptHelper($request->mss_id));
 
         if ($calllog) {
             if ($request->call_duration) {
@@ -1222,6 +1271,35 @@ class UserController extends Controller
             if ($request->call_state == "miss") {
                 Mail::to($calllog->userReciever->email)->send(new MissCallMail($calllog->userSender->name, $calllog->userReciever->name));
             }
+
+            $data = [
+                'id' => $chatmss->id,
+                'id_en' => encryptHelper($chatmss->id),
+                'is_my_chat' => $chatmss->user_id == auth()->user()->id ? 'yes' : 'no',
+                'user_id' => encryptHelper($chatmss->user_id),
+                'user_to' => encryptHelper($chatmss->user_to),
+                'user_to_name' => $chatmss->userTo->name,
+                'group_to' => $chatmss->group_to,
+                'chat_user_type' => $chatmss->user_group,
+                'is_file' => $chatmss->is_file,
+                'file_type' => $chatmss->file_type,
+                'is_read' => $chatmss->is_read,
+                'is_important' => $chatmss->is_important,
+                'is_forward' => $chatmss->is_forward,
+                'is_star' => $chatmss->is_star,
+                'view_once' => $chatmss->view_once,
+                'mss_type' => $chatmss->mss_type,
+                'call_duration' => $chatmss->mss_type == "call" ? $chatmss->chatCall->call_duration : null,
+                'call_state' => $chatmss->mss_type == "call" ? $chatmss->chatCall->call_state : null,
+                'chatbtw' => $chatmss->mss_type == "call" ? $chatmss->chatCall->chatbtw : null,
+                'expire_time' => $chatmss->expire_time,
+                // 'message' => $current_chat_user_type == 'group' ? $message : googleAiTransHelper(decrypt($chatmss->message), $user->chatSettings->chat_language, $altuser->chatSettings->chat_language),
+                'tag_user' => convertBackToenHelper($chatmss->tag_user),
+                'tag_mess' => encryptHelper($chatmss->tag_mess),
+                'deleted_at' => $chatmss->deleted_at,
+                'created_at' => $chatmss->created_at,
+                'updated_at' => $chatmss->updated_at,
+            ];
 
             broadcast(new PrivateMessageSent(encryptHelper(auth()->user()->id), encryptHelper($calllog->userReciever->id), [
                 'state' => 'callUpdate',
@@ -1245,7 +1323,7 @@ class UserController extends Controller
                     "call_duration" => $request->call_duration,
                     "call_state" => $request->call_state
                 ],
-                'mss' => $mss
+                'mss' => $data
             ]))->toOthers();
 
             return response()->json(
@@ -1270,6 +1348,41 @@ class UserController extends Controller
 
     public function sendMessage(Request $request)
     {
+        $user = User::find(auth()->user()->id);
+
+        if ($user->plan_id === null) {
+            return response()->json(
+                [
+                    'status' => '400',
+                    'message' => 'You do not have an active plan. Please subscribe',
+                    'data' => null
+                ],
+                401
+            );
+        }
+
+        if ($user->plan->enable_chat == "no" && $request->mss_type == 'text') {
+            return response()->json(
+                [
+                    'status' => '400',
+                    'message' => 'You do not have access to this feature. Please subscribe',
+                    'data' => null
+                ],
+                401
+            );
+        }
+
+        if ($user->plan->enable_call == "no" && $request->mss_type == 'call') {
+            return response()->json(
+                [
+                    'status' => '400',
+                    'message' => 'You do not have access to this feature. Please subscribe',
+                    'data' => null
+                ],
+                401
+            );
+        }
+
         if ($request->message) {
 
             $message = "";

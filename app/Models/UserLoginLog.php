@@ -18,6 +18,6 @@ class UserLoginLog extends Model
 
     public function device()
     {
-        return $this->belongsTo(UserLoginDevice::class, 'device_id ')->withDefault();
+        return $this->belongsTo(UserLoginDevice::class, 'device_id')->withDefault();
     }
 }

@@ -18,6 +18,30 @@ class WalkieTalkieController extends Controller
 {
     public function channelcreate(Request $request)
     {
+        $user = User::find(auth()->user()->id);
+
+        if ($user->plan_id === null) {
+            return response()->json(
+                [
+                    'status' => '400',
+                    'message' => 'You do not have an active plan. Please subscribe',
+                    'data' => null
+                ],
+                401
+            );
+        }
+
+        if ($user->plan->enable_walkie == "no") {
+            return response()->json(
+                [
+                    'status' => '400',
+                    'message' => 'You do not have access to this feature. Please subscribe',
+                    'data' => null
+                ],
+                401
+            );
+        }
+
         $data = WailkieTalkieChannel::where(function ($query) use ($request) {
             $query->where('name', $request->name)
                 ->orWhere('frequency', $request->frequency);

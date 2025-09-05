@@ -51,10 +51,12 @@ class SuperAdminController extends Controller
         $comp = CompanyUser::find(decrypt($id));
         if($comp){
             $usr = User::where('role', 'user')->where('company_id', $comp->id)->get();
+            $plan = UserPlan::where('status', 'active')->get();
             return view('super.account', [
                 'page' => $comp->name . " User's Account",
                 'opt' => 'user',
-                'usr' => $usr
+                'usr' => $usr,
+                'plan' => $plan
             ]);
         }
         return redirect()->back()->with('error', 'No data found for this account');

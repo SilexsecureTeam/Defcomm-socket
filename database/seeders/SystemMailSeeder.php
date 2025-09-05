@@ -44,6 +44,16 @@ class SystemMailSeeder extends Seeder
                 'label' => 'otp',
                 'message' => ''
             ],
+            [
+                'title' => 'Defcomm Contact',
+                'label' => 'contact',
+                'message' => 'Thanks for contacting us. We will get in touch with you soon.'
+            ],
+            [
+                'title' => 'Bookings Defcomm',
+                'label' => 'booking',
+                'message' => 'Thanks for sendinging your details. We will get in touch with you soon.'
+            ],
         ];
 
         foreach ($records as $dt) {

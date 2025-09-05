@@ -160,7 +160,8 @@ class AuthController extends Controller
                 'access_token' => $token,
                 'token_type' => 'Bearer',
                 'user_enid' => encryptHelper($user->id),
-                'user' => $user
+                'user' => $user,
+                'plan' => $user->plan
             ],
         ], 201);
     }
@@ -206,7 +207,8 @@ class AuthController extends Controller
                         'access_token' => $token,
                         'token_type' => 'Bearer',
                         'user_enid' => encryptHelper($user->first()->id),
-                        'user' => $user->first()
+                        'user' => $user->first(),
+                        'plan' => $user->first()->plan
                     ],
                 ], 201);
             } else {
@@ -659,6 +661,17 @@ class AuthController extends Controller
             'status' => 200,
             'message' => 'IP addresses unblocked successfully',
             'data' => ""
+        ]);
+    }
+
+    public function userplan()
+    {
+        $user = User::find(Auth::user()->id);
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'User plan',
+            'data' => $user->plan
         ]);
     }
 
