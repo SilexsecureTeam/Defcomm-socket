@@ -127,7 +127,13 @@ class AdminController extends Controller
 
         $userCount = User::where('company_id', auth()->user()->CompanyUser->id)->count();
 
-        if($userCount > auth()->user()->number_user ){
+        $user = User::find(auth()->user()->id);
+
+        if ($user->plan_id === null) {
+            return redirect()->back()->with('error', "You do not have an active plan. Please subscribe");
+        }
+
+        if ($userCount >= $user->plan->no_user){
             return redirect()->back()->with('error', "You have reach you limit");
         }
 
@@ -160,6 +166,18 @@ class AdminController extends Controller
 
     public function groupCreate(Request $request)
     {
+        $groupCount = CompanyGroup::where('company_id', auth()->user()->CompanyUser->id)->count();
+
+        $user = User::find(auth()->user()->id);
+
+        if ($user->plan_id === null) {
+            return redirect()->back()->with('error', "You do not have an active plan. Please subscribe");
+        }
+
+        if ($groupCount >= $user->plan->no_group) {
+            return redirect()->back()->with('error', "You have reach you limit");
+        }
+
         CompanyGroup::create([
             'name' => $request->name,
             'decription' => $request->decription,
