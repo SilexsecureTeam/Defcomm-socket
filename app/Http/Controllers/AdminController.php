@@ -137,16 +137,17 @@ class AdminController extends Controller
             return redirect()->back()->with('error', "You have reach you limit");
         }
 
+        $otp = rand(1000, 9999);
+
         $usr = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'phone' => $request->phone,
+            'otp' => $otp,
             'company_id' => auth()->user()->CompanyUser->id,
             'password' => Hash::make(uniqid()),
             'access_token' => uniqid()
         ]);
-
-        $otp = rand(1000, 9999);
 
         $encrypt = encrypt($request->email);
 

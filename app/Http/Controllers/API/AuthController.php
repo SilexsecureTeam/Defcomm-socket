@@ -62,6 +62,17 @@ class AuthController extends Controller
         }
     }
 
+    public function userVerify(Request $request)
+    {
+        $user = User::where('email', decrypt($request->input('encrypt')))->where('otp', $request->input('otp'))->first();
+        if ($user) {
+            $user->update(['email_verified_at' => Carbon::now(), 'otp' => null, 'status' => 'active']);
+            return response()->json(['status' => '200', 'message' => 'Account successfully verified', 'data' => []], 201);
+        } else {
+            return response()->json(['status' => '400', 'message' => 'This account is invalid', 'data' => []], 401);
+        }
+    }
+
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [

@@ -20,11 +20,11 @@
 
             <p>Kindly click the button to proceed</p>
             <div style="text-align: center;">
-                <a href="https://cloud.defcomm.ng/onboarding" style="background-color: #36460A; padding: 10px; border-radius:5px; color: #ffffff;">Join</a>
+                <a href="https://cloud.defcomm.ng/onboarding?auth=<?= $encrypt ?>" style="background-color: #36460A; padding: 10px; border-radius:5px; color: #ffffff;">Join</a>
             </div>
             <div>
                 <p>Please use this link if the join button is not working</p>
-                <a href="https://cloud.defcomm.ng/onboarding">https://cloud.defcomm.ng/onboarding</a>
+                <a href="https://cloud.defcomm.ng/onboarding?auth=<?= $encrypt ?>">https://cloud.defcomm.ng/onboarding?auth={{$encrypt}}</a>
             </div>
             <div style="text-align: center; margin-top:50px;">
                 <p style="margin-bottom: 10px;"> Or Kindly Use the code below to verify your account</p>

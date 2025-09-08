@@ -30,6 +30,7 @@ Broadcast::routes(['middleware' => ['auth:sanctum']]);
 
 Route::post('register', [AuthController::class, 'register']);
 Route::post('emailVerify', [AuthController::class, 'emailVerify']);
+Route::post('userVerify', [AuthController::class, 'userVerify']);
 Route::post('login', [AuthController::class, 'login']);
 Route::post('requestOtpSms', [AuthController::class, 'requestOtpSms']);
 Route::post('loginWithPhone', [AuthController::class, 'loginWithPhone']);
