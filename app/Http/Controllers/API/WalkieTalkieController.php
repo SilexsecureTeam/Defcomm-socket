@@ -6,13 +6,14 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\WailkieTalkieChannel;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Mail;
 use App\Models\WailkieTalkieRecorder;
 use App\Models\WailkieTalkieSubscriber;
 use App\Events\PrivateWalkieMessageSent;
+use App\Http\Services\FileUploadService;
 use App\Http\Services\FileEncryptorService;
 use App\Mail\WailkieTalkieChannelInvitation;
-use Illuminate\Support\Facades\File;
 
 class WalkieTalkieController extends Controller
 {
@@ -242,7 +243,7 @@ class WalkieTalkieController extends Controller
             $fileName = $file_time . $file->getClientOriginalName();
             $originalPath = $file->storeAs('secure/uploads', $fileName);
             $encryptHelperedPath = $file->storeAs('secure/encryptWailkieTalkie',  $file_name);
-            $decryptedHelperedPath = public_path('storage/secure/decrypted/decrypted_'.  $fileName);
+            $decryptedHelperedPath = public_path('WailkieTalkie/decrypted/decrypted_'.  $fileName);
             File::put($decryptedHelperedPath, "");
 
             $encryptor = new FileEncryptorService();
@@ -261,6 +262,8 @@ class WalkieTalkieController extends Controller
                 $file_size = $file_size . ' bytes';
             }
 
+            // $puburl = (new FileUploadService)->makeAudioTemporarilyPublic('translate/' . basename($outputFile));
+
             $rec = WailkieTalkieRecorder::create([
                 'channel_id' => $chan->channel->id,
                 'subscriber_id' => $chan->id,
@@ -271,7 +274,7 @@ class WalkieTalkieController extends Controller
                     'storage/secure/decrypted/decrypted_'.  $fileName,
                     $user->chatSettings->chat_language
                 )),
-                'path' => encrypt('storage/secure/decrypted/decrypted_' .  $fileName),
+                'path' => encrypt('WailkieTalkie/decrypted/decrypted_' .  $fileName),
                 'source_language' => $user->chatSettings->chat_language,
                 'file_size' => $file_size,
                 'file_ext' => $file_ext,

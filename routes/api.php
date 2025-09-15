@@ -134,6 +134,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/app/create', [UserController::class, 'appcreate']);
     Route::post('/app/status', [UserController::class, 'appstatus']);
     Route::get('/app/ownlist', [UserController::class, 'appOwnList']);
+    Route::post('/app/audio/player/delete', [UserController::class, 'deleteTemporaryAudio']);
 
     Route::post('/walkietalkie/channelcreate', [WalkieTalkieController::class, 'channelcreate']);
     Route::post('/walkietalkie/channelupdate', [WalkieTalkieController::class, 'channelupdate']);

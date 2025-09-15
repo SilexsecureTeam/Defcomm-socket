@@ -31,6 +31,7 @@ use App\Http\Services\ChatService;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use App\Http\Services\FileUploadService;
 use App\Http\Services\FileEncryptorService;
 
@@ -1913,6 +1914,14 @@ class UserController extends Controller
             201
         );
     }
+
+    function deleteTemporaryAudio(string $publicPath): void
+    {
+        if (Storage::disk('public')->exists($publicPath)) {
+            Storage::disk('public')->delete($publicPath);
+        }
+    }
+
 
     public function appOwnList(Request $request)
     {

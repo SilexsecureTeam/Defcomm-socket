@@ -6,6 +6,7 @@ use App\Models\Files;
 use App\Models\ChatLastLog;
 use App\Models\ChatMessage;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class FileUploadService
 {
@@ -46,5 +47,22 @@ class FileUploadService
         ]);
 
         return ['status' => true, 'message' => "sucessfully", 'data' => $file];
+    }
+
+    function makeAudioTemporarilyPublic(string $storagePath): string
+    {
+        // 1. Ensure file exists in storage
+        if (!Storage::disk('local')->exists($storagePath)) {
+            throw new \Exception("File not found: {$storagePath}");
+        }
+
+        // 2. Copy to a temporary public folder
+        $filename = basename($storagePath);
+        $publicPath = "temp-audio/" . time() . "_" . $filename;
+
+        Storage::disk('public')->put($publicPath, Storage::disk('local')->get($storagePath));
+
+        // 3. Return the public URL
+        return Storage::url($publicPath);
     }
 }

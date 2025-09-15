@@ -3,15 +3,18 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Http\Services\FileUploadService;
 use App\Http\Services\GoogleAiTransService;
 
 class GoogleAiTransController extends Controller
 {
     protected GoogleAiTransService $googleAi;
+    protected FileUploadService $fileUploadService;
 
-    public function __construct(GoogleAiTransService $googleAi)
+    public function __construct(GoogleAiTransService $googleAi, FileUploadService $fileUploadService)
     {
         $this->googleAi = $googleAi;
+        $this->fileUploadService = $fileUploadService;
     }
 
     /**
@@ -84,10 +87,10 @@ class GoogleAiTransController extends Controller
             // Save to file
             $outputFile = public_path('storage/translate/tts_' . time() . '.mp3');
             file_put_contents($outputFile, $audioContent);
-
+            $puburl = $this->fileUploadService->makeAudioTemporarilyPublic('storage/translate/' . basename($outputFile));
             return response()->json([
                 'text' => $text,
-                'audio_file_url' => asset('storage/translate/' . basename($outputFile)),
+                'audio_file_url' => asset($puburl),
             ]);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
@@ -124,10 +127,14 @@ class GoogleAiTransController extends Controller
             $outputFile = public_path('storage/translate/translated_audio_' . time() . '.mp3');
             file_put_contents($outputFile, $audioContent);
 
+            // '/storage/translate/' . basename($outputFile)
+
+            $puburl = $this->fileUploadService->makeAudioTemporarilyPublic($outputFile);
+
             return response()->json([
                 'original_text'   => $transcript,
                 'translated_text' => $translation,
-                'audio_file_url'  => asset('storage/translate/' . basename($outputFile)),
+                'audio_file_url'  => asset($puburl),
             ]);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
