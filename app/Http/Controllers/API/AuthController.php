@@ -14,6 +14,7 @@ use App\Models\UserLoginLog;
 use Illuminate\Http\Request;
 use App\Mail\PasswordResetMail;
 use App\Models\UserLoginDevice;
+use App\Events\PrivateMessageSent;
 use App\Http\Services\AuthService;
 use App\Models\StatementAgreement;
 use App\Http\Controllers\Controller;
@@ -147,8 +148,8 @@ class AuthController extends Controller
             Auth::logout();
             return response()->json(['status' => 400, 'error' => "Your account is not active. Contact support"], 401);
         }
-
-        if ((new AuthService())->loginLog($user, $request) == 'block') {
+        $logDevice = (new AuthService())->loginLog($user, $request);
+        if ($logDevice[0] == 'block') {
             Auth::logout();
             return response()->json(['status' => 400, 'error' => "This device does not have access to this account"], 401);
         }
@@ -172,7 +173,8 @@ class AuthController extends Controller
                 'token_type' => 'Bearer',
                 'user_enid' => encryptHelper($user->id),
                 'user' => $user,
-                'plan' => $user->plan
+                'plan' => $user->plan,
+                'device_id' => $logDevice[1] ?? null
             ],
         ], 201);
     }
@@ -206,7 +208,8 @@ class AuthController extends Controller
                 if ($user->first()->status !== "active") {
                     return response()->json(['status' => 400, 'error' => "Your account is not active. Contact support"], 401);
                 }
-                if ((new AuthService())->loginLog($user->first(), $request) == 'block') {
+                $logDevice = (new AuthService())->loginLog($user->first(), $request);
+                if ($logDevice[0] == 'block') {
                     Auth::logout();
                     return response()->json(['status' => 400, 'error' => "This device does not have access to this account"], 401);
                 }
@@ -219,7 +222,8 @@ class AuthController extends Controller
                         'token_type' => 'Bearer',
                         'user_enid' => encryptHelper($user->first()->id),
                         'user' => $user->first(),
-                        'plan' => $user->first()->plan
+                        'plan' => $user->first()->plan,
+                        'device_id' => $logDevice[1] ?? null
                     ],
                 ], 201);
             } else {
@@ -571,7 +575,7 @@ class AuthController extends Controller
         $data = [];
         foreach ($logs as $log) {
             $data[] = [
-                'id' => encrypt($log->id),
+                'id' => encryptHelper($log->id),
                 'ip_address' => $log->ip_address,
                 'browser'    => $log->browser,
                 'device'     => $log->device,
@@ -597,7 +601,7 @@ class AuthController extends Controller
 
     public function logindevicestatus($id, $status)
     {
-        $logs = UserLoginDevice::find(decrypt($id));
+        $logs = UserLoginDevice::find(decryptHelper($id));
         if ($logs) {
             $logs->update(['status' => $status]);
         }
@@ -688,6 +692,15 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
+        broadcast(new PrivateMessageSent(encryptHelper(auth()->user()->id), "device-".$request->device, [
+            'state' => "logout",
+            'sender_iden' => encryptHelper(auth()->user()->id),
+            'device' => $request->device ?? "all",
+        ]))->toOthers();
+        
+        if ($request->device) {
+            UserLoginDevice::find(decryptHelper($request->device))->update(['status' => 'remove']);
+        }
         $request->user()->currentAccessToken()->delete();
         return response()->json(['message' => 'Logged out']);
     }

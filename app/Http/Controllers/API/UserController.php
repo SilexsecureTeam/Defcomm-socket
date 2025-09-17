@@ -743,7 +743,7 @@ class UserController extends Controller
 
         $record = [];
         if ($chat_user_type == 'group') {
-            $record = ChatMessage::where('user_to',$this->current_chat_user)->orderBy('created_at', 'ASC')->get();
+            $record = ChatMessage::where('user_to',$this->current_chat_user)->orderBy('created_at', 'DESC')->paginate(10);
         }else{
             $record = ChatMessage::where(function ($query) {
                 $query->where('user_id', $this->current_chat_user)
@@ -753,7 +753,7 @@ class UserController extends Controller
                 $query->where('user_id', auth()->user()->id)
                     ->orWhere('group_to', auth()->user()->id)
                     ->orWhere('user_to', auth()->user()->id);
-            })->orderBy('created_at', 'ASC')->get();
+            })->orderBy('created_at', 'DESC')->paginate(10);
         }
 
         $data = [];
@@ -763,7 +763,8 @@ class UserController extends Controller
             }
             
             $data[$key] = [
-                'id' => encryptHelper($dt->id),
+                'id' => $dt->id,
+                // 'id' => encryptHelper($dt->id),
                 'is_my_chat' => $dt->user_id == auth()->user()->id ? 'yes' : 'no',
                 'user_id' => encryptHelper($dt->user_id),
                 'user_to' => encryptHelper($dt->user_to),
@@ -796,7 +797,12 @@ class UserController extends Controller
             'chat_user_id' => decryptHelper($chat_user_id),
             'chat_user_id_en' => $chat_user_id,
             'chat_id' => $userLastLog,
-            'chat_user_type' => $chat_user_type
+            'chat_user_type' => $chat_user_type,
+            "current_page" => $record->currentPage(),
+            "last_page" => $record->lastPage(),
+            "per_page" => $record->perPage(),
+            "total" => $record->total(),
+            "urlparams" => "?page=",
         ];
 
         return response()->json(

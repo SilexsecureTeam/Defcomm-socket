@@ -24,7 +24,7 @@ return new class extends Migration
             $table->string('city')->nullable();
             $table->string('lat')->nullable();
             $table->string('lon')->nullable();
-            $table->enum('attempt', ['active', 'block', 'pending'])->default('active');
+            $table->enum('attempt', ['active', 'block', 'pending', 'remove'])->default('active');
             $table->text('user_agent')->nullable();
             $table->timestamps();
         });

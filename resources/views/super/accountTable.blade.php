@@ -260,6 +260,7 @@
                         <div class="d-flex flex-column">
                             <a href="#" class="text-gray-800 text-hover-primary mb-1">{{$sur->name}}</a>
                             <span>{{$sur->email}}</span>
+                            <span>{{$sur->phone}}</span>
                             <span>{{$sur->CompanyUsers->name}}</span>
                             <span>{{$sur->otp}}</span>
                         </div>

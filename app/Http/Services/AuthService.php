@@ -48,6 +48,10 @@ class AuthService
         ]);
 
         $deve = $deviveLogin ? $deviveLogin->status : 'active';
+
+        if($deviveLogin->status == 'remove') {
+            $deviveLogin->update(['status' => 'active']);
+        }   
         
         UserLoginLog::create([
             'user_id'    => $user->id,
@@ -65,6 +69,6 @@ class AuthService
             'attempt' => $deve ?? 'active',
         ]);
 
-        return $deve ?? 'active';
+        return [$deve ?? 'active', encryptHelper($deviveLogin->id)];
     }
 }
