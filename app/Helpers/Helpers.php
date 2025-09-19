@@ -38,14 +38,15 @@ function encryptHelper(?string $value): ?string
         return null;
     }
 
-    return base64_encode(
-        openssl_encrypt(
-            $value,
-            'AES-256-ECB',
-            config('services.sys.key'),
-            OPENSSL_RAW_DATA
-        )
+    $encrypted = openssl_encrypt(
+        $value,
+        'AES-256-ECB',
+        config('services.sys.key'),
+        OPENSSL_RAW_DATA
     );
+
+    // Base64 URL-safe encode without padding
+    return rtrim(strtr(base64_encode($encrypted), '+/', '-_'), '=');
 }
 
 function decryptHelper(?string $encrypted): ?string
@@ -54,6 +55,10 @@ function decryptHelper(?string $encrypted): ?string
         return null;
     }
 
+    // Restore padding if removed
+    $encrypted = strtr($encrypted, '-_', '+/');
+    $encrypted = str_pad($encrypted, strlen($encrypted) % 4 === 0 ? strlen($encrypted) : strlen($encrypted) + 4 - strlen($encrypted) % 4, '=', STR_PAD_RIGHT);
+
     return openssl_decrypt(
         base64_decode($encrypted),
         'AES-256-ECB',
@@ -61,6 +66,7 @@ function decryptHelper(?string $encrypted): ?string
         OPENSSL_RAW_DATA
     );
 }
+
 
 
 function forceToArray($value)
