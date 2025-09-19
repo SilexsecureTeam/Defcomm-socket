@@ -172,7 +172,7 @@ class UserController extends Controller
     {
         $user = User::find(auth()->user()->id);
 
-        if($user->plan_id === null){
+        if ($user->plan_id === null) {
             return response()->json(
                 [
                     'status' => '400',
@@ -217,7 +217,7 @@ class UserController extends Controller
 
         $originalPath = $file->storeAs('secure/uploads', $file_time . $file->getClientOriginalName());
         $encryptHelperedPath = $file->storeAs('secure/encryptHelpered',  $file_name);
-        
+
         $encryptor = new FileEncryptorService();
         $encryptor->processAndencrypt(
             public_path('storage/' . $originalPath),
@@ -241,7 +241,7 @@ class UserController extends Controller
         $file = Files::create([
             'name' => $request->name,
             'description' => $request->description,
-            'file' => encrypt("storage/secure/encryptHelpered/".$file_name),
+            'file' => encrypt("storage/secure/encryptHelpered/" . $file_name),
             'file_size' => $file_size,
             'file_ext' => $file_ext,
             'fileSize_num' => $fileSize,
@@ -323,7 +323,7 @@ class UserController extends Controller
             $pathTodecryptHelperedWatermarked,
             $fileExtension,
             [
-                'watermark_text' => 'Downloaded by: '. auth()->user()->name,
+                'watermark_text' => 'Downloaded by: ' . auth()->user()->name,
                 // 'watermark_image' => public_path('logo.png')
             ]
         );
@@ -735,6 +735,7 @@ class UserController extends Controller
     public function chatMessages($chat_user_id, $chat_user_type)
     {
         $this->current_chat_user = decryptHelper($chat_user_id);
+        // return dd(decryptHelper($chat_user_id));
         $user = User::find(auth()->user()->id);
 
         $thisuserLastLog = $chat_user_type == 'user' ? ChatLastLog::where('user_id', auth()->user()->id)->where('user_to', $this->current_chat_user)->first() : ChatLastLog::where('user_to', $this->current_chat_user)->first();
@@ -743,8 +744,8 @@ class UserController extends Controller
 
         $record = [];
         if ($chat_user_type == 'group') {
-            $record = ChatMessage::where('user_to',$this->current_chat_user)->orderBy('created_at', 'DESC')->paginate(10);
-        }else{
+            $record = ChatMessage::where('user_to', $this->current_chat_user)->orderBy('created_at', 'DESC')->paginate(10);
+        } else {
             $record = ChatMessage::where(function ($query) {
                 $query->where('user_id', $this->current_chat_user)
                     ->orWhere('group_to', $this->current_chat_user)
@@ -758,10 +759,10 @@ class UserController extends Controller
 
         $data = [];
         foreach ($record as $key => $dt) {
-            if($dt->user_id != auth()->user()->id){
+            if ($dt->user_id != auth()->user()->id) {
                 $dt->update(['is_read' => 'yes']);
             }
-            
+
             $data[$key] = [
                 'id' => $dt->id,
                 // 'id' => encryptHelper($dt->id),
@@ -1412,7 +1413,7 @@ class UserController extends Controller
             }
 
             $tag_user = null;
-            if($request->tag_user){
+            if ($request->tag_user) {
                 $decrypted = array_map(function ($item) {
                     return decryptHelper($item);
                 }, forceToArray($request->tag_user));
@@ -1453,7 +1454,7 @@ class UserController extends Controller
             'chat_language' => $set->chat_language,
             'app_language' => $set->app_language,
         ];
-                
+
         return response()->json(
             [
                 'status' => '200',
@@ -1810,7 +1811,7 @@ class UserController extends Controller
         $dat = AppStore::where('status', 'active')->get();
 
         $data = [];
-        foreach($dat as $dt){
+        foreach ($dat as $dt) {
             $data[] = [
                 "id" => encryptHelper($dt->id),
                 "developer" => $dt->userId->name,

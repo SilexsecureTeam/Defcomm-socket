@@ -6,12 +6,12 @@ use App\Http\Services\FileEncryptorService;
 use App\Http\Services\GoogleAiTransService;
 
 
-function encryptHelper($data)
+function encryptHelperOld($data)
 { 
     return Hashids::encode($data);
 }
 
-function decryptHelper($data)
+function decryptHelperOld($data)
 {
     try {
         if (empty($data)) {
@@ -30,6 +30,36 @@ function decryptHelper($data)
     } catch (\Exception $e) {
         return $data;
     }
+}
+
+function encryptHelper(?string $value): ?string
+{
+    if (empty($value)) {
+        return null;
+    }
+
+    return base64_encode(
+        openssl_encrypt(
+            $value,
+            'AES-256-ECB',
+            config('services.sys.key'),
+            OPENSSL_RAW_DATA
+        )
+    );
+}
+
+function decryptHelper(?string $encrypted): ?string
+{
+    if (empty($encrypted)) {
+        return null;
+    }
+
+    return openssl_decrypt(
+        base64_decode($encrypted),
+        'AES-256-ECB',
+        config('services.sys.key'),
+        OPENSSL_RAW_DATA
+    );
 }
 
 
