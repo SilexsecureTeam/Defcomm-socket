@@ -32,4 +32,14 @@ class ChatMessage extends Model
     {
         return $this->hasOne(ChatCallLog::class, 'mss_id')->withDefault();
     }
+
+    public function parent()
+    {
+        return $this->belongsTo(ChatMessage::class, 'tag_mess')->withDefault();
+    }
+
+    public function children()
+    {
+        return $this->hasMany(ChatMessage::class, 'tag_mess')->withDefault();
+    }
 }
