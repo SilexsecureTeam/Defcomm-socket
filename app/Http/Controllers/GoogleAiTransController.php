@@ -127,9 +127,9 @@ class GoogleAiTransController extends Controller
             $outputFile = public_path('storage/translate/translated_audio_' . time() . '.mp3');
             file_put_contents($outputFile, $audioContent);
 
-            // $url = '/storage/translate/' . basename($outputFile);
+            $url = '/storage/translate/' . basename($outputFile);
 
-            $puburl = $this->fileUploadService->makeAudioTemporarilyPublic($outputFile);
+            $puburl = $this->fileUploadService->makeAudioTemporarilyPublic($url);
 
             return response()->json([
                 'original_text'   => $transcript,
