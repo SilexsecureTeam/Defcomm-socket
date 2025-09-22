@@ -764,8 +764,7 @@ class UserController extends Controller
             }
 
             $data[$key] = [
-                'id' => $dt->id,
-                // 'id' => encryptHelper($dt->id),
+                'id' => encryptHelper($dt->id),
                 'is_my_chat' => $dt->user_id == auth()->user()->id ? 'yes' : 'no',
                 'user_id' => encryptHelper($dt->user_id),
                 'user_to' => encryptHelper($dt->user_to),
