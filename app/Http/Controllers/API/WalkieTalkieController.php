@@ -246,8 +246,8 @@ class WalkieTalkieController extends Controller
 
             $encryptor = new FileEncryptorService();
             $encryptor->encryptAudio(
-                public_path('storage/' . $originalPath),
-                public_path('storage/' . $encryptHelperedPath)
+                public_path($originalPath),
+                public_path($encryptHelperedPath)
             );
 
             if ($file_size >= 1073741824) {
@@ -266,10 +266,10 @@ class WalkieTalkieController extends Controller
                 'channel_id' => $chan->channel->id,
                 'subscriber_id' => $chan->id,
                 'user_id' => auth()->user()->id,
-                'record' => encrypt("storage/secure/encryptWailkieTalkie/" . $file_name),
+                'record' => encrypt("secure/encryptWailkieTalkie/" . $file_name),
                 'record_text' => encrypt(googleAiTransSTENHelper(
-                    public_path('storage/secure/encryptWailkieTalkie/' . $file_name),
-                    'storage/secure/decrypted/decrypted_'.  $fileName,
+                    public_path('secure/encryptWailkieTalkie/' . $file_name),
+                    'secure/decrypted/decrypted_'.  $fileName,
                     $user->chatSettings->chat_language
                 )),
                 'path' => encrypt('WailkieTalkie/decrypted/decrypted_' .  $fileName),
