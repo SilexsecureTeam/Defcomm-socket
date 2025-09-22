@@ -49,20 +49,20 @@ class FileUploadService
         return ['status' => true, 'message' => "sucessfully", 'data' => $file];
     }
 
-    function makeAudioTemporarilyPublic(string $storagePath): string
+    function makeAudioTemporarilyPublic(string $path): string
     {
         // 1. Ensure file exists in storage
-        if (!Storage::disk('public')->exists($storagePath)) {
-            throw new \Exception("File not found: {$storagePath}");
+        if (!Storage::disk('public')->exists($path)) {
+            throw new \Exception("File not found: {$path}");
         }
 
-        // 2. Copy to a temporary public folder
-        $filename = basename($storagePath);
-        $publicPath = "temp-audio/" . time() . "_" . $filename;
+        $filename   = basename($path);
+        $tempPath   = "temp-audio/" . time() . "_" . $filename;
 
-        Storage::disk('public')->put($publicPath, Storage::disk('public')->get($storagePath));
+        // Copy from public → public/temp-audio
+        Storage::disk('public')->copy($path, $tempPath);
 
-        // 3. Return the public URL
-        return Storage::url($publicPath);
+        // Return a public URL
+        return Storage::url($tempPath);
     }
 }

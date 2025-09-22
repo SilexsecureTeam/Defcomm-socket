@@ -40,6 +40,6 @@ class ChatMessage extends Model
 
     public function children()
     {
-        return $this->hasMany(ChatMessage::class, 'tag_mess')->withDefault();
+        return $this->hasMany(ChatMessage::class, 'tag_mess');
     }
 }
