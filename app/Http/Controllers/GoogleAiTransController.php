@@ -109,7 +109,7 @@ class GoogleAiTransController extends Controller
         // ]);
 
         $audioPath = $request->type == 'file' ? $request->file('audio')->getRealPath() : $request->audio;
-        // return dd($audioPath);
+        $extension = $request->type == 'file' ? $request->file('audio')->getClientOriginalExtension() : pathinfo(parse_url($request->audio, PHP_URL_PATH), PATHINFO_EXTENSION);
         $sourceLang = $request->input('source_lang', 'en-US');
         $targetLang = $request->input('target_lang', 'fr');
 
@@ -124,7 +124,7 @@ class GoogleAiTransController extends Controller
             $audioContent = $this->googleAi->textToSpeech($translation, $targetLang);
 
             // Save MP3 file
-            $outputFile = public_path('/translate/translated_audio_' . time() . '.mp3');
+            $outputFile = public_path('/translate/translated_audio_' . time() . ".".$extension);
             file_put_contents($outputFile, $audioContent);
 
             // '/storage/translate/' . basename($outputFile)

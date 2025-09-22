@@ -246,8 +246,6 @@ class WalkieTalkieController extends Controller
             $decryptedHelperedPath = public_path('WailkieTalkie/decrypted/decrypted_'.  $fileName);
             File::put($decryptedHelperedPath, "");
 
-            // return dd([$originalPath, $encryptHelperedPath]);
-
             $encryptor = new FileEncryptorService();
             $encryptor->encryptAudio(
                 public_path($originalPath),
