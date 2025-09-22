@@ -143,7 +143,6 @@ class WalkieTalkieController extends Controller
             $data[] = [
                 'sub_id' => encryptHelper($ch->id),
                 'channel_id' => encryptHelper($ch->channel->id),
-                'channel_id_un' => $ch->channel->id,
                 'name' => $ch->channel->name,
                 'frequency' => $ch->channel->frequency,
                 'description' => $ch->channel->description,
