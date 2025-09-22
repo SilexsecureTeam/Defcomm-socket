@@ -94,15 +94,13 @@ class ChatService
         }
 
         $chat_meta = [
-            'chat_user_id' => $chatmss->userTo->id,
-            'chat_user_id_en' => encryptHelper($chatmss->userTo->id),
+            'chat_user_id' => encryptHelper($chatmss->userTo->id),
             'chat_id' => $userLog,
             'chat_user_type' => $chatmss->user_group
         ];
 
         $data = [
-            'id' => $chatmss->id,
-            'id_en' => encryptHelper($chatmss->id),
+            'id' => encryptHelper($chatmss->id),
             'is_my_chat' => $chatmss->user_id == auth()->user()->id ? 'yes' : 'no',
             'user_id' => encryptHelper($chatmss->user_id),
             'user_to' => encryptHelper($chatmss->user_to),
