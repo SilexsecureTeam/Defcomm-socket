@@ -7,7 +7,7 @@ use App\Http\Services\GoogleAiTransService;
 
 
 function encryptHelperOld($data)
-{ 
+{
     return Hashids::encode($data);
 }
 
@@ -32,6 +32,42 @@ function decryptHelperOld($data)
     }
 }
 
+function base62_encode(string $data): string
+{
+    $hex = bin2hex($data);
+    $num = gmp_init($hex, 16);
+
+    $alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+    $base = strlen($alphabet);
+    $encoded = '';
+
+    while (gmp_cmp($num, 0) > 0) {
+        [$num, $rem] = gmp_div_qr($num, $base);
+        $encoded .= $alphabet[gmp_intval($rem)];
+    }
+
+    return strrev($encoded);
+}
+
+function base62_decode(string $data): string
+{
+    $alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+    $base = strlen($alphabet);
+    $num = gmp_init(0, 10);
+
+    for ($i = 0; $i < strlen($data); $i++) {
+        $pos = strpos($alphabet, $data[$i]);
+        $num = gmp_add(gmp_mul($num, $base), $pos);
+    }
+
+    $hex = gmp_strval($num, 16);
+    if (strlen($hex) % 2 !== 0) {
+        $hex = '0' . $hex;
+    }
+
+    return hex2bin($hex);
+}
+
 function encryptHelper(?string $value): ?string
 {
     if (empty($value)) {
@@ -45,8 +81,7 @@ function encryptHelper(?string $value): ?string
         OPENSSL_RAW_DATA
     );
 
-    // Base64 URL-safe encode without padding
-    return rtrim(strtr(base64_encode($encrypted), '+/', '-_'), '=');
+    return base62_encode($encrypted);
 }
 
 function decryptHelper(?string $encrypted): ?string
@@ -55,19 +90,15 @@ function decryptHelper(?string $encrypted): ?string
         return null;
     }
 
-    // Restore padding if removed
-    $encrypted = strtr($encrypted, '-_', '+/');
-    $encrypted = str_pad($encrypted, strlen($encrypted) % 4 === 0 ? strlen($encrypted) : strlen($encrypted) + 4 - strlen($encrypted) % 4, '=', STR_PAD_RIGHT);
+    $binary = base62_decode($encrypted);
 
     return openssl_decrypt(
-        base64_decode($encrypted),
+        $binary,
         'AES-256-ECB',
         config('services.sys.key'),
         OPENSSL_RAW_DATA
     );
 }
-
-
 
 function forceToArray($value)
 {
@@ -116,19 +147,19 @@ function convertBackToenHelper($data)
 function googleAiTransHelper($text, $source, $target)
 {
     try {
-        if($source == $target){
+        if ($source == $target) {
             return $text;
         }
 
         if ($target == null) {
             $target_lang = LanguageCode::first()->code;
-        }else{
+        } else {
             $target_lang = LanguageCode::find($target)->code;
         }
 
-        if($source == null){
+        if ($source == null) {
             $source_lang = LanguageCode::first()->code;
-        }else{
+        } else {
             $source_lang = LanguageCode::find($source)->code;
         }
 
@@ -142,9 +173,9 @@ function googleAiTransHelper($text, $source, $target)
 function googleAiTransSTHelper($audioPath, $source)
 {
     try {
-        if($source == null){
+        if ($source == null) {
             $source_lang = LanguageCode::first()->code;
-        }else{
+        } else {
             $source_lang = LanguageCode::find($source)->code;
         }
 
@@ -159,19 +190,17 @@ function googleAiTransTSHelper($text, $target)
 {
 
     try {
-        if($target == null){
+        if ($target == null) {
             $target_lang = LanguageCode::first()->code;
-        }else{
+        } else {
             $target_lang = LanguageCode::find($target)->code;
         }
 
         $res = (new GoogleAiTransService)->textToSpeech($text, $target_lang);
         return $res;
-
     } catch (\Exception $e) {
         return $text;
     }
-
 }
 
 function googleAiTransSTENHelper($encryptedPath, $decryptedPath, $source)
