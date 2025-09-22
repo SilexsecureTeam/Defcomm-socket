@@ -198,7 +198,6 @@ class WalkieTalkieController extends Controller
             $data[] = [
                 'sub_id' => encryptHelper($ch->id),
                 'channel_id' => encryptHelper($ch->channel->id),
-                'channel_id_un' => $ch->channel->id,
                 'name' => $ch->channel->name,
                 'frequency' => $ch->channel->frequency,
                 'description' => $ch->channel->description,
@@ -284,15 +283,13 @@ class WalkieTalkieController extends Controller
             $sendData = [
                 'state' => 'walkie',
                 'sender' => [
-                    'id' => $chan->user_id,
-                    'id_en' => encryptHelper($chan->user_id),
+                    'id' => encryptHelper($chan->user_id),
                     'name' => $chan->user->name,
                     'phone' => $chan->user->phone,
                     'email' => $chan->user->email,
                 ],
                 'receiver' => [
-                    'id' => $chan->channel_id,
-                    'id_en' => encryptHelper($chan->channel_id),
+                    'id' => encryptHelper($chan->channel_id),
                     'name' => $chan->channel->name,
                     'frequency' => $chan->channel->frequency
                 ],
