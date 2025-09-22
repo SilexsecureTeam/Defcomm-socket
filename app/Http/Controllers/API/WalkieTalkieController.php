@@ -239,10 +239,14 @@ class WalkieTalkieController extends Controller
             $file_time = time();
             $file_name = $file_time . $file->getClientOriginalName() . '.enc';
             $fileName = $file_time . $file->getClientOriginalName();
-            $originalPath = $file->storeAs('secure/uploads', $fileName);
-            $encryptHelperedPath = $file->storeAs('secure/encryptWailkieTalkie',  $file_name);
+            $originalPath = 'WailkieTalkie/uploads/'.$fileName;
+            $file->move(public_path('WailkieTalkie/uploads'), $fileName);
+            $encryptHelperedPath = 'WailkieTalkie/encryptWailkieTalkie/'.$file_name;
+            // $file->move(public_path('WailkieTalkie/encryptWailkieTalkie'), $file_name);
             $decryptedHelperedPath = public_path('WailkieTalkie/decrypted/decrypted_'.  $fileName);
             File::put($decryptedHelperedPath, "");
+
+            // return dd([$originalPath, $encryptHelperedPath]);
 
             $encryptor = new FileEncryptorService();
             $encryptor->encryptAudio(
@@ -266,10 +270,10 @@ class WalkieTalkieController extends Controller
                 'channel_id' => $chan->channel->id,
                 'subscriber_id' => $chan->id,
                 'user_id' => auth()->user()->id,
-                'record' => encrypt("secure/encryptWailkieTalkie/" . $file_name),
+                'record' => encrypt("WailkieTalkie/encryptWailkieTalkie/" . $file_name),
                 'record_text' => encrypt(googleAiTransSTENHelper(
-                    public_path('secure/encryptWailkieTalkie/' . $file_name),
-                    'secure/decrypted/decrypted_'.  $fileName,
+                    public_path('WailkieTalkie/encryptWailkieTalkie/' . $file_name),
+                    'WailkieTalkie/decrypted/decrypted_'.  $fileName,
                     $user->chatSettings->chat_language
                 )),
                 'path' => encrypt('WailkieTalkie/decrypted/decrypted_' .  $fileName),
