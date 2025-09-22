@@ -134,7 +134,7 @@ class GoogleAiTransController extends Controller
             return response()->json([
                 'original_text'   => $transcript,
                 'translated_text' => $translation,
-                'audio_file_url'  => asset(basename($outputFile)),
+                'audio_file_url'  => basename($outputFile),
             ]);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
