@@ -122,7 +122,10 @@ class ChatService
             'message' => $message,
             // 'message' => $current_chat_user_type == 'group' ? $message : googleAiTransHelper(decrypt($chatmss->message), $user->chatSettings->chat_language, $altuser->chatSettings->chat_language),
             'tag_user' => convertBackToenHelper($chatmss->tag_user),
-            'tag_mess' => encryptHelper($chatmss->tag_mess),
+            'tag_mess_id' => encryptHelper($chatmss->tag_mess),
+            'tag_mess_user' => $chatmss->tag_mess ? encryptHelper($chatmss->parent->user_id) : null,
+            'tag_mess_is_my_chat' => $chatmss->tag_mess ? ($chatmss->parent->user_id == auth()->id() ? 'yes' : 'no') : null,
+            'tag_mess' => $chatmss->tag_mess ? googleAiTransHelper(decrypt($chatmss->parent->message), $chatmss->parent->source_language, $user->chatSettings->chat_language) : null,
             'deleted_at' => $chatmss->deleted_at,
             'created_at' => $chatmss->created_at,
             'updated_at' => $chatmss->updated_at,
@@ -156,7 +159,10 @@ class ChatService
                 "file_type" => $chatmss->file_type,
                 "is_read" => $chatmss->is_read,
                 'tag_user' => convertBackToenHelper($chatmss->tag_user),
-                'tag_mess' => encryptHelper($chatmss->tag_mess),
+                'tag_mess_id' => encryptHelper($chatmss->tag_mess),
+                'tag_mess_user' => $chatmss->tag_mess ? encryptHelper($chatmss->parent->user_id) : null,
+                'tag_mess_is_my_chat' => $chatmss->tag_mess ? ($chatmss->parent->user_id == auth()->id() ? 'yes' : 'no') : null,
+                'tag_mess' => $chatmss->tag_mess ? googleAiTransHelper(decrypt($chatmss->parent->message), $chatmss->parent->source_language, $user->chatSettings->chat_language) : null,
             ]
         ];
 
