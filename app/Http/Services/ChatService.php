@@ -132,15 +132,13 @@ class ChatService
             'state' => $mss_type,
             'user_type' => $current_chat_user_type,
             'sender' => [
-                'id' => $chatmss->user_id,
-                'id_en' => encryptHelper($chatmss->user_id),
+                'id' => encryptHelper($chatmss->user_id),
                 'name' => $chatmss->user->name,
                 'phone' => $chatmss->user->phone,
                 'email' => $chatmss->user->email,
             ],
             'receiver' => [
-                'id' => $chatmss->user_to,
-                'id_en' => encryptHelper($chatmss->user_to),
+                'id' => encryptHelper($chatmss->user_to),
                 'name' => $current_chat_user_type == 'group' ? $chatmss->companyGroup->name : $chatmss->userTo->name,
                 'phone' => $current_chat_user_type == 'group' ? '' : $chatmss->userTo->phone,
                 'email' => $current_chat_user_type == 'group' ? '' : $chatmss->userTo->email,
