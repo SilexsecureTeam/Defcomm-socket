@@ -23,13 +23,13 @@
             authEndpoint: "http://127.0.0.1:3302/api/broadcasting/auth",
             auth: {
                 headers: {
-                    Authorization: "Bearer 49|mLfSPdmIn6bHtIBaN2keA0fKdRuXIxraD7FP6KODc6694a47"
+                    Authorization: "Bearer 75|Hyb9uknTN8KOmb5Kb28CMGVwIIiqZsBGB3SVa4T79bd0c027"
                 }
             }
         });
 
         // Private chat
-        const privateChannel = pusher.subscribe("private-chat.ndjb9N4RZqQe");
+        const privateChannel = pusher.subscribe("private-chat.1MZGX0Yfn2Q7XCN03dlLdV");
         privateChannel.bind("private.message.sent", function (data) {
             console.log("Private:", data.message);
             document.getElementById('log').textContent +=
@@ -52,7 +52,7 @@
         });
 
         // walkie chat
-        const walkieChannel = pusher.subscribe(`private-walkie.Xmyz9876x41W`);
+        const walkieChannel = pusher.subscribe(`private-walkie.HVxb0PskNzlUITpo2kse2`);
         walkieChannel.bind("walkie.message.sent", function (data) {
             console.log(`walkie:`, data.message);
             document.getElementById('log').textContent += `walkie: ${JSON.stringify(data)}\n`;

@@ -25,4 +25,9 @@ class WailkieTalkieSubscriber extends Model
     {
         return $this->hasMany(WailkieTalkieRecorder::class, 'subscriber_id');
     }
+
+    public function subscriberLog()
+    {
+        return $this->hasMany(WailkieTalkieSubscriberLog::class, 'subscriber_id');
+    }
 }

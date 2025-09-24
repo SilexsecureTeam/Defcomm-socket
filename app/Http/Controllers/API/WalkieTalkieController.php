@@ -12,6 +12,7 @@ use App\Models\WailkieTalkieRecorder;
 use App\Models\WailkieTalkieSubscriber;
 use App\Events\PrivateWalkieMessageSent;
 use App\Http\Services\FileUploadService;
+use App\Models\WailkieTalkieSubscriberLog;
 use App\Http\Services\FileEncryptorService;
 use App\Mail\WailkieTalkieChannelInvitation;
 
@@ -47,7 +48,7 @@ class WalkieTalkieController extends Controller
             $query->where('name', $request->name)
                 ->orWhere('frequency', $request->frequency);
         })->where('user_id', auth()->user()->id)->first();
-        if(is_null($data)){
+        if (is_null($data)) {
             $data = WailkieTalkieChannel::create([
                 'user_id' => auth()->user()->id,
                 'name' => $request->name,
@@ -95,16 +96,16 @@ class WalkieTalkieController extends Controller
     {
         $data = WailkieTalkieChannel::find(decryptHelper($request->id));
 
-        if($request->name){
+        if ($request->name) {
             $data->update(['name' => $request->name]);
         }
-        if($request->frequency){
+        if ($request->frequency) {
             $data->update(['frequency' => $request->frequency]);
         }
-        if($request->description){
+        if ($request->description) {
             $data->update(['description' => $request->description]);
         }
-    
+
         return response()->json(
             [
                 'status' => '200',
@@ -123,7 +124,7 @@ class WalkieTalkieController extends Controller
     public function channedelete($id)
     {
         $data = WailkieTalkieChannel::find(decryptHelper($id))->delete();
-    
+
         return response()->json(
             [
                 'status' => '200',
@@ -160,7 +161,8 @@ class WalkieTalkieController extends Controller
         );
     }
 
-    public function channelinvite(Request $request){
+    public function channelinvite(Request $request)
+    {
         $channel = WailkieTalkieChannel::find(decryptHelper($request->channel_id));
         $json = str_replace("'", '"', $request->users);
         $array = json_decode($json, true);
@@ -188,18 +190,21 @@ class WalkieTalkieController extends Controller
         );
     }
 
-    public function channellistinvited($status) 
+    public function channellistinvited($status)
     {
-        $chan = WailkieTalkieSubscriber::where('user_id', auth()->user()->id)->where('user_type','user')->where('status', $status)->get();
+        $chan = WailkieTalkieSubscriber::where('user_id', auth()->user()->id)->where('status', $status)->get();
 
         $data = [];
-        foreach($chan as $ch){
+        foreach ($chan as $ch) {
             $data[] = [
                 'sub_id' => encryptHelper($ch->id),
                 'channel_id' => encryptHelper($ch->channel->id),
                 'name' => $ch->channel->name,
                 'frequency' => $ch->channel->frequency,
                 'description' => $ch->channel->description,
+                'userType' => $ch->user_type,
+                'user_id' => encryptHelper($ch->user_id),
+                'user_name' => $ch->user->name,
                 'status' => $ch->status
             ];
         }
@@ -232,18 +237,18 @@ class WalkieTalkieController extends Controller
         $user = User::find(auth()->user()->id);
         $chan = WailkieTalkieSubscriber::where('user_id', auth()->user()->id)->where('channel_id', decryptHelper($request->channel))->first();
 
-        if($request->hasFile('record')) {
+        if ($request->hasFile('record')) {
             $file = $request->file('record');
             $file_size = $fileSize = $file->getSize();
             $file_ext = $file->getClientOriginalExtension();
             $file_time = time();
             $file_name = $file_time . $file->getClientOriginalName() . '.enc';
             $fileName = $file_time . $file->getClientOriginalName();
-            $originalPath = 'WailkieTalkie/uploads/'.$fileName;
+            $originalPath = 'WailkieTalkie/uploads/' . $fileName;
             $file->move(public_path('WailkieTalkie/uploads'), $fileName);
-            $encryptHelperedPath = 'WailkieTalkie/encryptWailkieTalkie/'.$file_name;
+            $encryptHelperedPath = 'WailkieTalkie/encryptWailkieTalkie/' . $file_name;
             // $file->move(public_path('WailkieTalkie/encryptWailkieTalkie'), $file_name);
-            $decryptedHelperedPath = public_path('WailkieTalkie/decrypted/decrypted_'.  $fileName);
+            $decryptedHelperedPath = public_path('WailkieTalkie/decrypted/decrypted_' .  $fileName);
             File::put($decryptedHelperedPath, "");
 
             $encryptor = new FileEncryptorService();
@@ -271,7 +276,7 @@ class WalkieTalkieController extends Controller
                 'record' => encrypt("WailkieTalkie/encryptWailkieTalkie/" . $file_name),
                 'record_text' => encrypt(googleAiTransSTENHelper(
                     public_path('WailkieTalkie/encryptWailkieTalkie/' . $file_name),
-                    'WailkieTalkie/decrypted/decrypted_'.  $fileName,
+                    'WailkieTalkie/decrypted/decrypted_' .  $fileName,
                     $user->chatSettings->chat_language
                 )),
                 'path' => encrypt('WailkieTalkie/decrypted/decrypted_' .  $fileName),
@@ -350,7 +355,7 @@ class WalkieTalkieController extends Controller
         $record = WailkieTalkieRecorder::where('channel_id', decryptHelper($id))->get();
 
         $data = [];
-        foreach($record as $rec){
+        foreach ($record as $rec) {
             $data[] = [
                 'recording_id' => encryptHelper($rec->id),
                 'channel_id' => encryptHelper($rec->channel_id),
@@ -391,6 +396,93 @@ class WalkieTalkieController extends Controller
                 'status' => '200',
                 'message' => 'Recording deleted',
                 'data' => null
+            ],
+            201
+        );
+    }
+
+    public function subscriberJoin(Request $request)
+    {
+        $chan = WailkieTalkieSubscriber::where('user_id', auth()->user()->id)->where('channel_id', decryptHelper($request->channel_id))->first();
+
+        $logPrev = WailkieTalkieSubscriberLog::where('user_id', auth()->user()->id)->whereNull('leave_time')->get();
+        foreach($logPrev as $lg){
+            $lg->update(['leave_time' => $lg->created_at]);
+        }
+
+        $log = WailkieTalkieSubscriberLog::create([
+            'user_id' => auth()->user()->id,
+            'subscriber_id' => $chan->id,
+            'channel_id' => decryptHelper($request->channel_id),
+        ]);
+
+        broadcast(new PrivateWalkieMessageSent(encryptHelper(auth()->user()->id), $request->channel_id, [
+            'state' => "joinChannel",
+            'log_id' => encryptHelper($log->id),
+            'channel' => encryptHelper($request->channel_id),
+            'user_id' => encryptHelper(auth()->user()->id),
+            'user_name' => auth()->user()->name,
+        ]))->toOthers();
+
+        return response()->json(
+            [
+                'status' => '200',
+                'message' => 'Joined',
+                'data' => null
+            ],
+            201
+        );
+    }
+    
+    public function subscriberLeave(Request $request)
+    {
+        $chan = WailkieTalkieSubscriber::where('user_id', auth()->user()->id)->where('channel_id', decryptHelper($request->channel_id))->first();
+
+        $logPrev = WailkieTalkieSubscriberLog::where('user_id', auth()->user()->id)->whereNull('leave_time');
+        $prevLog = $logPrev->where('channel_id', decryptHelper($request->channel_id))->first();
+        foreach($logPrev->get() as $lg){
+            $lg->update(['leave_time' => $lg->created_at]);
+        }
+
+        broadcast(new PrivateWalkieMessageSent(encryptHelper(auth()->user()->id), $request->channel_id, [
+            'state' => "leaveChannel",
+            'log_id' => $prevLog ? encryptHelper($prevLog->id) : null,
+            'channel' => encryptHelper($request->channel_id),
+            'user_id' => encryptHelper(auth()->user()->id),
+            'user_name' => auth()->user()->name,
+        ]))->toOthers();
+
+        return response()->json(
+            [
+                'status' => '200',
+                'message' => 'Leave',
+                'data' => null
+            ],
+            201
+        );
+    }
+    
+    public function subscriberActive($id)
+    {
+        $logUser = WailkieTalkieSubscriberLog::whereNull('leave_time')->where('channel_id', decryptHelper($id))->get();
+
+        $data = [];
+        if($logUser->count() > 0){
+            foreach($logUser as $lusr){
+                $data[] = [
+                    "channel" => encryptHelper($lusr->channel_id),
+                    "subscriber_id" => encryptHelper($lusr->subscriber_id),
+                    "user_id" => encryptHelper($lusr->user_id),
+                    "user_name" => $lusr->user->name
+                ];
+            }
+        }
+
+        return response()->json(
+            [
+                'status' => '200',
+                'message' => 'Leave',
+                'data' => $data
             ],
             201
         );

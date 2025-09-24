@@ -159,4 +159,9 @@ class User extends Authenticatable
     {
         return $this->belongsTo(UserPlan::class, 'plan_id')->withDefault();
     }
+
+    public function subscriberLog()
+    {
+        return $this->hasMany(WailkieTalkieSubscriberLog::class, 'user_id');
+    }
 }

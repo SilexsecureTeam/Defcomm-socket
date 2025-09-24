@@ -147,6 +147,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/walkietalkie/channelisbroadcasting', [WalkieTalkieController::class, 'channelisbroadcasting']);
     Route::get('/walkietalkie/channelbroadcastlist/{id}', [WalkieTalkieController::class, 'channelbroadcastlist']);
     Route::get('/walkietalkie/channelbroadcastdel/{id}', [WalkieTalkieController::class, 'channelbroadcastdel']);
+    Route::post('/walkietalkie/subscriberJoin', [WalkieTalkieController::class, 'subscriberJoin']);
+    Route::post('/walkietalkie/subscriberLeave', [WalkieTalkieController::class, 'subscriberLeave']);
+    Route::get('/walkietalkie/subscriberActive/{id}', [WalkieTalkieController::class, 'subscriberActive']);
 
     Route::post('/trans/speech-to-text', [GoogleAiTransController::class, 'speechToText']);
     Route::post('/trans/text-to-speech', [GoogleAiTransController::class, 'textToSpeech']);
