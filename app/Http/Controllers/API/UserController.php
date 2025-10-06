@@ -744,7 +744,7 @@ class UserController extends Controller
                 'chat_user_to_id' => $dt->userTo->id,
                 'chat_user_to_name' => $dt->userTo->name,
                 'is_file' => $dt->is_file,
-                'last_message' => $dt->last_message,
+                'last_message' => decrypt($dt->last_message),
                 'chat_user_type' => $dt->user_group,
             ];
         }
