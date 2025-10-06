@@ -13,6 +13,7 @@ class ContactSubmissionMail extends Mailable
     use Queueable, SerializesModels;
 
     public $data;
+    public $admail;
     /**
      * Create a new message instance.
      *
@@ -21,6 +22,7 @@ class ContactSubmissionMail extends Mailable
     public function __construct($data)
     {
         $this->data = $data;
+        $this->admail = SystemMail::where('label', 'contact')->first();
     }
 
     /**

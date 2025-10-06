@@ -61,7 +61,7 @@ Route::prefix('web')->group(function () {
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/qr/{code}/approve', [QrLoginController::class, 'approve']); // mobile approves
-    
+
     Route::post('app/resetPassword', [AuthController::class, 'appresetPassword']);
     Route::post('app/configuration', [AuthController::class, 'appConfiguration']);
     Route::post('app/developermode', [AuthController::class, 'appDevelopermode']);
@@ -100,6 +100,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/user/chat/callLog', [UserController::class, 'chatCallLog']);
     Route::get('/user/chat/history', [UserController::class, 'chatHistory']);
+    Route::get('/user/chat/lastMessage', [UserController::class, 'lastMessage']);
     Route::get('/user/chat/messages/{chat_user_id}/{user_group}', [UserController::class, 'chatMessages']);
     Route::post('/user/chat/messages/send', [UserController::class, 'sendMessage']);
     Route::post('/user/chat/messages/call', [UserController::class, 'sendMessageCall']);
