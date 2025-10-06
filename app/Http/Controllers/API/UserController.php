@@ -732,6 +732,33 @@ class UserController extends Controller
         );
     }
 
+    public function lastMessage()
+    {
+        $record = ChatLastLog::where('user_id', auth()->user()->id)->orWhere('user_to', auth()->user()->id)->orderBy('created_at', 'ASC')->get();
+
+        $data = [];
+        foreach ($record as $key => $dt) {
+            $data[$key] = [
+                'id' => encryptHelper($dt->id),
+                'chat_id' => $dt->group_to,
+                'chat_user_to_id' => $dt->userTo->id,
+                'chat_user_to_name' => $dt->userTo->name,
+                'is_file' => $dt->is_file,
+                'last_message' => $dt->last_message,
+                'chat_user_type' => $dt->user_group,
+            ];
+        }
+
+        return response()->json(
+            [
+                'status' => '200',
+                'message' => 'Record listed',
+                'data' => $data
+            ],
+            201
+        );
+    }
+
     public function chatMessages($chat_user_id, $chat_user_type)
     {
         $this->current_chat_user = decryptHelper($chat_user_id);
@@ -788,7 +815,7 @@ class UserController extends Controller
                 'tag_user' => convertBackToenHelper($dt->tag_user),
                 'tag_mess_id' => encryptHelper($dt->tag_mess),
                 'tag_mess_user' => $dt->tag_mess ? encryptHelper($dt->parent->user_id) : null,
-                'tag_mess_is_my_chat' => $dt->tag_mess ? ($dt->parent->user_id == auth()->id() ? 'yes' : 'no'): null,
+                'tag_mess_is_my_chat' => $dt->tag_mess ? ($dt->parent->user_id == auth()->id() ? 'yes' : 'no') : null,
                 'tag_mess' => $dt->tag_mess ? googleAiTransHelper(decrypt($dt->parent->message), $dt->parent->source_language, $user->chatSettings->chat_language) : null,
                 'deleted_at' => $dt->deleted_at,
                 'created_at' => $dt->created_at,

@@ -27,7 +27,7 @@ class WebController extends Controller
             "req" => uniqid()
         ]);
 
-        Mail::to("business@defcomm.ng")->send(new ContactSubmissionAdmMail($submission));
+        Mail::to("defcommng@gmail.com")->send(new ContactSubmissionAdmMail($submission));
         Mail::to($request->email)->send(new ContactSubmissionMail($submission));
 
         return response()->json([
@@ -52,7 +52,7 @@ class WebController extends Controller
             "req" => uniqid()
         ]);
 
-        Mail::to("business@defcomm.ng")->send(new ContactBookingAdmMail($submission));
+        Mail::to("defcommng@gmail.com")->send(new ContactBookingAdmMail($submission));
         Mail::to($request->email)->send(new ContactBookingMail($submission));
 
         return response()->json([
