@@ -164,4 +164,14 @@ class User extends Authenticatable
     {
         return $this->hasMany(WailkieTalkieSubscriberLog::class, 'user_id');
     }
+
+    public function form()
+    {
+        return $this->hasMany(EventForm::class, 'user_id');
+    }
+
+    public function event()
+    {
+        return $this->hasMany(EventRegistration::class, 'user_id');
+    }
 }

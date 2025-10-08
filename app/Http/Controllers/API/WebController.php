@@ -2,13 +2,20 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Models\User;
+use App\Models\EventForm;
+use App\Models\MeetingLog;
 use Illuminate\Http\Request;
 use App\Models\ContactBooking;
 use App\Mail\ContactBookingMail;
+use App\Models\CompanyGroupUser;
 use App\Models\ContactSubmission;
+use App\Models\EventRegistration;
 use App\Mail\ContactBookingAdmMail;
 use App\Mail\ContactSubmissionMail;
+use App\Mail\EventRegistrationMail;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\ContactSubmissionAdmMail;
 
@@ -85,5 +92,54 @@ class WebController extends Controller
             'success' => true,
             'message' => 'Submission deleted successfully.'
         ]);
+    }
+
+    public function eventform(Request $request)
+    {
+        $form = EventForm::findOrFail(decrypt($request->form_id));
+
+        $user = User::updateOrCreate([
+            'email' => $request->email,
+        ],[
+            'name' => $request->name,
+            'phone' => $request->phone,
+            'role' => 'user',
+            'company_id' => $form->user->company_id,
+            'password' => Hash::make(uniqid()),
+            'access_token' => uniqid(),
+        ]);
+
+        CompanyGroupUser::firstOrCreate([
+            'user_id' => $user->id,
+            'group_id' => $form->group_id
+        ], [
+            'company_id' => $form->user->company_id
+        ]);
+
+        // Save JSON into DB
+        EventRegistration::updateOrCreate([
+            'user_id' => $user->id,
+            'form_id' => $form->id
+        ],[
+            'email' => $request->email,
+            'phone' => $request->phone,
+            'name' => $request->name,
+            'data' => json_encode($request->data),
+        ]);
+
+        MeetingLog::updateOrCreate([
+            'meetings_id' => $form->meeting_id,
+            'user_id' => $user->id,
+        ], [
+            'join_status' => 'invite'
+        ]);
+        Mail::to($request->email)->send(new EventRegistrationMail($form, $user));
+
+        // Handle event form submission logic here
+        return response()->json([
+            'success' => true,
+            'message' => 'Event form submitted successfully.'
+        ], 201);
+
     }
 }

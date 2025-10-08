@@ -53,6 +53,21 @@
             </div>
             <!--end:Menu item-->
             <!--begin:Menu item-->
+            
+            <!--end:Menu item-->
+            <!--begin:Menu item-->
+            <div data-kt-menu-trigger="{default: 'click', lg: 'hover'}" data-kt-menu-placement="right-start" class="menu-item py-2">
+                <!--begin:Menu link-->
+                <a href="{{ url('/admin/form')}}" class="menu-link menu-center">
+                    <span class="menu-icon me-0">
+                        <i class="ki-outline ki-notification-status fs-2x"></i>
+                    </span>
+                    <span class="menu-title">Form</span>
+                </a>
+                <!--end:Menu link-->
+            </div>
+            <!--end:Menu item-->
+            <!--begin:Menu item-->
             <div data-kt-menu-trigger="{default: 'click', lg: 'hover'}" data-kt-menu-placement="right-start" class="menu-item py-2">
                 <!--begin:Menu link-->
                 <a href="{{ url('/admin/file')}}" class="menu-link menu-center">

@@ -54,6 +54,11 @@ class SystemMailSeeder extends Seeder
                 'label' => 'booking',
                 'message' => 'Thanks for sendinging your details. We will get in touch with you soon.'
             ],
+            [
+                'title' => 'Event Registration Defcomm',
+                'label' => 'event',
+                'message' => 'Your registration was successful. We will get in touch with you soon.'
+            ],
         ];
 
         foreach ($records as $dt) {

@@ -115,6 +115,15 @@ Route::middleware(['auth', 'user-role:admin'])->group(function () {
     Route::get('/admin/group/member/{id}/add', [AdminController::class, 'memberAdd'])->name('admin.member.add');
     Route::get('/admin/group/member/{id}/remove', [AdminController::class, 'memberRemove'])->name('admin.member.remove');
     Route::post('/admin/group/member/add', [AdminController::class, 'memberGroupAdd'])->name('admin.member.group.add');
+
+    Route::get('/admin/meeting', [AdminController::class, 'meeting'])->name('admin.meeting');
+    Route::post('/admin/meeting/create', [AdminController::class, 'meetingCreate'])->name('admin.meeting.create');
+
+    Route::get('/admin/form', [AdminController::class, 'form'])->name('admin.form');
+    Route::get('/admin/form/application/{id}', [AdminController::class, 'formApplication'])->name('admin.form.application');
+    Route::post('/admin/form/create', [AdminController::class, 'formCreate'])->name('admin.form.create');
+    Route::post('/admin/form/update', [AdminController::class, 'formUpdate'])->name('admin.form.update');
+
     Route::get('/admin/file', [AdminController::class, 'file'])->name('admin.file');
     Route::get('/admin/file/user', [AdminController::class, 'fileUser'])->name('admin.file.user');
     Route::get('/admin/file/request', [AdminController::class, 'fileRequest'])->name('admin.file.request');

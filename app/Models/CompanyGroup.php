@@ -35,4 +35,9 @@ class CompanyGroup extends Model
     {
         return $this->hasMany(ChatLastLog::class, 'group_to');
     }
+
+    public function event()
+    {
+        return $this->hasMany(EventForm::class, 'group_id');
+    }
 }

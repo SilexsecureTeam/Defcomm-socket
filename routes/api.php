@@ -52,11 +52,12 @@ Route::post('/qr/{code}/exchange', [QrLoginController::class, 'exchange']); // d
 Route::prefix('web')->group(function () {
     Route::post('/contact', [WebController::class, 'contact']); // submit form
     Route::post('/booking', [WebController::class, 'booking']); // submit form
+    Route::post('/eventform', [WebController::class, 'eventform']); // submit form
 
 
-    Route::get('/', [WebController::class, 'index']); // list all
-    Route::get('/{id}', [WebController::class, 'show']); // single
-    Route::delete('/{id}', [WebController::class, 'destroy']); // delete
+    // Route::get('/', [WebController::class, 'index']); // list all
+    // Route::get('/{id}', [WebController::class, 'show']); // single
+    // Route::delete('/{id}', [WebController::class, 'destroy']); // delete
 });
 
 Route::middleware('auth:sanctum')->group(function () {

@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Files;
 use App\Mail\FileShare;
+use App\Models\Meeting;
 use App\Mail\Invitation;
+use App\Models\EventForm;
 use App\Models\CompanyUser;
 use App\Models\FilesShares;
 use App\Models\CompanyGroup;
@@ -13,12 +15,13 @@ use App\Models\FileShareLog;
 use App\Models\Notification;
 use Illuminate\Http\Request;
 use App\Models\CompanyGroupUser;
+use App\Models\EventRegistration;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Services\FileEncryptorService;
-use Illuminate\Support\Facades\File;
 
 class AdminController extends Controller
 {
@@ -154,6 +157,66 @@ class AdminController extends Controller
         Mail::to($request->email)->send(new Invitation($request->name, $request->email, $encrypt, $otp));
 
         return redirect()->back()->with('success', "User successfully added");
+    }
+
+    public function meeting()
+    {
+        $meet = Meeting::where('user_id', auth()->user()->id)->get();
+        return view('admin.meeting', [
+            'option' => "Meetings",
+            'meet' => $meet,
+        ]);
+    }
+
+    public function form()
+    {
+        $data = EventForm::where('user_id', auth()->user()->id)->get();
+        $groups = CompanyGroup::where('company_id', auth()->user()->CompanyUser->id)->get();
+        $meet = Meeting::where('user_id', auth()->user()->id)->get();
+        return view('admin.form', [
+            'option' => "Event Form",
+            'data' => $data,
+            'groups' => $groups,
+            'meet' => $meet,
+        ]);
+    }
+
+    public function formApplication($id)
+    {
+        $data = EventRegistration::where('form_id', decrypt($id))->get();
+        return view('admin.formApplication', [
+            'option' => "Event Application",
+            'data' => $data
+        ]);
+    }
+
+    public function formCreate(Request $request)
+    {
+        EventForm::create([
+            'name' => $request->name,
+            'message' => $request->message,
+            'group_id' => decrypt($request->group_id),
+            'meeting_id' => decrypt($request->meeting_id),
+            'signup' => $request->signup,
+            'status' => $request->status,
+            'user_id' => auth()->user()->id,
+        ]);
+
+        return redirect()->back()->with('success', "Event form successfully created");
+    }
+
+    public function formUpdate(Request $request)
+    {
+        EventForm::find(decrypt($request->id))->update([
+            'name' => $request->name,
+            'message' => $request->message,
+            'group_id' => decrypt($request->group_id),
+            'meeting_id' => decrypt($request->meeting_id),
+            'signup' => $request->signup,
+            'status' => $request->status,
+        ]);
+
+        return redirect()->back()->with('success', "Event form successfully created");
     }
 
     public function group()
