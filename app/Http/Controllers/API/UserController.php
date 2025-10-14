@@ -783,7 +783,7 @@ class UserController extends Controller
                 'last_message' => decrypt($dt->last_message),
                 'chat_user_type' => $dt->user_group,
             ];
-        })->values(); // Reset array indexes
+        })->filter()->values(); // Reset array indexes
 
         return response()->json(
             [
