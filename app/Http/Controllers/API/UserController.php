@@ -28,6 +28,7 @@ use App\Mail\MeetingInvitation;
 use App\Models\CompanyGroupUser;
 use App\Events\PrivateMessageSent;
 use App\Http\Services\ChatService;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Mail;
@@ -734,20 +735,50 @@ class UserController extends Controller
 
     public function lastMessage()
     {
-        $record = ChatLastLog::where('user_id', auth()->user()->id)->orWhere('user_to', auth()->user()->id)->orderBy('created_at', 'ASC')->get();
+        $authId = auth()->id();
 
-        $data = [];
-        foreach ($record as $key => $dt) {
-            $data[$key] = [
+        $record = ChatLastLog::select(DB::raw('
+                CASE 
+                    WHEN user_id = ' . $authId . ' THEN user_to 
+                    ELSE user_id 
+                END as other_user_id
+            '))
+            ->addSelect('chat_last_logs.*')
+            ->where(function ($query) use ($authId) {
+                $query->where('user_id', $authId)
+                    ->orWhere('user_to', $authId);
+            })
+            ->orderBy('created_at', 'DESC')
+            ->get()
+            ->unique('other_user_id')
+            ->values(); // reset array keys
+
+        $data = $record->filter(function ($dt) {
+            $authId = auth()->id();
+            // Skip records where both user_id and user_to are the same as auth user
+            return !($authId === $dt->user_id && $authId === $dt->user_to);
+        })->map(function ($dt) {
+            $authId = auth()->id();
+
+            // Determine who the "other user" is
+            if ($authId === $dt->user_to) {
+                $userTo = $dt->user->id ?? null;
+                $userToName = $dt->user->name ?? null;
+            } else {
+                $userTo = $dt->userTo->id ?? null;
+                $userToName = $dt->userTo->name ?? null;
+            }
+
+            return [
                 'id' => encryptHelper($dt->id),
-                'chat_id' => $dt->group_to,
-                'chat_user_to_id' => $dt->userTo->id,
-                'chat_user_to_name' => $dt->userTo->name,
+                'chat_id' => encryptHelper($dt->group_to),
+                'chat_user_to_id' => encryptHelper($userTo),
+                'chat_user_to_name' => $userToName,
                 'is_file' => $dt->is_file,
                 'last_message' => decrypt($dt->last_message),
                 'chat_user_type' => $dt->user_group,
             ];
-        }
+        })->values(); // Reset array indexes
 
         return response()->json(
             [
