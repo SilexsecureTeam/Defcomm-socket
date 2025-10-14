@@ -769,6 +769,11 @@ class UserController extends Controller
                 $userToName = $dt->userTo->name ?? null;
             }
 
+            // Skip this record if no valid other user found
+            if (is_null($userTo)) {
+                return null;
+            }
+
             return [
                 'id' => encryptHelper($dt->id),
                 'chat_id' => encryptHelper($dt->group_to),
