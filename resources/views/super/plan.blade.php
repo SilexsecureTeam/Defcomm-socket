@@ -355,6 +355,7 @@
                         <div class="fv-row mb-7">
                             <!--begin::Label-->
                             <label class="required fw-semibold fs-6 mb-2">Plan</label>
+                            <h2>Plan Id: {{encryptHelper($dt->id)}}</h2>
                             <!--end::Label-->
                             <!--begin::Input-->
                             <input type="text" name="name" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="Label" value="{{$dt->name}}" required />

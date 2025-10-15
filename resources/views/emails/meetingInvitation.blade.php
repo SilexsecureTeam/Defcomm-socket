@@ -27,7 +27,7 @@
                 Subject: {{$meet->subject}}<br />
                 @endif
                 @if($meet->meeting_link)
-                Meeting Link: {{$meet->meeting_link}}/{{encrypt($meet->id)}}<br />
+                Meeting Link: {{$meet->meeting_link}}/{{encryptHelper($meet->id)}}<br />
                 @endif
                 @if($meet->meeting_id)
                 Meeting ID: {{$meet->meeting_id}}<br />
@@ -39,11 +39,11 @@
 
             <p>Kindly click the button to proceed</p>
             <div style="text-align: center;">
-                <a href="{{$meet->meeting_link}}/{{encrypt($meet->id)}}" style="background-color: #36460A; padding: 10px; border-radius:5px; color: #ffffff;">Join</a>
+                <a href="{{$meet->meeting_link}}/{{encryptHelper($meet->id)}}" style="background-color: #36460A; padding: 10px; border-radius:5px; color: #ffffff;">Join</a>
             </div>
             <div>
                 <p>Please use this link if the join button is not working</p>
-                <a href="{{$meet->meeting_link}}/{{encrypt($meet->id)}}">{{$meet->meeting_link}}/{{encrypt($meet->id)}}</a>
+                <a href="{{$meet->meeting_link}}/{{encryptHelper($meet->id)}}">{{$meet->meeting_link}}/{{encryptHelper($meet->id)}}</a>
             </div>
         </div>
 

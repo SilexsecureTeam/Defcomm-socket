@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Models\User;
+use App\Models\Meeting;
 use App\Models\EventForm;
 use App\Models\MeetingLog;
 use Illuminate\Http\Request;
@@ -103,6 +104,7 @@ class WebController extends Controller
         ], [
             'name' => $request->name,
             'phone' => $request->phone,
+            'plan_id' => $request->plan_id ? decryptHelper($request->plan_id) : null,
             'role' => 'user',
             'company_id' => $form->user->company_id,
             'password' => Hash::make(uniqid()),
@@ -128,13 +130,15 @@ class WebController extends Controller
             'data' => json_encode($request->data),
         ]);
 
+        $meet = Meeting::find($form->meeting_id);
+
         MeetingLog::updateOrCreate([
             'meetings_id' => $form->meeting_id,
             'user_id' => $user->id,
         ], [
             'join_status' => 'invite'
         ]);
-        Mail::to($request->email)->send(new EventRegistrationMail($form, $user));
+        Mail::to($request->email)->send(new EventRegistrationMail($form, $user, $meet));
 
         // Handle event form submission logic here
         return response()->json([

@@ -14,16 +14,18 @@ class EventRegistrationMail extends Mailable
 
     public $form;
     public $user;
+    public $meet;
     public $admail;
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($form, $user)
+    public function __construct($form, $user, $meet)
     {
         $this->form = $form;
         $this->user = $user;
+        $this->meet = $meet;
         $this->admail = SystemMail::where('label', 'event')->first();
     }
 

@@ -17,6 +17,40 @@
             <p>{!! $form->message !!}</p>
         </div>
 
+        <div style="margin-bottom:30px;">
+            <p>You are invited to join a meeting. The meeting detial below</p>
+
+            <p>
+                @if($meet->title)
+                Title: {{$meet->title}}<br />
+                @endif
+                @if($meet->agenda)
+                Agenda: {{$meet->agenda}}<br />
+                @endif
+                @if($meet->subject)
+                Subject: {{$meet->subject}}<br />
+                @endif
+                @if($meet->meeting_link)
+                Meeting Link: {{$meet->meeting_link}}/{{encryptHelper($meet->id)}}<br />
+                @endif
+                @if($meet->meeting_id)
+                Meeting ID: {{$meet->meeting_id}}<br />
+                @endif
+                @if($meet->startdatetime)
+                Meeting Date: {{$meet->startdatetime}}<br />
+                @endif
+            </p>
+
+            <p>Kindly click the button to proceed</p>
+            <div style="text-align: center;">
+                <a href="{{$meet->meeting_link}}/{{encryptHelper($meet->id)}}" style="background-color: #36460A; padding: 10px; border-radius:5px; color: #ffffff;">Join</a>
+            </div>
+            <div>
+                <p>Please use this link if the join button is not working</p>
+                <a href="{{$meet->meeting_link}}/{{encryptHelper($meet->id)}}">{{$meet->meeting_link}}/{{encryptHelper($meet->id)}}</a>
+            </div>
+        </div>
+
         {!! $admail->message !!}
 
         <div style="line-height: 6px;">
