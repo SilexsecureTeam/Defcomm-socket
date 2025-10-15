@@ -100,13 +100,14 @@ class WebController extends Controller
 
         $user = User::updateOrCreate([
             'email' => $request->email,
-        ],[
+        ], [
             'name' => $request->name,
             'phone' => $request->phone,
             'role' => 'user',
             'company_id' => $form->user->company_id,
             'password' => Hash::make(uniqid()),
             'access_token' => uniqid(),
+            'status' => 'active'
         ]);
 
         CompanyGroupUser::firstOrCreate([
@@ -120,7 +121,7 @@ class WebController extends Controller
         EventRegistration::updateOrCreate([
             'user_id' => $user->id,
             'form_id' => $form->id
-        ],[
+        ], [
             'email' => $request->email,
             'phone' => $request->phone,
             'name' => $request->name,
@@ -140,6 +141,5 @@ class WebController extends Controller
             'success' => true,
             'message' => 'Event form submitted successfully.'
         ], 201);
-
     }
 }
