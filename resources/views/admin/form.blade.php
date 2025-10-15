@@ -329,7 +329,7 @@
                             <label class="required fw-semibold fs-6 mb-2">Meeting</label>
                             <!--end::Label-->
                             <!--begin::Input-->
-                            <input type="text" name="meeting_id" value="{{encrypt($dt->meeting_id)}}" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="Enter meeting_id" />
+                            <input type="text" name="meeting_id" value="{{encryptHelper($dt->meeting_id)}}" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="Enter meeting_id" />
                             <!--end::Input-->
                         </div>
                         <!--end::Input group-->

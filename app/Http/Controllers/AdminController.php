@@ -136,7 +136,7 @@ class AdminController extends Controller
             return redirect()->back()->with('error', "You do not have an active plan. Please subscribe");
         }
 
-        if ($userCount >= $user->plan->no_user){
+        if ($userCount >= $user->plan->no_user) {
             return redirect()->back()->with('error', "You have reach you limit");
         }
 
@@ -196,7 +196,7 @@ class AdminController extends Controller
             'name' => $request->name,
             'message' => $request->message,
             'group_id' => decrypt($request->group_id),
-            'meeting_id' => decrypt($request->meeting_id),
+            'meeting_id' => $request->meeting_id ? decryptHelper($request->meeting_id) : null,
             'signup' => $request->signup,
             'status' => $request->status,
             'user_id' => auth()->user()->id,
@@ -384,7 +384,7 @@ class AdminController extends Controller
             storage_path('app/' . $originalPath),
             storage_path('app/' . $encryptedPath),
             [
-                'watermark_text' => 'Uploaded by '.auth()->user()->name,
+                'watermark_text' => 'Uploaded by ' . auth()->user()->name,
                 // 'watermark_image' => public_path('logo.png')
             ]
         );
