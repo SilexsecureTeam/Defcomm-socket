@@ -211,7 +211,7 @@ class AdminController extends Controller
             'name' => $request->name,
             'message' => $request->message,
             'group_id' => decrypt($request->group_id),
-            'meeting_id' => decrypt($request->meeting_id),
+            'meeting_id' => $request->meeting_id ? decryptHelper($request->meeting_id) : null,
             'signup' => $request->signup,
             'status' => $request->status,
         ]);
