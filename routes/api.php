@@ -118,7 +118,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/user/meetingInvitation', [UserController::class, 'meetingInvitation']);
     Route::post('/user/meetingInvitationGroup', [UserController::class, 'meetingInvitationGroup']);
     Route::get('/user/meetingInvitationJoin/{id}', [UserController::class, 'meetingInvitationJoin']);
-    Route::get('/user/meetingInvitationlist', [UserController::class, 'meetingInvitationlist']);
+    Route::get('/user/meetingInvitationlist/{status?}', [UserController::class, 'meetingInvitationlist']);
 
     Route::post('/user/folder/create', [UserController::class, 'folderCreate']);
     Route::post('/user/folderUpdate', [UserController::class, 'folderUpdate']);

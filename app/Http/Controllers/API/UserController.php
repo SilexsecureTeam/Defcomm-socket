@@ -975,9 +975,13 @@ class UserController extends Controller
         );
     }
 
-    public function meetingInvitationlist()
+    public function meetingInvitationlist($status)
     {
-        $datas = MeetingLog::where('user_id', auth()->user()->id)->where('user_type', 'participant')->get();
+        if($status){
+            $datas = MeetingLog::where('user_id', auth()->user()->id)->where('user_type', 'participant')->where('join_status', $status)->get();
+        }else{
+            $datas = MeetingLog::where('user_id', auth()->user()->id)->where('user_type', 'participant')->get();
+        }
 
         $data = [];
         foreach ($datas as $dt) {
