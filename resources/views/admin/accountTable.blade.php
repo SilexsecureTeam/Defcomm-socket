@@ -18,8 +18,18 @@
             <div class="d-flex justify-content-end" data-kt-user-table-toolbar="base">
                 <!--begin::Add user-->
                 @if($option == "account")
-                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#kt_modal_add_user">
-                    <i class="ki-outline ki-plus fs-2"></i>Add User</button>
+                <div class="d-flex justify-content-between">
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#kt_modal_add_user">
+                        <i class="ki-outline ki-plus fs-2"></i>Add User</button>
+
+                    <form action="{{ route('admin.account.block')}}" method="post" enctype="multipart/form-data">
+                        @csrf
+                        <input type="hidden" name="users" id="output">
+                        <button type="submit" class="btn btn-danger ml-3">
+                            Block Users</button>
+                    </form>
+                </div>
+
                 @endif
                 @if($option == "group")
                 <form action="{{ route('admin.member.group.add')}}" method="post" enctype="multipart/form-data">
@@ -135,6 +145,7 @@
                     <th class="min-w-125px">Name</th>
                     <th class="min-w-125px">Email</th>
                     <th class="min-w-125px">Phone</th>
+                    <th class="min-w-125px">Status</th>
                     <th class="min-w-125px">Last login</th>
                     <th class="text-end min-w-100px">Actions</th>
                 </tr>
@@ -167,6 +178,9 @@
                     <td>
                         <div class="badge badge-light fw-bold">{{$user->phone}}</div>
                     </td>
+                    <td>
+                        <div class="badge badge-light fw-bold">{{$user->status}}</div>
+                    </td>
                     <td>{{$user->created_at}}</td>
                     <td class="text-end">
                         <a href="#" class="btn btn-light btn-active-light-primary btn-flex btn-center btn-sm" data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end">Actions
@@ -191,7 +205,6 @@
                         </div>
                         <!--end::Menu-->
                     </td>
-                    <td></td>
                 </tr>
                 @endforeach
             </tbody>

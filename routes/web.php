@@ -109,6 +109,7 @@ Route::middleware(['auth', 'user-role:admin'])->group(function () {
     Route::get('/admin/account', [AdminController::class, 'account'])->name('admin.account');
     Route::get('/admin/account/{id}/{status}', [AdminController::class, 'accountStatus'])->name('admin.account.status');
     Route::post('/admin/account/create', [AdminController::class, 'accountCreate'])->name('admin.account.create');
+    Route::post('/admin/account/block', [AdminController::class, 'accountBlock'])->name('admin.account.block');
     Route::get('/admin/group', [AdminController::class, 'group'])->name('admin.group');
     Route::post('/admin/group/create', [AdminController::class, 'groupCreate'])->name('admin.group.create');
     Route::get('/admin/group/member/{id}', [AdminController::class, 'member'])->name('admin.member');

@@ -299,6 +299,22 @@ class AdminController extends Controller
         return redirect()->back()->with('error', "Please ensure to select a user");
     }
 
+    public function accountBlock(Request $request)
+    {
+        $user = json_decode($request->users, true);
+        if (!empty($user)) {
+            foreach ($user as $dt) {
+                User::find($dt)->update([
+                    'status' => 'block'
+                ]);
+            }
+
+            return redirect()->back()->with('success', "User account deactivated successfully");
+        }
+
+        return redirect()->back()->with('error', "Please ensure to select a user");
+    }
+
     public function file()
     {
         $file = Files::where('company_id', auth()->user()->CompanyUser->id)->where('user_type', 'admin')->orderBy('id', 'DESC')->get();
