@@ -975,13 +975,45 @@ class UserController extends Controller
         );
     }
 
-    public function meetingInvitationlist($status)
+    public function meetingInvitationlist($status = null)
     {
         if($status){
             $datas = MeetingLog::where('user_id', auth()->user()->id)->where('user_type', 'participant')->where('join_status', $status)->get();
         }else{
             $datas = MeetingLog::where('user_id', auth()->user()->id)->where('user_type', 'participant')->get();
         }
+
+        $data = [];
+        foreach ($datas as $dt) {
+            $data[] = [
+                'id' => encryptHelper($dt->meeting->id),
+                'meeting_id' => encryptHelper($dt->meeting->id),
+                'meeting_link' => $dt->meeting->meeting_link,
+                'meeting_id' => $dt->meeting->meeting_id,
+                'creator_id' => encryptHelper($dt->meeting->userCreate->id),
+                'creator_name' => $dt->meeting->userCreate->name,
+                'subject' => $dt->meeting->subject,
+                'title' => $dt->meeting->title,
+                'agenda' => $dt->meeting->agenda,
+                'startdatetime' => $dt->meeting->startdatetime,
+                'duration' => $dt->meeting->duration,
+                'number_join' => $dt->meeting->number_join,
+            ];
+        }
+
+        return response()->json(
+            [
+                'status' => '200',
+                'message' => 'Record listed',
+                'data' => $data
+            ],
+            201
+        );
+    }
+
+    public function meetingParticipantlist($id, $status)
+    {
+        $datas = MeetingLog::where('meetings_id', decryptHelper($id))->where('user_type', 'participant')->where('join_status', $status)->get();
 
         $data = [];
         foreach ($datas as $dt) {
