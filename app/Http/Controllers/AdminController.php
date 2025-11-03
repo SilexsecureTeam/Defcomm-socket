@@ -197,8 +197,8 @@ class AdminController extends Controller
             'message' => $request->message,
             'group_id' => $request->group_id ? decrypt($request->group_id) : null,
             'meeting_id' => $request->meeting_id ? decryptHelper($request->meeting_id) : null,
-            'signup' => $request->signup,
-            'status' => $request->status,
+            'signup' => $request->signup ?? "disabled",
+            'status' => $request->status ?? "active",
             'user_id' => auth()->user()->id,
         ]);
 
