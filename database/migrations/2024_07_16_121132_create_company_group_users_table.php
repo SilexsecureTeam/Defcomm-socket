@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('company_group_users', function (Blueprint $table) {
             $table->id();
             $table->integer('company_id');
-            $table->integer('group_id');
+            $table->integer('group_id')->nullable();
             $table->integer('user_id');
             $table->dateTime('join_date')->nullable();
             $table->enum('status',['pending','joined'])->default('pending');

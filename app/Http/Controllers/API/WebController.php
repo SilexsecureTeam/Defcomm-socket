@@ -131,13 +131,14 @@ class WebController extends Controller
         ]);
 
         $meet = Meeting::find($form->meeting_id);
-
-        MeetingLog::updateOrCreate([
-            'meetings_id' => $form->meeting_id,
-            'user_id' => $user->id,
-        ], [
-            'join_status' => 'invite'
-        ]);
+        if($form->meeting_id){
+            MeetingLog::updateOrCreate([
+                'meetings_id' => $form->meeting_id,
+                'user_id' => $user->id,
+            ], [
+                'join_status' => 'invite'
+            ]);
+        }
         Mail::to($request->email)->send(new EventRegistrationMail($form, $user, $meet));
 
         // Handle event form submission logic here

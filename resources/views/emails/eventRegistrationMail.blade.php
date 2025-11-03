@@ -16,7 +16,7 @@
         <div style="margin-bottom:30px;">
             <p>{!! $form->message !!}</p>
         </div>
-
+        @if($meet)
         <div style="margin-bottom:30px;">
             <p>You are invited to join a meeting. The meeting detial below</p>
 
@@ -50,7 +50,7 @@
                 <a href="{{$meet->meeting_link}}/{{encryptHelper($meet->id)}}">{{$meet->meeting_link}}/{{encryptHelper($meet->id)}}</a>
             </div>
         </div>
-
+        @endif
         {!! $admail->message !!}
 
         <div style="line-height: 6px;">
