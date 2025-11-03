@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Broadcast;
+use App\Http\Controllers\BountyController;
 use App\Http\Controllers\API\WebController;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\UserController;
@@ -158,4 +159,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/trans/text-to-speech', [GoogleAiTransController::class, 'textToSpeech']);
     Route::post('/trans/translate-text', [GoogleAiTransController::class, 'translateText']);
     Route::post('/trans/speech-to-speech', [GoogleAiTransController::class, 'speechToSpeech']);
+});
+
+Route::post('/bounty/register', [BountyController::class, 'register']);
+Route::post('/bounty/verify', [BountyController::class, 'verify']);
+Route::post('/bounty/login', [BountyController::class, 'login']);
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/bounty/profile', [BountyController::class, 'profile']);
+    Route::post('/bounty/logout', [BountyController::class, 'logout']);
 });

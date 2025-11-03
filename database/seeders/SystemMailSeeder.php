@@ -59,6 +59,11 @@ class SystemMailSeeder extends Seeder
                 'label' => 'event',
                 'message' => 'Your registration was successful. We will get in touch with you soon.'
             ],
+            [
+                'title' => 'Bounty Registration Defcomm',
+                'label' => 'bounty',
+                'message' => 'Your registration was successful. We will get in touch with you soon.'
+            ],
         ];
 
         foreach ($records as $dt) {

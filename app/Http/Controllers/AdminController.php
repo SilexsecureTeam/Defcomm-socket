@@ -195,7 +195,7 @@ class AdminController extends Controller
         EventForm::create([
             'name' => $request->name,
             'message' => $request->message,
-            'group_id' => decrypt($request->group_id),
+            'group_id' => $request->group_id ? decrypt($request->group_id) : null,
             'meeting_id' => $request->meeting_id ? decryptHelper($request->meeting_id) : null,
             'signup' => $request->signup,
             'status' => $request->status,
