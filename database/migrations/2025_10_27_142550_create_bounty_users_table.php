@@ -25,8 +25,9 @@ return new class extends Migration
             $table->string('timezone')->nullable();
             $table->string('photo')->nullable();
             $table->text('bio')->nullable();
-            $table->enum('user_type',['user','group','company'])->default('user');
-            $table->enum('status',['active', 'pending', 'block'])->default('pending');
+            $table->integer('rel_group')->nullable();
+            $table->enum('user_type', ['user', 'group', 'company'])->default('user');
+            $table->enum('status', ['active', 'pending', 'block'])->default('pending');
             $table->timestamps();
         });
     }

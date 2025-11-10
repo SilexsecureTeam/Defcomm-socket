@@ -163,7 +163,11 @@ Route::middleware('auth:sanctum')->group(function () {
 
 Route::post('/bounty/register', [BountyController::class, 'register']);
 Route::post('/bounty/verify', [BountyController::class, 'verify']);
+Route::post('/bounty/requestOtp', [BountyController::class, 'requestOtp']);
 Route::post('/bounty/login', [BountyController::class, 'login']);
+Route::post('/bounty/loginVerify', [BountyController::class, 'loginVerify']);
+Route::post('/bounty/forgot-password', [BountyController::class, 'forgotPassword']);
+Route::post('/bounty/reset-password', [BountyController::class, 'resetPassword']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/bounty/profile', [BountyController::class, 'profile']);

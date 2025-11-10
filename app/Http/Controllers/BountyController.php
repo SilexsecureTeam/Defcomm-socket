@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Carbon\Carbon;
 use App\Models\BountyUser;
+use App\Mail\BountyUserOtp;
 use Illuminate\Http\Request;
 use App\Mail\BountyUserVerify;
 use Illuminate\Support\Facades\Hash;
@@ -91,6 +92,26 @@ class BountyController extends Controller
         }
     }
 
+    public function requestOtp(Request $request)
+    {
+        $user = BountyUser::where('phone', '=', $request->input('userlogin'))->orWhere('phone', '=', '+234' . $request->input('userlogin'))->orWhere('phone', '=', '234' . $request->input('userlogin'))->orWhere('phone', '=', preg_replace('/^\+?234/', '', $request->input('userlogin')))->orWhere('phone', '=', preg_replace('/^\+?+234/', '', $request->input('userlogin')))->orWhere('email', '=', $request->input('userlogin'))->orWhere('username', '=', $request->input('userlogin'))->first();
+
+        if ($user) {
+            $otp = rand(1000, 9999);
+            $user->update(['otp' => $otp]);
+            // $this->smsSent($request->get('phone'), $otp);
+            
+            Mail::to($user->email)->send(new BountyUserOtp($user, $otp));
+
+            $bodysms = 'Welcome to Defcomm!, Your OTP is ' . $otp . ' or use https://cloud.defcomm.ng/onboarding to join.';
+
+            // $this->TermiiSms($request->phone, $bodysms);
+            return response()->json(['status' => 200, 'message' => 'OTP has been sent', 'otp' => $otp], 200);
+        } else {
+            return response()->json(['status' => 400, 'error' => "This user does not exist."], 400);
+        }
+    }
+
     // Login user
     public function login(Request $request)
     {
@@ -121,6 +142,47 @@ class BountyController extends Controller
                 ], 401);
             }
 
+            // $token = $user->createToken('bounty_token')->plainTextToken;
+            $otp = rand(1000, 9999);
+            $user->update(['otp' => $otp]);
+            Mail::to($user->email)->send(new BountyUserOtp($user, $otp));
+            return response()->json([
+                'status' => '200',
+                'message' => 'Waiting for OTP verification',
+                // 'token' => $token,
+                // 'user' => $user,
+            ], 201);
+        }else{
+            return response()->json([
+                'status' => '400',
+                'message' => 'Please enter your credentials.',
+                'data' => null, // full list of field errors
+            ], 401);
+        }
+    }
+
+    // Login user
+    public function loginVerify(Request $request)
+    {
+        if($request->userlogin){
+            $user = BountyUser::where('email', $request->userlogin)->orWhere('username', $request->userlogin)->first();
+
+            if ($user->otp != $request->otp) {
+                return response()->json([
+                    'status' => '400',
+                    'message' => 'Wrong OTP. Try again!',
+                    'data' => null, // full list of field errors
+                ], 401);
+            }
+
+            if (now()->diffInSeconds($user->updated_at) > 60) {
+                return response()->json([
+                    'status' => '400',
+                    'message' => 'Token expired. Please login again',
+                    'data' => null, // full list of field errors
+                ], 401);
+            }
+
             $token = $user->createToken('bounty_token')->plainTextToken;
 
             return response()->json([
@@ -136,6 +198,77 @@ class BountyController extends Controller
                 'data' => null, // full list of field errors
             ], 401);
         }
+    }
+
+
+    public function forgotPassword(Request $request)
+    {
+        $user = BountyUser::where('email', $request->userlogin)->orWhere('username', $request->userlogin)->first();
+
+        if ($user) {
+            $otp = rand(1000, 9999);
+            $user->update(['otp' => $otp]);
+            Mail::to($user->email)->send(new BountyUserOtp($user, $otp));
+
+            return response()->json([
+                'status' => '200',
+                'message' => 'Waiting for OTP verification',
+                // 'token' => $token,
+                // 'user' => $user,
+            ], 201);
+        }
+
+        return response()->json([
+            'status' => '400',
+            'message' => 'Please enter your credentials.',
+            'data' => null, // full list of field errors
+        ], 401);
+    }
+
+    public function resetPassword(Request $request)
+    {
+
+        $user = BountyUser::where('email', $request->userlogin)->orWhere('username', $request->userlogin)->first();
+
+        if (!$user) {
+            return response()->json([
+                'status' => '400',
+                'message' => 'Wrong User Id. Try again!',
+                'data' => null, // full list of field errors
+            ], 401);
+        }
+
+        if ($user->otp != $request->otp) {
+            return response()->json([
+                'status' => '400',
+                'message' => 'Wrong OTP. Try again!',
+                'data' => null, // full list of field errors
+            ], 401);
+        }
+
+        if ($request->password != $request->password_confirm) {
+            return response()->json([
+                'status' => '400',
+                'message' => 'Password does not match!',
+                'data' => null, // full list of field errors
+            ], 401);
+        }
+
+        if (now()->diffInSeconds($user->updated_at) > 60) {
+            return response()->json([
+                'status' => '400',
+                'message' => 'Token expired. Please login again',
+                'data' => null, // full list of field errors
+            ], 401);
+        }
+
+        $user->password = Hash::make($request->password);
+        $user->save();
+
+        return response()->json([
+            'status' => '200',
+            'message' => 'Password has been successfully reset',
+        ], 201);
     }
 
     // Logout user

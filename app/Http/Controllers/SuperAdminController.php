@@ -8,6 +8,7 @@ use App\Mail\Invitation;
 use App\Models\AppStore;
 use App\Models\Language;
 use App\Models\UserPlan;
+use App\Models\BountyUser;
 use App\Models\SystemMail;
 use App\Models\CompanyUser;
 use App\Models\UserLoginLog;
@@ -49,7 +50,7 @@ class SuperAdminController extends Controller
     public function accountView($id)
     {
         $comp = CompanyUser::find(decrypt($id));
-        if($comp){
+        if ($comp) {
             $usr = User::where('role', 'user')->where('company_id', $comp->id)->get();
             $plan = UserPlan::where('status', 'active')->get();
             return view('super.account', [
@@ -76,7 +77,8 @@ class SuperAdminController extends Controller
         ]);
     }
 
-    public function accountDelete($id){
+    public function accountDelete($id)
+    {
         User::find(decrypt($id))->delete();
         return redirect()->back()->with('success', 'User successfully deleted');
     }
@@ -153,7 +155,7 @@ class SuperAdminController extends Controller
             'plan_id' => $request->plan_id,
         ]);
 
-        if($request->password){
+        if ($request->password) {
             $usr->update(['password' => Hash::make($request->password)]);
         }
 
@@ -167,7 +169,7 @@ class SuperAdminController extends Controller
     public function accountToken()
     {
         $user = User::whereNull('access_token')->get();
-        foreach($user as $usr){
+        foreach ($user as $usr) {
             $usr->update(['access_token' => uniqid()]);
         }
     }
@@ -186,7 +188,7 @@ class SuperAdminController extends Controller
     {
         Language::updateOrCreate([
             'label' => $request->label
-        ],[
+        ], [
             'description' => $request->description
         ]);
         return redirect()->back()->with('success', "Language successfully updated");
@@ -217,7 +219,7 @@ class SuperAdminController extends Controller
         StatementAgreement::updateOrCreate([
             'title' => $request->title,
             'label' => $request->label
-        ],[
+        ], [
             'description' => $request->description
         ]);
         return redirect()->back()->with('success', "agreements successfully updated");
@@ -290,12 +292,12 @@ class SuperAdminController extends Controller
         ]);
         return redirect()->back()->with('success', "App status successfully updated");
     }
-    
-    public function storeApp($id=null)
+
+    public function storeApp($id = null)
     {
-        if($id){
+        if ($id) {
             $data = AppStore::where('user', decrypt($id))->get();
-        }else{
+        } else {
             $data = AppStore::get();
         }
 
@@ -309,7 +311,7 @@ class SuperAdminController extends Controller
     public function storeappdetail($id)
     {
         $data = AppStore::find(decrypt($id));
-        
+
         return view('super.storeappdetail', [
             'page' => "Store App",
             'opt' => 'admin',
@@ -359,7 +361,7 @@ class SuperAdminController extends Controller
         ]);
     }
 
-    public function planAdd(Request $request) 
+    public function planAdd(Request $request)
     {
         UserPlan::create([
             'name' => $request->name,
@@ -372,10 +374,10 @@ class SuperAdminController extends Controller
             'enable_call' => $request->enable_call,
             'description' => $request->description,
         ]);
-        return redirect()->back()->with('success', "Plan successfully added");      
+        return redirect()->back()->with('success', "Plan successfully added");
     }
 
-    public function planEdit(Request $request) 
+    public function planEdit(Request $request)
     {
         UserPlan::find(decrypt($request->id))->update([
             'name' => $request->name,
@@ -389,6 +391,34 @@ class SuperAdminController extends Controller
             'description' => $request->description,
             'status' => $request->status,
         ]);
-        return redirect()->back()->with('success', "Plan successfully updated");      
+        return redirect()->back()->with('success', "Plan successfully updated");
+    }
+
+    public function bountyUser()
+    {
+        $data = BountyUser::where('user_type', 'user')->get();
+        $userPen = BountyUser::where('user_type', 'user')->where('status', 'pending')->get();
+        $userApp = BountyUser::where('user_type', 'user')->where('status', 'active')->get();
+        $userBlk = BountyUser::where('user_type', 'user')->where('status', 'block')->get();
+
+        return view('super.bountyuser', [
+            'page' => "Bounty User",
+            'opt' => 'admin',
+            'data' => $data,
+            'userPen' => $userPen,
+            'userApp' => $userApp,
+            'userBlk' => $userBlk
+        ]);
+    }
+
+    public function bountyUserId($id)
+    {
+        $data = BountyUser::find(decrypt($id));
+
+        return view('super.bountyuserdetail', [
+            'page' => "Bounty User",
+            'opt' => 'admin',
+            'data' => $data
+        ]);
     }
 }

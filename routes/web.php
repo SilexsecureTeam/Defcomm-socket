@@ -99,6 +99,9 @@ Route::middleware(['auth', 'user-role:super'])->group(function () {
     Route::get('/super/plan', [SuperAdminController::class, 'plan'])->name('super.plan');
     Route::post('/super/planAdd', [SuperAdminController::class, 'planAdd'])->name('super.planAdd');
     Route::post('/super/planEdit', [SuperAdminController::class, 'planEdit'])->name('super.planEdit');
+
+    Route::get('/super/bounty/user', [SuperAdminController::class, 'bountyUser'])->name('super.bountyUser');
+    Route::get('/super/bounty/user/{id}', [SuperAdminController::class, 'bountyUserId'])->name('super.bountyUserId');
 });
 
 Route::middleware(['auth', 'user-role:admin'])->group(function () {

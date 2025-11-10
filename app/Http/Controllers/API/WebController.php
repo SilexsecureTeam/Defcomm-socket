@@ -99,18 +99,20 @@ class WebController extends Controller
     {
         $form = EventForm::findOrFail(decrypt($request->form_id));
 
-        $user = User::updateOrCreate([
-            'email' => $request->email,
-        ], [
-            'name' => $request->name,
-            'phone' => $request->phone,
-            'plan_id' => $request->plan_id ? decryptHelper($request->plan_id) : null,
-            'role' => 'user',
-            'company_id' => $form->user->company_id,
-            'password' => Hash::make(uniqid()),
-            'access_token' => uniqid(),
-            'status' => 'active'
-        ]);
+        $user = User::where('email', $request->email)->orWhere('phone', $request->phone)->first();
+        if (empty($user)) {
+            $user = User::create([
+                'email' => $request->email,
+                'name' => $request->name,
+                'phone' => $request->phone,
+                'plan_id' => $request->plan_id ? decryptHelper($request->plan_id) : null,
+                'role' => 'user',
+                'company_id' => $form->user->company_id,
+                'password' => Hash::make(uniqid()),
+                'access_token' => uniqid(),
+                'status' => 'active'
+            ]);
+        }
 
         CompanyGroupUser::firstOrCreate([
             'user_id' => $user->id,
@@ -131,7 +133,7 @@ class WebController extends Controller
         ]);
 
         $meet = Meeting::find($form->meeting_id);
-        if($form->meeting_id){
+        if ($form->meeting_id) {
             MeetingLog::updateOrCreate([
                 'meetings_id' => $form->meeting_id,
                 'user_id' => $user->id,

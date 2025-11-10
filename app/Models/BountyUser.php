@@ -16,4 +16,10 @@ class BountyUser extends Authenticatable
         'password',
         'remember_token',
     ];
+
+    // A user belongs to one manager
+    public function group()
+    {
+        return $this->belongsTo(BountyUser::class, 'rel_group');
+    }
 }
