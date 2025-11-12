@@ -172,4 +172,8 @@ Route::post('/bounty/reset-password', [BountyController::class, 'resetPassword']
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/bounty/profile', [BountyController::class, 'profile']);
     Route::post('/bounty/logout', [BountyController::class, 'logout']);
+
+    Route::get('/bounty/program', [BountyController::class, 'program']);
+    Route::post('/bounty/report', [BountyController::class, 'report']);
+    Route::get('/bounty/reportlog', [BountyController::class, 'reportLog']);
 });

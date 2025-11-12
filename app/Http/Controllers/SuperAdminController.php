@@ -15,6 +15,8 @@ use App\Models\UserLoginLog;
 use Illuminate\Http\Request;
 use App\Models\ContactBooking;
 use App\Models\UserLoginDevice;
+use App\Models\BountyUserReport;
+use App\Models\BountyUserProgram;
 use App\Models\ContactSubmission;
 use App\Models\StatementAgreement;
 use Illuminate\Support\Facades\Hash;
@@ -394,17 +396,18 @@ class SuperAdminController extends Controller
         return redirect()->back()->with('success', "Plan successfully updated");
     }
 
-    public function bountyUser()
+    public function bountyUser($type = 'user')
     {
-        $data = BountyUser::where('user_type', 'user')->get();
-        $userPen = BountyUser::where('user_type', 'user')->where('status', 'pending')->get();
-        $userApp = BountyUser::where('user_type', 'user')->where('status', 'active')->get();
-        $userBlk = BountyUser::where('user_type', 'user')->where('status', 'block')->get();
+        $data = BountyUser::where('user_type', $type)->get();
+        $userPen = BountyUser::where('user_type', $type)->where('status', 'pending')->get();
+        $userApp = BountyUser::where('user_type', $type)->where('status', 'active')->get();
+        $userBlk = BountyUser::where('user_type', $type)->where('status', 'block')->get();
 
         return view('super.bountyuser', [
             'page' => "Bounty User",
             'opt' => 'admin',
             'data' => $data,
+            'type' => $type ?? "user",
             'userPen' => $userPen,
             'userApp' => $userApp,
             'userBlk' => $userBlk
@@ -419,6 +422,71 @@ class SuperAdminController extends Controller
             'page' => "Bounty User",
             'opt' => 'admin',
             'data' => $data
+        ]);
+    }
+
+    public function bountyProgram()
+    {
+        $data = BountyUserProgram::get();
+
+        return view('super.bountyProgram', [
+            'page' => "Bounty User",
+            'opt' => 'admin',
+            'data' => $data
+        ]);
+    }
+
+    public function bountyProgramAdd(Request $request)
+    {
+        BountyUserProgram::create([
+            'title' => $request->title,
+            'detail' => $request->detail,
+            'status' => $request->status,
+        ]);
+        return redirect()->back()->with('success', "Program successfully created");
+    }
+
+    public function bountyProgramUpdate(Request $request)
+    {
+        BountyUserProgram::find(decrypt($request->id))->update([
+            'title' => $request->title,
+            'detail' => $request->detail,
+            'status' => $request->status,
+        ]);
+        return redirect()->back()->with('success', "Program successfully updated");
+    }
+
+    public function bountyReport($severity = null)
+    {
+        if($severity){
+            $data = BountyUserReport::get();
+            $dataNew = BountyUserReport::where('status', 'new')->where('severity', $severity)->get();
+            $dataReview = BountyUserReport::where('status', 'review')->where('severity', $severity)->get();
+            $dataAccept = BountyUserReport::where('status', 'accept')->where('severity', $severity)->get();
+            $dataReject = BountyUserReport::where('status', 'reject')->where('severity', $severity)->get();
+            $dataFix = BountyUserReport::where('status', 'fix')->where('severity', $severity)->get();
+            $dataClose = BountyUserReport::where('status', 'close')->where('severity', $severity)->get();
+        }else{
+            $data = BountyUserReport::get();
+            $dataNew = BountyUserReport::where('status', 'new')->get();
+            $dataReview = BountyUserReport::where('status', 'review')->get();
+            $dataAccept = BountyUserReport::where('status', 'accept')->get();
+            $dataReject = BountyUserReport::where('status', 'reject')->get();
+            $dataFix = BountyUserReport::where('status', 'fix')->get();
+            $dataClose = BountyUserReport::where('status', 'close')->get();
+        }
+
+        return view('super.bountyReport', [
+            'page' => "Bounty User Report",
+            'opt' => 'admin',
+            'data' => $data,
+            'dataNew' => $dataNew,
+            'dataReview' => $dataReview,
+            'dataAccept' => $dataAccept,
+            'dataReject' => $dataReject,
+            'dataFix' => $dataFix,
+            'dataClose' => $dataClose,
+            'severity' => $severity ?? "all"
         ]);
     }
 }

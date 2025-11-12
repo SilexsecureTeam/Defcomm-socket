@@ -188,11 +188,11 @@
                     <!--begin:Menu item-->
                     <div class="menu-item">
                         <!--begin:Menu link-->
-                        <a class="menu-link" href="{{ url('/super/bounty/group')}}">
+                        <a class="menu-link" href="#">
                             <span class="menu-bullet">
                                 <span class="bullet bullet-dot"></span>
                             </span>
-                            <span class="menu-title">Group</span>
+                            <span class="menu-title">Reports</span>
                         </a>
                         <!--end:Menu link-->
                     </div>
@@ -200,11 +200,11 @@
                     <!--begin:Menu item-->
                     <div class="menu-item">
                         <!--begin:Menu link-->
-                        <a class="menu-link" href="#">
+                        <a class="menu-link" href="{{ url('/super/bounty/program')}}">
                             <span class="menu-bullet">
                                 <span class="bullet bullet-dot"></span>
                             </span>
-                            <span class="menu-title">Rewards</span>
+                            <span class="menu-title">Program</span>
                         </a>
                         <!--end:Menu link-->
                     </div>

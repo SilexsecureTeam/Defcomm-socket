@@ -100,8 +100,12 @@ Route::middleware(['auth', 'user-role:super'])->group(function () {
     Route::post('/super/planAdd', [SuperAdminController::class, 'planAdd'])->name('super.planAdd');
     Route::post('/super/planEdit', [SuperAdminController::class, 'planEdit'])->name('super.planEdit');
 
-    Route::get('/super/bounty/user', [SuperAdminController::class, 'bountyUser'])->name('super.bountyUser');
-    Route::get('/super/bounty/user/{id}', [SuperAdminController::class, 'bountyUserId'])->name('super.bountyUserId');
+    Route::get('/super/bounty/user/{type?}', [SuperAdminController::class, 'bountyUser'])->name('super.bountyUser');
+    Route::get('/super/bounty/userId/{id}', [SuperAdminController::class, 'bountyUserId'])->name('super.bountyUserId');
+    Route::get('/super/bounty/program', [SuperAdminController::class, 'bountyProgram'])->name('super.bountyProgram');
+    Route::post('/super/bounty/program/add', [SuperAdminController::class, 'bountyProgramAdd'])->name('super.bountyProgramAdd');
+    Route::post('/super/bounty/program/update', [SuperAdminController::class, 'bountyProgramUpdate'])->name('super.bountyProgramUpdate');
+    Route::get('/super/bounty/report/{severity?}', [SuperAdminController::class, 'bountyReport'])->name('super.bountyReport');
 });
 
 Route::middleware(['auth', 'user-role:admin'])->group(function () {

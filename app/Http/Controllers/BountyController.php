@@ -7,6 +7,8 @@ use App\Models\BountyUser;
 use App\Mail\BountyUserOtp;
 use Illuminate\Http\Request;
 use App\Mail\BountyUserVerify;
+use App\Models\BountyUserReport;
+use App\Models\BountyUserProgram;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
@@ -285,5 +287,101 @@ class BountyController extends Controller
         return response()->json([
             'user' => $request->user(),
         ]);
+    }
+
+    public function program()
+    {
+        $datas = BountyUserProgram::where('status', 'active')->get();
+        $data = [];
+        foreach ($datas as $dt) {
+            $data[] = [
+                'id' => encrypt($dt->id),
+                'title' => $dt->title,
+                'detail' => $dt->detail
+            ];
+        }
+        
+        return response()->json(
+            [
+                'status' => '200',
+                'message' => 'Record listed',
+                'data' => $data
+            ],
+            201
+        );
+    }
+
+    public function report(Request $request)
+    {
+
+        $paths = [];
+
+        // foreach ($request->file('attachment') as $file) {
+            $file = $request->file('attachment');
+            // Generate a unique name
+            $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+
+            // Move file directly to public/uploads folder
+            $file->move(public_path('bounty'), $filename);
+
+            // Save public path or URL
+            $paths[] = 'bounty/' . $filename;
+        // }
+
+        // Convert to JSON string for database
+        $pathsJson = json_encode($paths);
+
+        $data = BountyUserReport::create([
+            'ref' => 'RBT' . strtoupper(uniqid()),
+            'user_id' => auth()->user()->id,
+            'program_id' => decrypt($request->program_id),
+            'title' => $request->title,
+            'detail' => $request->detail,
+            'attachment' => $pathsJson,
+            'category' => $request->category,
+            'severity' => $request->severity,
+            'status' => 'new',
+        ]);
+
+        return response()->json(
+            [
+                'status' => '200',
+                'message' => 'Record listed',
+                'data' => [
+                    'id' => encrypt($data->id),
+                    'ref' => $data->ref,
+                ]
+            ],
+            201
+        );
+    }
+
+    public function reportLog()
+    {
+        $datas = BountyUserReport::where('user_id', auth()->user()->id)->get();
+        $data = [];
+
+        foreach($datas as $dt){
+            $data[] = [
+                'id' => encrypt($dt->id),
+                'ref' => $dt->ref,
+                'program_id' => encrypt($dt->program_id),
+                'title' => $dt->title,
+                'detail' => $dt->detail,
+                'attachment' => json_decode($dt->attachment),
+                'category' => $dt->category,
+                'severity' => $dt->severity,
+                'status' => $dt->status,
+            ];
+        }
+
+        return response()->json(
+            [
+                'status' => '200',
+                'message' => 'Record listed',
+                'data' => $data
+            ],
+            201
+        );
     }
 }

@@ -20,6 +20,16 @@ class BountyUser extends Authenticatable
     // A user belongs to one manager
     public function group()
     {
-        return $this->belongsTo(BountyUser::class, 'rel_group');
+        return $this->belongsTo(BountyUser::class, 'rel_group')->withDefault();
+    }
+
+    public function report()
+    {
+        return $this->hasMany(BountyUserReport::class, 'user_id');
+    }
+
+    public function transact()
+    {
+        return $this->hasMany(BountyUserTransanction::class, 'user_id');
     }
 }
