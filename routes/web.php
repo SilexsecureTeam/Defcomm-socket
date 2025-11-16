@@ -69,7 +69,7 @@ Route::middleware(['auth'])->group(function () {
 
 Route::middleware(['auth', 'user-role:super'])->group(function () {
     Route::get('/super/dashboard', [SuperAdminController::class, 'dashboard'])->name('super.dashboard');
-    Route::get('/super/account', [SuperAdminController::class, 'account'])->name('super.account');
+    Route::get('/super/account/{user}', [SuperAdminController::class, 'account'])->name('super.account');
     Route::post('/super/accountCreate', [SuperAdminController::class, 'accountCreate'])->name('super.accountCreate');
     Route::post('/super/accountEdit', [SuperAdminController::class, 'accountEdit'])->name('super.accountEdit');
     Route::get('/super/accountView/{id}', [SuperAdminController::class, 'accountView'])->name('super.accountView');
@@ -106,6 +106,12 @@ Route::middleware(['auth', 'user-role:super'])->group(function () {
     Route::post('/super/bounty/program/add', [SuperAdminController::class, 'bountyProgramAdd'])->name('super.bountyProgramAdd');
     Route::post('/super/bounty/program/update', [SuperAdminController::class, 'bountyProgramUpdate'])->name('super.bountyProgramUpdate');
     Route::get('/super/bounty/report/{severity?}', [SuperAdminController::class, 'bountyReport'])->name('super.bountyReport');
+
+    Route::get('/super/program', [SuperAdminController::class, 'program'])->name('super.program');
+    Route::post('/super/program/add', [SuperAdminController::class, 'programAdd'])->name('super.programAdd');
+    Route::post('/super/program/update', [SuperAdminController::class, 'programUpdate'])->name('super.programUpdate');
+    Route::get('/super/attendance/{id}', [SuperAdminController::class, 'attendance'])->name('super.attendance');
+    Route::get('/program/attendance/{id}/{userId}/{userType}', [SuperAdminController::class, 'attendanceUser'])->name('super.attendanceUser');
 });
 
 Route::middleware(['auth', 'user-role:admin'])->group(function () {

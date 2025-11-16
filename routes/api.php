@@ -159,6 +159,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/trans/text-to-speech', [GoogleAiTransController::class, 'textToSpeech']);
     Route::post('/trans/translate-text', [GoogleAiTransController::class, 'translateText']);
     Route::post('/trans/speech-to-speech', [GoogleAiTransController::class, 'speechToSpeech']);
+
+    Route::get('program/attendance', [UserController::class, 'programAttendance']);
 });
 
 Route::post('/bounty/register', [BountyController::class, 'register']);

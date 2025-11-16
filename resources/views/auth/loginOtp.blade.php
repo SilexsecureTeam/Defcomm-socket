@@ -28,11 +28,12 @@
     <!--begin::Page bg image-->
     <style>
         body {
-            background-image: url('/demo3/media/auth/bg4.jpg');
+            /*background-image: url('/demo3/media/auth/bg4.jpg');*/
+            background-image: url("{{asset('img/defcoobg.jpg')}}");
         }
 
         [data-bs-theme="dark"] body {
-            background-image: url('/demo3/media/auth/bg4-dark.jpg');
+            background-image: url("{{asset('img/defcoobg.jpg')}}");
         }
     </style>
     <!--end::Page bg image-->
@@ -44,11 +45,11 @@
             <div class="d-flex flex-center flex-lg-start flex-column">
                 <!--begin::Logo-->
                 <a href="#" class="mb-7">
-                    <img alt="Logo" src="{{asset('img/icon.png')}}" />
+                    <img alt="Logo" src="{{asset('img/Defcomm-Logo.png')}}" style="width: 200px; height: 55px;" />
                 </a>
                 <!--end::Logo-->
                 <!--begin::Title-->
-                <h2 class="text-white fw-normal m-0">Branding tools designed for your business</h2>
+                <h2 class="text-white fw-normal m-0">Redefining Defence, Communcation</h2>
                 <!--end::Title-->
             </div>
             <!--begin::Aside-->
@@ -128,7 +129,7 @@
                 </div>
                 <!--end::Wrapper-->
                 <!--begin::Footer-->
-                <div class="d-flex flex-stack px-lg-10">
+                {{--<div class="d-flex flex-stack px-lg-10">
                     <!--begin::Languages-->
                     <div class="me-0">
                         <!--begin::Toggle-->
@@ -161,7 +162,7 @@
                         <a href="#" target="_blank">Contact Us</a>
                     </div>
                     <!--end::Links-->
-                </div>
+                </div>--}}
                 <!--end::Footer-->
             </div>
             <!--end::Card-->

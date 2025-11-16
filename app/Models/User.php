@@ -174,4 +174,14 @@ class User extends Authenticatable
     {
         return $this->hasMany(EventRegistration::class, 'user_id');
     }
+
+    public function program()
+    {
+        return $this->hasMany(Program::class, 'user_id');
+    }
+
+    public function attendance()
+    {
+        return $this->hasMany(ProgramAttendance::class, 'user_id');
+    }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Plan;
 use App\Models\User;
+use App\Models\Program;
 use App\Mail\Invitation;
 use App\Models\AppStore;
 use App\Models\Language;
@@ -18,6 +19,7 @@ use App\Models\UserLoginDevice;
 use App\Models\BountyUserReport;
 use App\Models\BountyUserProgram;
 use App\Models\ContactSubmission;
+use App\Models\ProgramAttendance;
 use App\Models\StatementAgreement;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
@@ -37,13 +39,13 @@ class SuperAdminController extends Controller
         ]);
     }
 
-    public function account()
+    public function account($user)
     {
-        $usr = User::where('role', 'admin')->get();
+        $usr = User::where('role', $user)->get();
         $plan = UserPlan::where('status', 'active')->get();
         return view('super.account', [
-            'page' => "Account",
-            'opt' => 'admin',
+            'page' => $user == "super" ? "Super Account" : "Company Account",
+            'opt' => $user,
             'usr' => $usr,
             'plan' => $plan
         ]);
@@ -102,24 +104,32 @@ class SuperAdminController extends Controller
             return redirect()->back()->with('error', $error);
         }
 
+        $otp = rand(1000, 9999);
+
         $usr = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'phone' => $request->phone,
             'plan_id' => $request->plan_id,
             'role' => 'admin',
+            'company_id' => 0,
             'password' => Hash::make($request->password),
-            'access_token' => uniqid()
+            'access_token' => uniqid(),
+            'otp' => $otp,
+            'enable_2fa' => 1,
+            'access' => $request->access
         ]);
 
-        $comp = CompanyUser::create([
-            'name' => $request->nameorg,
-            'user_id' => $usr->id
-        ]);
+        if($request->nameorg){
+            $comp = CompanyUser::create([
+                'name' => $request->nameorg,
+                'user_id' => $usr->id
+            ]);
 
-        $otp = rand(1000, 9999);
-
-        $usr->update(['company_id' => $comp->id, 'otp' => $otp]);
+            $usr->update(['company_id' => $comp->id]);
+        }else{
+            $usr->update(['status' => "active", 'role' => 'super',]);
+        }
 
         $encrypt = encrypt($request->email);
 
@@ -488,5 +498,65 @@ class SuperAdminController extends Controller
             'dataClose' => $dataClose,
             'severity' => $severity ?? "all"
         ]);
+    }
+
+    public function program()
+    {
+        $data = Program::orderBy('started_at', 'DESC')->get();        
+        return view('super.program', [
+            'page' => "Program",
+            'opt' => 'admin',
+            'data' => $data
+        ]);
+
+    }
+
+    public function programAdd(Request $request)
+    {
+        Program::create([
+            'user_id' => auth()->user()->id,
+            'label' => $request->label,
+            'description' => $request->description,
+            'started_at' => $request->started_at,
+            'type' => $request->type,
+            'status' => $request->status
+        ]);
+        return redirect()->back()->with('success', "Program successfully created");
+    }
+
+    public function programUpdate(Request $request)
+    {
+        $data = Program::find(decrypt($request->id));
+        $data->update([
+            'label' => $request->label,
+            'description' => $request->description,
+            'started_at' => $request->started_at ?? $data->started_at,
+            'type' => $request->type,
+            'status' => $request->status
+        ]);
+        return redirect()->back()->with('success', "Program successfully updated");
+    }
+
+    public function attendance($id)
+    {
+        $data = ProgramAttendance::where('program_id', decrypt($id))->orderBy('created_at', 'ASC')->get();
+        return view('super.programAttendance', [
+            'page' => "Program Attendance",
+            'opt' => 'admin',
+            'data' => $data
+        ]);
+    }
+
+    public function attendanceUser($id, $userId, $userType)
+    {
+        $data = ProgramAttendance::updateOrCreate([
+            'program_id' => decrypt($id),
+            'user_id' => decrypt($userId),
+            'user_type' => decrypt($userType)
+        ], [
+            'comment' => "Checked by ". auth()->user()->name,
+        ]);
+
+        return redirect()->back()->with('tab', '');
     }
 }

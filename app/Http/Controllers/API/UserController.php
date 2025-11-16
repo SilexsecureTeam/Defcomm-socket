@@ -8,6 +8,7 @@ use App\Models\Files;
 use Firebase\JWT\JWT;
 use App\Models\Folders;
 use App\Models\Meeting;
+use App\Models\Program;
 use App\Models\AppStore;
 use App\Mail\MissCallMail;
 use App\Models\FileFolder;
@@ -2087,6 +2088,34 @@ class UserController extends Controller
                 "comment" => $dt->comment,
                 "created_at" => $dt->created_at,
                 "updated_at" => $dt->updated_at,
+            ];
+        }
+
+        return response()->json(
+            [
+                'status' => '200',
+                'message' => 'Record listed',
+                'data' => $data
+            ],
+            201
+        );
+    }
+
+    public function programAttendance() 
+    {
+        // $datas = Program::where('status', 'active')->whereDate('started_at', '>=', now()->startOfDay())
+        //     ->whereDate('started_at', '<=', now()->addDays(2)->endOfDay())
+        //     ->get();
+        $datas = Program::where('status', 'active')->get();
+        $user = class_basename(auth()->user());
+        $data = [];
+        foreach ($datas as $dt) {
+            $data[] = [
+                "id" => encryptHelper($dt->id),
+                "qr_code_link" => url('/').'/program/attendance/'.encrypt($dt->id).'/'.encrypt(auth()->user()->id).'/'.encrypt($user),
+                "title" => $dt->label,
+                "description" => $dt->description,  
+                "started_at" => $dt->started_at
             ];
         }
 

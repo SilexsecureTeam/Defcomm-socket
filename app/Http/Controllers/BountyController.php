@@ -177,7 +177,7 @@ class BountyController extends Controller
                 ], 401);
             }
 
-            if (now()->diffInSeconds($user->updated_at) > 60) {
+            if (now()->diffInSeconds($user->updated_at) > 120) {
                 return response()->json([
                     'status' => '400',
                     'message' => 'Token expired. Please login again',
@@ -317,15 +317,17 @@ class BountyController extends Controller
         $paths = [];
 
         // foreach ($request->file('attachment') as $file) {
-            $file = $request->file('attachment');
-            // Generate a unique name
-            $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+            if($request->hasFile('attachment')){
+                $file = $request->file('attachment');
+                // Generate a unique name
+                $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
 
-            // Move file directly to public/uploads folder
-            $file->move(public_path('bounty'), $filename);
+                // Move file directly to public/uploads folder
+                $file->move(public_path('bounty'), $filename);
 
-            // Save public path or URL
-            $paths[] = 'bounty/' . $filename;
+                // Save public path or URL
+                $paths[] = 'bounty/' . $filename;
+            }
         // }
 
         // Convert to JSON string for database
