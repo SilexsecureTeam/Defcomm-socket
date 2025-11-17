@@ -33,6 +33,7 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Mail;
+use App\Events\PrivateGroupMessageSent;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Services\FileUploadService;
 use App\Http\Services\FileEncryptorService;
@@ -736,55 +737,7 @@ class UserController extends Controller
 
     public function lastMessage()
     {
-        $authId = auth()->id();
-
-        $record = ChatLastLog::select(DB::raw('
-                CASE 
-                    WHEN user_id = ' . $authId . ' THEN user_to 
-                    ELSE user_id 
-                END as other_user_id
-            '))
-            ->addSelect('chat_last_logs.*')
-            ->where(function ($query) use ($authId) {
-                $query->where('user_id', $authId)
-                    ->orWhere('user_to', $authId);
-            })
-            ->orderBy('created_at', 'DESC')
-            ->get()
-            ->unique('other_user_id')
-            ->values(); // reset array keys
-
-        $data = $record->filter(function ($dt) {
-            $authId = auth()->id();
-            // Skip records where both user_id and user_to are the same as auth user
-            return !($authId === $dt->user_id && $authId === $dt->user_to);
-        })->map(function ($dt) {
-            $authId = auth()->id();
-
-            // Determine who the "other user" is
-            if ($authId === $dt->user_to) {
-                $userTo = $dt->user->id ?? null;
-                $userToName = $dt->user->name ?? null;
-            } else {
-                $userTo = $dt->userTo->id ?? null;
-                $userToName = $dt->userTo->name ?? null;
-            }
-
-            // Skip this record if no valid other user found
-            if (is_null($userTo)) {
-                return null;
-            }
-
-            return [
-                'id' => encryptHelper($dt->id),
-                'chat_id' => encryptHelper($dt->group_to),
-                'chat_user_to_id' => encryptHelper($userTo),
-                'chat_user_to_name' => $userToName,
-                'is_file' => $dt->is_file,
-                'last_message' => decrypt($dt->last_message),
-                'chat_user_type' => $dt->user_group,
-            ];
-        })->filter()->values(); // Reset array indexes
+        $data = $this->ChatService->lastMessage();
 
         return response()->json(
             [
@@ -978,9 +931,9 @@ class UserController extends Controller
 
     public function meetingInvitationlist($status = null)
     {
-        if($status){
+        if ($status) {
             $datas = MeetingLog::where('user_id', auth()->user()->id)->where('user_type', 'participant')->where('join_status', $status)->get();
-        }else{
+        } else {
             $datas = MeetingLog::where('user_id', auth()->user()->id)->where('user_type', 'participant')->get();
         }
 
@@ -1204,13 +1157,25 @@ class UserController extends Controller
 
     public function messagesIsread($id)
     {
-        $chat = ChatMessage::find(decryptHelper($id))->update(['is_read' => 'yes']);
+        $chat = ChatMessage::find(decryptHelper($id));
+        $chat->update(['is_read' => 'yes']);
+
+        $data = $this->ChatService->lastMessage();
+        $lastMessage = [
+            "state" => "last_message",
+            "data" => $data
+        ];
+        if ($chat->user_group == 'group') {
+            broadcast(new PrivateGroupMessageSent(encryptHelper(auth()->user()->id), encryptHelper($chat->user_to), $lastMessage))->toOthers();
+        } else {
+            broadcast(new PrivateMessageSent(encryptHelper(auth()->user()->id), encryptHelper($chat->user_to), $lastMessage))->toOthers();
+        }
 
         return response()->json(
             [
                 'status' => '200',
                 'message' => 'Message marked as read',
-                'data' => null
+                'data' => $data
             ],
             201
         );
@@ -1392,8 +1357,8 @@ class UserController extends Controller
             }
 
             $data = [
-                'id' => $chatmss->id,
-                'id_en' => encryptHelper($chatmss->id),
+                // 'id' => $chatmss->id,
+                'id' => encryptHelper($chatmss->id),
                 'is_my_chat' => $chatmss->user_id == auth()->user()->id ? 'yes' : 'no',
                 'user_id' => encryptHelper($chatmss->user_id),
                 'user_to' => encryptHelper($chatmss->user_to),
@@ -1420,19 +1385,19 @@ class UserController extends Controller
                 'updated_at' => $chatmss->updated_at,
             ];
 
-            broadcast(new PrivateMessageSent(encryptHelper(auth()->user()->id), encryptHelper($calllog->userReciever->id), [
+            $calllogData = [
                 'state' => 'callUpdate',
                 'user' => encryptHelper($calllog->userReciever->id),
                 'sender' => [
-                    'id' => $calllog->userSender->id,
-                    'id_en' => encryptHelper($calllog->userSender->id),
+                    // 'id' => $calllog->userSender->id,
+                    'id' => encryptHelper($calllog->userSender->id),
                     'name' => $calllog->userSender->name,
                     'phone' => $calllog->userSender->phone,
                     'email' => $calllog->userSender->email,
                 ],
                 'receiver' => [
-                    'id' => $calllog->userReciever->id,
-                    'id_en' => encryptHelper($calllog->userReciever->id),
+                    // 'id' => $calllog->userReciever->id,
+                    'id' => encryptHelper($calllog->userReciever->id),
                     'name' => $calllog->userReciever->name,
                     'phone' => $calllog->userReciever->phone,
                     'email' => $calllog->userReciever->email,
@@ -1443,13 +1408,15 @@ class UserController extends Controller
                     "call_state" => $request->call_state
                 ],
                 'mss' => $data
-            ]))->toOthers();
+            ];
+
+            broadcast(new PrivateMessageSent(encryptHelper(auth()->user()->id), encryptHelper($calllog->userReciever->id), $calllogData))->toOthers();
 
             return response()->json(
                 [
                     'status' => '200',
                     'message' => 'call log updated',
-                    'data' => $calllog,
+                    'data' => $calllogData,
                 ],
                 201
             );
@@ -2101,7 +2068,7 @@ class UserController extends Controller
         );
     }
 
-    public function programAttendance() 
+    public function programAttendance()
     {
         // $datas = Program::where('status', 'active')->whereDate('started_at', '>=', now()->startOfDay())
         //     ->whereDate('started_at', '<=', now()->addDays(2)->endOfDay())
@@ -2112,9 +2079,9 @@ class UserController extends Controller
         foreach ($datas as $dt) {
             $data[] = [
                 "id" => encryptHelper($dt->id),
-                "qr_code_link" => url('/').'/program/attendance/'.encrypt($dt->id).'/'.encrypt(auth()->user()->id).'/'.encrypt($user),
+                "qr_code_link" => url('/') . '/program/attendance/' . encrypt($dt->id) . '/' . encrypt(auth()->user()->id) . '/' . encrypt($user),
                 "title" => $dt->label,
-                "description" => $dt->description,  
+                "description" => $dt->description,
                 "started_at" => $dt->started_at
             ];
         }

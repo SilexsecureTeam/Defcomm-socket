@@ -16,7 +16,7 @@ return new class extends Migration
             $table->integer('user_id');
             $table->integer('user_to');
             $table->string('group_to');
-            $table->integer('unseen_count')->nullable();
+            $table->integer('chat_id');
             $table->enum('user_group',['user','group'])->default('user');
             $table->enum('is_file',['no','yes'])->default('no');
             $table->enum('is_typing',['no','yes'])->default('no');

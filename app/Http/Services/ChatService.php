@@ -15,6 +15,7 @@ use App\Mail\MeetingInvitation;
 use App\Events\GroupMessageSent;
 use App\Models\CompanyGroupUser;
 use App\Events\PrivateMessageSent;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use App\Events\PrivateGroupMessageSent;
 
@@ -36,30 +37,6 @@ class ChatService
         //     $userLog = $current_chat_user_type == 'user' ? uniqid() : $current_chat_user->id;
         // }
 
-        ChatLastLog::updateOrCreate([
-            'user_id' => auth()->user()->id,
-            'user_to' => $current_chat_user,
-            'group_to' => $userLog,
-        ], [
-            'unseen_count' => null,
-            'user_group' => $current_chat_user_type,
-            'is_file' => $is_file,
-            'last_message' => encrypt($message)
-        ]);
-
-        if ($current_chat_user_type == 'user') {
-            ChatLastLog::updateOrCreate([
-                'user_id' => $current_chat_user,
-                'user_to' => auth()->user()->id,
-                'group_to' => $userLog,
-            ], [
-                'unseen_count' => null,
-                'user_group' => $current_chat_user_type,
-                'is_file' => $is_file,
-                'last_message' => encrypt($message)
-            ]);
-        }
-
         $chatmss = ChatMessage::create([
             'user_id' => auth()->user()->id,
             'user_to' => $current_chat_user,
@@ -80,6 +57,28 @@ class ChatService
             'tag_mess' => $tag_mess,
             'source_language' => $user->chatSettings->chat_language
         ]);
+
+        ChatLastLog::updateOrCreate([
+            'user_id' => auth()->user()->id,
+            'user_to' => $current_chat_user,
+            'group_to' => $userLog,
+        ], [
+            'chat_id' => $chatmss->id,
+            'user_group' => $current_chat_user_type,
+            'is_file' => $is_file,
+        ]);
+
+        if ($current_chat_user_type == 'user') {
+            ChatLastLog::updateOrCreate([
+                'user_id' => $current_chat_user,
+                'user_to' => auth()->user()->id,
+                'group_to' => $userLog,
+            ], [
+                'chat_id' => $chatmss->id,
+                'user_group' => $current_chat_user_type,
+                'is_file' => $is_file,
+            ]);
+        }
 
         if ($mss_type == 'call') {
             ChatCallLog::create([
@@ -171,6 +170,15 @@ class ChatService
         } else {
             broadcast(new PrivateMessageSent(encryptHelper(auth()->user()->id), encryptHelper($current_chat_user), $sendData))->toOthers();
         }
+        $lastMessage = [
+            "state" => "last_message",
+            "data" => $this->lastMessage()
+        ];
+        if ($current_chat_user_type == 'group') {
+            broadcast(new PrivateGroupMessageSent(encryptHelper(auth()->user()->id), encryptHelper($current_chat_user), $lastMessage))->toOthers();
+        } else {
+            broadcast(new PrivateMessageSent(encryptHelper(auth()->user()->id), encryptHelper($current_chat_user), $lastMessage))->toOthers();
+        }
 
         
 
@@ -230,5 +238,67 @@ class ChatService
         }
 
         return $meet;
+    }
+
+
+    public function lastMessage()
+    {
+        $authId = auth()->id();
+
+        $record = ChatLastLog::select(DB::raw('
+                CASE 
+                    WHEN user_id = ' . $authId . ' THEN user_to 
+                    ELSE user_id 
+                END as other_user_id
+            '))
+            ->addSelect('chat_last_logs.*')
+            ->where(function ($query) use ($authId) {
+                $query->where('user_id', $authId)
+                    ->orWhere('user_to', $authId);
+            })
+            ->orderBy('created_at', 'DESC')
+            ->get()
+            ->unique('other_user_id')
+            ->values(); // reset array keys
+
+        $data = $record->filter(function ($dt) {
+            $authId = auth()->id();
+            // Skip records where both user_id and user_to are the same as auth user
+            return !($authId === $dt->user_id && $authId === $dt->user_to);
+        })->map(function ($dt) {
+            $authId = auth()->id();
+
+            // Determine who the "other user" is
+            if ($authId === $dt->user_to) {
+                $userTo = $dt->user->id ?? null;
+                $userToName = $dt->user->name ?? null;
+            } else {
+                $userTo = $dt->userTo->id ?? null;
+                $userToName = $dt->userTo->name ?? null;
+            }
+
+            // Skip this record if no valid other user found
+            if (is_null($userTo)) {
+                return null;
+            }
+
+            $unreadCount = ChatMessage::where('user_id', $userTo)
+                ->where('user_to', $authId)
+                ->where('is_read', 'no')
+                ->count();
+
+            return [
+                'id' => encryptHelper($dt->id),
+                'chat_id' => encryptHelper($dt->group_to),
+                'chat_user_to_id' => encryptHelper($userTo),
+                'chat_user_to_name' => $userToName,
+                'is_file' => $dt->is_file,
+                'unread' => $unreadCount,
+                'last_message' => $dt->chat->message ? decrypt($dt->chat->message) : null,
+                'chat_user_type' => $dt->user_group,
+            ];
+        })->filter()->values(); // Reset array indexes
+
+        return $data;
     }
 }

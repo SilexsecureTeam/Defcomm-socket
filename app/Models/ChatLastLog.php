@@ -25,4 +25,9 @@ class ChatLastLog extends Model
     {
         return $this->belongsTo(CompanyGroup::class, 'group_to')->withDefault();
     }
+
+    public function chat()
+    {
+        return $this->belongsTo(ChatMessage::class, 'chat_id')->withDefault();
+    }
 }
