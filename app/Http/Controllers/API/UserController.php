@@ -1166,9 +1166,9 @@ class UserController extends Controller
             "data" => $data
         ];
         if ($chat->user_group == 'group') {
-            broadcast(new PrivateGroupMessageSent(encryptHelper(auth()->user()->id), encryptHelper($chat->user_to), $lastMessage))->toOthers();
+            broadcast(new PrivateGroupMessageSent(encryptHelper(auth()->user()->id), encryptHelper(auth()->user()->id), $lastMessage))->toOthers();
         } else {
-            broadcast(new PrivateMessageSent(encryptHelper(auth()->user()->id), encryptHelper($chat->user_to), $lastMessage))->toOthers();
+            broadcast(new PrivateMessageSent(encryptHelper(auth()->user()->id), encryptHelper(auth()->user()->id), $lastMessage))->toOthers();
         }
 
         return response()->json(

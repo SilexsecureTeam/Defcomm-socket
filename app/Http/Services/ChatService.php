@@ -175,9 +175,9 @@ class ChatService
             "data" => $this->lastMessage()
         ];
         if ($current_chat_user_type == 'group') {
-            broadcast(new PrivateGroupMessageSent(encryptHelper(auth()->user()->id), encryptHelper($current_chat_user), $lastMessage))->toOthers();
+            broadcast(new PrivateGroupMessageSent(encryptHelper(auth()->user()->id), encryptHelper(auth()->user()->id), $lastMessage))->toOthers();
         } else {
-            broadcast(new PrivateMessageSent(encryptHelper(auth()->user()->id), encryptHelper($current_chat_user), $lastMessage))->toOthers();
+            broadcast(new PrivateMessageSent(encryptHelper(auth()->user()->id), encryptHelper(auth()->user()->id), $lastMessage))->toOthers();
         }
 
         
