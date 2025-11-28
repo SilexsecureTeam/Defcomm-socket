@@ -56,9 +56,10 @@
         <div style="text-align:center; margin: 20px 0;">
             <p style="font-weight:bold; font-size:16px;">Scan QR Code to mark attendance</p>
 
-            <img src="data:image/png;base64, {!! $qrCode !!}"
+            <img src="data:image/png;base64,{{ $qrCode }}"
                 alt="QR Code"
-                style="width:200px;height:200px;">
+                width="200"
+                height="200">
 
             <p>If scanning fails, use this {{$user->email}} to get access</p>
         </div>

@@ -32,10 +32,12 @@ class EventRegistrationMail extends Mailable
         $qrData = url("/admin/form/attendance/" . encrypt($this->form->id) . "/" . encrypt($this->user->id));
 
         // Generate the QR code as a Base64 encoded string
-        $this->qrCode = base64_encode(QrCode::format('png')
-            ->size(200)
+        $png = QrCode::format('png')
+            ->size(120)
             ->margin(1)
-            ->generate($qrData));
+            ->generate($qrData);
+
+        $this->qrCode = base64_encode($png);
         return $this->view('emails.eventRegistrationMail');
     }
 }
