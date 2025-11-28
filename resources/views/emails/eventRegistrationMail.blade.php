@@ -51,6 +51,18 @@
             </div>
         </div>
         @endif
+
+        @if($form->attendance == "enabled")
+        <div style="text-align:center; margin: 20px 0;">
+            <p style="font-weight:bold; font-size:16px;">Scan QR Code to mark attendance</p>
+
+            <img src="data:image/png;base64, {!! $qrCode !!}"
+                alt="QR Code"
+                style="width:200px;height:200px;">
+
+            <p>If scanning fails, use this {{$user->email}} to get access</p>
+        </div>
+        @endif
         {!! $admail->message !!}
 
         <div style="line-height: 6px;">

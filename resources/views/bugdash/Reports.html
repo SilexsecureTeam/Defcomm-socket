@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Defcomm - Report #2024-001</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<nav class="sidebar">
+    <div class="logo">
+        <img src="assets/defcomm-logo.png" alt="Defcomm">
+    </div>
+
+    <div class="nav-main">
+        <a href="index.html" class="nav-item active">
+            <i class="fas fa-grid-2"></i> Dashboard
+        </a>
+        <a href="Submissions.html" class="nav-item">
+            <i class="fas fa-file-lines"></i> Reports
+        </a>
+         <a href="Reports.html" class="nav-item">
+            <i class="fas fa-file-lines"></i> Submissions
+        </a>
+        <a href="reviewqueue.html" class="nav-item">
+            <i class="fas fa-inbox"></i> Review Queue
+        </a>
+        <a href="adminscore.html" class="nav-item">
+            <i class="fas fa-trophy"></i> Score Board
+        </a>
+        <a href="program.html" class="nav-item">
+            <i class="fas fa-gift"></i> Programs
+        </a>
+        <a href="adminprogram.html" class="nav-item">
+            <i class="fas fa-gift"></i> Bounties
+        </a>
+        <a href="analytics.html" class="nav-item">
+            <i class="fas fa-chart-line"></i> Analytics
+        </a>
+        <a href="#" class="nav-item">
+            <i class="fas fa-gear"></i> Settings
+        </a>
+    </div>
+    
+    <div class="nav-bottom">
+        <a href="#" class="nav-item">
+            <i class="fas fa-user"></i> Profile
+        </a>
+        <a href="#" class="nav-item">
+            <i class="fas fa-arrow-right-from-bracket"></i> Log Out
+        </a>
+    </div>
+</nav>
+
+
+<header class="topbar">
+    <h1>Submission</h1>
+    <div class="topbar-right">
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="Search here">
+        </div>
+        <div class="user-area">
+            <div class="bell-notification">
+                <i class="fas fa-bell"></i>
+                <span class="badge">1</span>
+            </div>
+            <div class="user-profile">
+                <img src="assets/user-avatar.jpg" alt="Danielle Campbell">
+                <span>Danielle Campbell</span>
+                <i class="fas fa-caret-down"></i>
+            </div>
+        </div>
+    </div>
+</header>
+
+
+<main class="main">
+    <h2 class="page-subtitle">Report Details</h2>
+
+    <div class="report-detail-grid">
+        
+        <div class="report-main">
+            <div class="report-card">
+                <h1>Vulnerability Report: Cross-Site Scripting (XSS) in User Profile</h1>
+                <p class="report-meta">
+                    Report ID: #2024-001 | Submitted by: <strong>Alex Turner</strong>
+                </p>
+
+                <section class="report-section">
+                    <h3>Description</h3>
+                    <p>A cross-site scripting (XSS) vulnerability was discovered in the user profile section of the application.
+                         This allows attackers to inject malicious scripts into user profiles, potentially leading to data theft or other security breaches.</p>
+                </section>
+
+                <section class="report-section">
+                    <h3>Steps to Reproduce</h3>
+                    <ol>
+                        <li>Log in to the application with a valid user account.</li>
+                        <li>Navigate to the user profile settings.</li>
+                        <li>In the "About Me" section, enter the following script: <code>&lt;script&gt;alert('XSS')&lt;/script&gt;</code></li>
+                        <li>Save the profile changes.</li>
+                        <li>View the profile to trigger the script.</li>
+                    </ol>
+                </section>
+
+                <section class="report-section">
+                    <h3>Attachments/Screenshots</h3>
+                    <div class="screenshots">
+                        <img src="https://via.placeholder.com/800x500/1a1a1a/00ff9d?text=XSS+Proof+of+Concept" alt="Proof of Concept">
+                        <img src="https://via.placeholder.com/400x300/1a1a1a/00ff9d?text=Alert+Triggered" alt="Alert Triggered">
+                    </div>
+                </section>
+
+                
+                <div class="admin-tools-bottom">
+                    <h3>Admin Tools</h3>
+                    <div class="action-buttons">
+                        <button class="btn-approve">Approve</button>
+                        <button class="btn-reject">Reject</button>
+                    </div>
+                    <div class="reward-field">
+                        <label>Reward amount (USD)</label>
+                        <input type="number" placeholder="0.00">
+                    </div>
+                    <button class="btn-submit">Submit</button>
+                </div>
+            </div>
+        </div>
+
+        
+        <aside class="report-sidebar">
+            <h3>Actions</h3>
+            <button class="action-btn">Assign Severity</button>
+            <button class="action-btn">Change Status</button>
+            <button class="action-btn">Assign Reward Points</button>
+
+            <h3 style="margin-top:32px;">Admin Notes</h3>
+            <textarea class="admin-notes" placeholder="Add internal notes here..."></textarea>
+
+            <button class="btn-save-decision">Save Decision</button>
+        </aside>
+    </div>
+</main>
+
+</body>
+</html>

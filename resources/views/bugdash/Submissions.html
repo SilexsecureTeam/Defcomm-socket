@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Defcomm - Reports / Submissions</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<nav class="sidebar">
+    <div class="logo">
+        <img src="assets/defcomm-logo.png" alt="Defcomm">
+    </div>
+
+    <div class="nav-main">
+        <a href="index.html" class="nav-item active">
+            <i class="fas fa-grid-2"></i> Dashboard
+        </a>
+        <a href="Submissions.html" class="nav-item">
+            <i class="fas fa-file-lines"></i> Reports
+        </a>
+         <a href="Reports.html" class="nav-item">
+            <i class="fas fa-file-lines"></i> Submissions
+        </a>
+        <a href="reviewqueue.html" class="nav-item">
+            <i class="fas fa-inbox"></i> Review Queue
+        </a>
+        <a href="adminscore.html" class="nav-item">
+            <i class="fas fa-trophy"></i> Score Board
+        </a>
+        <a href="program.html" class="nav-item">
+            <i class="fas fa-gift"></i> Programs
+        </a>
+        <a href="adminprogram.html" class="nav-item">
+            <i class="fas fa-gift"></i> Bounties
+        </a>
+        <a href="analytics.html" class="nav-item">
+            <i class="fas fa-chart-line"></i> Analytics
+        </a>
+        <a href="#" class="nav-item">
+            <i class="fas fa-gear"></i> Settings
+        </a>
+    </div>
+
+    <div class="nav-bottom">
+        <a href="#" class="nav-item">
+            <i class="fas fa-user"></i> Profile
+        </a>
+        <a href="#" class="nav-item">
+            <i class="fas fa-arrow-right-from-bracket"></i> Log Out
+        </a>
+    </div>
+</nav>
+
+
+<header class="topbar">
+    <h1>Submission</h1>
+    <div class="topbar-right">
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="Search here">
+        </div>
+        <div class="user-area">
+            <div class="bell-notification">
+                <i class="fas fa-bell"></i>
+                <span class="badge">1</span>
+            </div>
+            <div class="user-profile">
+                <img src="assets/user-avatar.jpg" alt="Danielle Campbell">
+                <span>Danielle Campbell</span>
+                <i class="fas fa-caret-down"></i>
+            </div>
+        </div>
+    </div>
+</header>
+
+
+<main class="main">
+    <p class="page-description">Manage and review user-submitted reports.</p>
+
+    <div class="filters">
+        <select><option>Date Range</option></select>
+        <select><option>Severity</option></select>
+        <select><option>Status</option></select>
+        <select><option>Program</option></select>
+    </div>
+
+    <div class="table-container">
+        <table class="submissions-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Report ID</th>
+                    <th>Title</th>
+                    <th>Severity</th>
+                    <th>Status</th>
+                    <th>Reporter</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>2024-07-26</td>
+                    <td>RPT-001</td>
+                    <td>Cross-Site Scripting (XSS) in User Profile</td>
+                    <td><span class="severity critical">Critical</span></td>
+                    <td><span class="status new">New</span></td>
+                    <td><img src="https://i.pravatar.cc/40?img=1" alt="" class="reporter-avatar"></td>
+                    <td><a href="report-details.html" class="action-link">View</a></td>
+                </tr>
+                <tr>
+                    <td>2024-07-25</td>
+                    <td>RPT-002</td>
+                    <td>SQL Injection in Login Form</td>
+                    <td><span class="severity high">High</span></td>
+                    <td><span class="status under-review">Under Review</span></td>
+                    <td><img src="https://i.pravatar.cc/40?img=2" alt="" class="reporter-avatar"></td>
+                    <td><a href="#" class="action-link">View</a></td>
+                </tr>
+                <tr>
+                    <td>2024-07-24</td>
+                    <td>RPT-003</td>
+                    <td>Remote Code Execution (RCE) in File Upload</td>
+                    <td><span class="severity critical">Critical</span></td>
+                    <td><span class="status accepted">Accepted</span></td>
+                    <td><img src="https://i.pravatar.cc/40?img=3" alt="" class="reporter-avatar"></td>
+                    <td><a href="#" class="action-link">View</a></td>
+                </tr>
+                <tr>
+                    <td>2024-07-23</td>
+                    <td>RPT-004</td>
+                    <td>Denial of Service (DoS) in API Endpoint</td>
+                    <td><span class="severity medium">Medium</span></td>
+                    <td><span class="status rejected">Rejected</span></td>
+                    <td><img src="https://i.pravatar.cc/40?img=4" alt="" class="reporter-avatar"></td>
+                    <td><a href="#" class="action-link">View</a></td>
+                </tr>
+                <tr>
+                    <td>2024-07-22</td>
+                    <td>RPT-005</td>
+                    <td>Information Disclosure in Configuration File</td>
+                    <td><span class="severity low">Low</span></td>
+                    <td><span class="status fix-verification">Fix Verification</span></td>
+                    <td><img src="https://i.pravatar.cc/40?img=5" alt="" class="reporter-avatar"></td>
+                    <td><a href="#" class="action-link">View</a></td>
+                </tr>
+                <tr>
+                    <td>2024-07-21</td>
+                    <td>RPT-006</td>
+                    <td>Cross-Site Scripting (XSS) in Comments Section</td>
+                    <td><span class="severity medium">Medium</span></td>
+                    <td><span class="status closed">Closed</span></td>
+                    <td><img src="https://i.pravatar.cc/40?img=6" alt="" class="reporter-avatar"></td>
+                    <td><a href="#" class="action-link">View</a></td>
+                </tr>
+                <tr>
+                    <td>2024-07-20</td>
+                    <td>RPT-007</td>
+                    <td>SQL Injection in Search Functionality</td>
+                    <td><span class="severity high">High</span></td>
+                    <td><span class="status new">New</span></td>
+                    <td><img src="https://i.pravatar.cc/40?img=7" alt="" class="reporter-avatar"></td>
+                    <td><a href="#" class="action-link">View</a></td>
+                </tr>
+                <tr>
+                    <td>2024-07-19</td>
+                    <td>RPT-008</td>
+                    <td>Remote Code Execution (RCE) in Image Processing</td>
+                    <td><span class="severity critical">Critical</span></td>
+                    <td><span class="status under-review">Under Review</span></td>
+                    <td><img src="https://i.pravatar.cc/40?img=8" alt="" class="reporter-avatar"></td>
+                    <td><a href="#" class="action-link">View</a></td>
+                </tr>
+                <tr>
+                    <td>2024-07-18</td>
+                    <td>RPT-009</td>
+                    <td>Denial of Service (DoS) in Authentication Service</td>
+                    <td><span class="severity medium">Medium</span></td>
+                    <td><span class="status accepted">Accepted</span></td>
+                    <td><img src="https://i.pravatar.cc/40?img=9" alt="" class="reporter-avatar"></td>
+                    <td><a href="#" class="action-link">View</a></td>
+                </tr>
+                <tr>
+                    <td>2024-07-17</td>
+                    <td>RPT-010</td>
+                    <td>Information Disclosure in Error Messages</td>
+                    <td><span class="severity low">Low</span></td>
+                    <td><span class="status rejected">Rejected</span></td>
+                    <td><img src="https://i.pravatar.cc/40?img=10" alt="" class="reporter-avatar"></td>
+                    <td><a href="#" class="action-link">View</a></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    
+    <div class="pagination">
+        <a href="#" class="prev"><</a>
+        <a href="#" class="page active">1</a>
+        <a href="#" class="page">2</a>
+        <a href="#" class="page">3</a>
+        <a href="#" class="page">4</a>
+        <a href="#" class="page">5</a>
+        <a href="#" class="next">></a>
+    </div>
+</main>
+
+</body>
+</html>

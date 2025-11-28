@@ -226,12 +226,27 @@
     </div>
     <!--end::Scrolltop-->
 
+    <script>
+        document.querySelectorAll(".table-wrapper").forEach(wrapper => {
+            const input = wrapper.querySelector(".table-search");
+            const rows = wrapper.querySelectorAll("table tbody tr");
+
+            input.addEventListener("keyup", function() {
+                const value = this.value.toLowerCase();
+                rows.forEach(row => {
+                    row.style.display = row.textContent.toLowerCase().includes(value) ? "" : "none";
+                });
+            });
+        });
+    </script>
+
+
     <script src="{{ asset('demo6/plugins/global/plugins.bundle.js')}}"></script>
     <script src="{{ asset('demo6/js/scripts.bundle.js')}}"></script>
     <!--end::Global Javascript Bundle-->
     <!--begin::Vendors Javascript(used for this page only)-->
-    <script src="{{ asset('demo6/js/custom/apps/user-management/users/list/table.js')}}"></script>
     <script src="{{ asset('demo6/plugins/custom/datatables/datatables.bundle.js')}}"></script>
+    <script src="{{ asset('demo6/js/custom/apps/user-management/users/list/table.js')}}"></script>
     <script src="{{ asset('demo6/plugins/custom/vis-timeline/vis-timeline.bundle.js')}}"></script>
     <script src="https://cdn.amcharts.com/lib/5/index.js"></script>
     <script src="https://cdn.amcharts.com/lib/5/xy.js"></script>
@@ -280,6 +295,7 @@
         });
     </script>
     @endif
+
 </body>
 
 </html>

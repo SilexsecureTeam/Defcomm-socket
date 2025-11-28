@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Defcomm - Overview</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+
+<nav class="sidebar">
+    <div class="logo">
+        <img src="assets/defcomm-logo.png" alt="Defcomm">
+    </div>
+
+    <div class="nav-main">
+        <a href="index.html" class="nav-item active">
+            <i class="fas fa-grid-2"></i> Dashboard
+        </a>
+        <a href="Submissions.html" class="nav-item">
+            <i class="fas fa-file-lines"></i> Reports
+        </a>
+         <a href="Reports.html" class="nav-item">
+            <i class="fas fa-file-lines"></i> Submissions
+        </a>
+        <a href="reviewqueue.html" class="nav-item">
+            <i class="fas fa-inbox"></i> Review Queue
+        </a>
+        <a href="adminscore.html" class="nav-item">
+            <i class="fas fa-trophy"></i> Score Board
+        </a>
+        <a href="program.html" class="nav-item">
+            <i class="fas fa-gift"></i> Programs
+        </a>
+        <a href="adminprogram.html" class="nav-item">
+            <i class="fas fa-gift"></i> Bounties
+        </a>
+        <a href="analytics.html" class="nav-item">
+            <i class="fas fa-chart-line"></i> Analytics
+        </a>
+        <a href="#" class="nav-item">
+            <i class="fas fa-gear"></i> Settings
+        </a>
+    </div>
+
+    <div class="nav-bottom">
+        <a href="#" class="nav-item">
+            <i class="fas fa-user"></i> Profile
+        </a>
+        <a href="#" class="nav-item">
+            <i class="fas fa-arrow-right-from-bracket"></i> Log Out
+        </a>
+    </div>
+</nav>
+
+<header class="topbar">
+    <h1>Overview</h1>
+    <div class="topbar-right">
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="Search here">
+        </div>
+        <div class="user-area">
+            <div class="bell-notification">
+                <i class="fas fa-bell"></i>
+                <span class="badge">1</span>
+            </div>
+            <div class="user-profile">
+                <img src="assets/user-avatar.jpg" alt="Danielle Campbell">
+                <span>Danielle Campbell</span>
+                <i class="fas fa-caret-down"></i>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="main">
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-title">Total Submissions</div>
+            <div class="stat-value">358 <span class="trend up">28.4%</span></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-title">Pending Reviews</div>
+            <div class="stat-value">58 <span class="trend down">-6%</span></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-title">Approved Reports</div>
+            <div class="stat-value">330 <span class="trend up">8%</span></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-title">Rewards Paid</div>
+            <div class="stat-value">358 <span class="trend neutral">0%</span></div>
+        </div>
+    </div>
+
+    <div class="charts-row">
+        <div class="chart-card wide">
+            <div class="chart-header">
+                <h3>Submission Trend</h3>
+                <div class="filters">
+                    <select><option>Severity</option></select>
+                    <select><option>Program</option></select>
+                    <select><option>Platform</option></select>
+                </div>
+            </div>
+            <div class="line-chart"><div class="chart-placeholder">Multi-line Submission Trend Chart</div></div>
+            <div class="chart-labels">SEP OCT NOV DEC JAN FEB</div>
+        </div>
+
+        <div class="chart-card">
+            <div class="chart-header">
+                <h3>Rewards Paid</h3>
+                <span class="period">This month</span>
+            </div>
+            <div class="bar-chart"><div class="chart-placeholder">Weekly Bar Chart</div></div>
+            <div class="chart-labels">Mon Tue Wed Thu Fri Sat Sun</div>
+        </div>
+    </div>
+
+    <div class="dashboard-grid">
+
+        <div class="card pending-list">
+            <div class="card-header"><h3>Pending Submissions</h3><a href="#">View all</a></div>
+            <table>
+                <thead><tr><th>Name</th><th>Report ID</th><th>Title</th><th>Date</th></tr></thead>
+                <tbody>
+                    <tr><td><img src="assets/reporter-1.jpg" class="reporter-avatar"> Alex Turner</td><td>RPT-2024-001</td><td>Cross-Site Scripting</td><td>25-03-15</td></tr>
+                    <tr><td><img src="assets/reporter-2.jpg" class="reporter-avatar"> Horizon UI Free</td><td>RPT-2024-001</td><td>Cross-Site Scripting</td><td>25-03-15</td></tr>
+                    <tr><td><img src="assets/reporter-3.jpg" class="reporter-avatar"> Weekly Update</td><td>RPT-2024-001</td><td>Cross-Site Scripting</td><td>25-03-15</td></tr>
+                    <tr><td><img src="assets/reporter-4.jpg" class="reporter-avatar"> Venus 3D Asset</td><td>RPT-2024-001</td><td>Cross-Site Scripting</td><td>25-03-15</td></tr>
+                    <tr><td><img src="assets/reporter-5.jpg" class="reporter-avatar"> Marketplace</td><td>RPT-2024-001</td><td>Cross-Site Scripting</td><td>25-03-15</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card today-stats">
+            <div class="stat-box">
+                <h3>Today's Submissions</h3>
+                <div class="big-number">124 <span class="trend up">+24%</span></div>
+                <small>in the last 24h</small>
+            </div>
+            <div class="hourly-bars"><div class="chart-placeholder">Hourly Submission Bars</div></div>
+        </div>
+
+        <div class="card severity-pie">
+            <h3>Severity Distribution <span>Monthly</span></h3>
+            <div class="pie-chart"><div class="chart-placeholder">Pie Chart</div></div>
+            <div class="legend">
+                <span>Critical 63%</span>
+                <span>High 33%</span>
+                <span>Medium 3%</span>
+                <span>Low 1%</span>
+            </div>
+        </div>
+
+        <div class="card top-categories">
+            <div class="card-header"><h3>Top Categories of Issues Reported</h3><span>Monthly</span></div>
+            <div class="bar-item"><span>Authentication</span><div class="progress"><div class="fill red" style="width:90%"></div></div><span>90%</span></div>
+            <div class="bar-item"><span>XSS</span><div class="progress"><div class="fill yellow" style="width:20%"></div></div><span>20%</span></div>
+            <div class="bar-item"><span>API Vuln</span><div class="progress"><div class="fill yellow" style="width:18%"></div></div><span>18%</span></div>
+            <div class="bar-item"><span>Auth Bypass</span><div class="progress"><div class="fill cyan" style="width:12%"></div></div><span>12%</span></div>
+            <div class="bar-item"><span>Data Exposure</span><div class="progress"><div class="fill cyan" style="width:8%"></div></div><span>8%</span></div>
+            <div class="bar-item"><span>CSRF</span><div class="progress"><div class="fill cyan" style="width:4%"></div></div><span>4%</span></div>
+        </div>
+
+        <div class="card top-hackers">
+            <div class="card-header"><h3>Top Hackers (2025)</h3><a href="#">View all</a></div>
+            <div class="hacker-item"><img src="assets/hacker-1.jpg"> @CyberHunter<br><small>Cyber Security Analyst</small><span class="rank">1</span></div>
+            <div class="hacker-item"><img src="assets/hacker-2.jpg"> @CryptoGuard<br><small>Blockchain Researcher</small><span class="rank">2</span></div>
+            <div class="hacker-item"><img src="assets/hacker-3.jpg"> @Jarvis<br><small>Cyber Security Analyst</small><span class="rank">3</span></div>
+            <div class="hacker-item"><img src="assets/hacker-4.jpg"> @CyberHunter<br><small>Cyber Security Analyst</small><span class="rank">4</span></div>
+        </div>
+
+        <div class="card recent-activities full-width">
+            <div class="card-header"><h3>Recent Activities</h3><a href="#">View all activity</a></div>
+            <div class="activity"><div class="icon approved"></div>Report #1234 Approved<br><small>100 points • $500 • Approved</small><span class="time">2h ago</span></div>
+            <div class="activity"><div class="icon payout"></div>Payout for Report #1234<br><small>Payout issued</small><span class="time">3h ago</span></div>
+            <div class="activity"><div class="icon warning"></div>Report #5678 SLA Warning<br><small>SLA warning</small><span class="time">4h ago</span></div>
+            <div class="activity"><div class="icon status"></div>Report #9012 Status Changed<br><small>Status changed</small><span class="time">5h ago</span></div>
+            <div class="activity"><div class="icon new"></div>Report #3456 New Submission<br><small>New submission</small><span class="time">6h ago</span></div>
+            <div class="activity"><div class="icon note"></div>Report #7890 Admin Note<br><small>Admin note</small><span class="time">7h ago</span></div>
+        </div>
+
+    </div>
+</main>
+
+</body>
+</html>

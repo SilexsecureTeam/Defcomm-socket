@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Defcomm - Review Queue</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<nav class="sidebar">
+    <div class="logo">
+        <img src="assets/defcomm-logo.png" alt="Defcomm">
+    </div>
+
+   <div class="nav-main">
+        <a href="index.html" class="nav-item active">
+            <i class="fas fa-grid-2"></i> Dashboard
+        </a>
+        <a href="Submissions.html" class="nav-item">
+            <i class="fas fa-file-lines"></i> Reports
+        </a>
+         <a href="Reports.html" class="nav-item">
+            <i class="fas fa-file-lines"></i> Submissions
+        </a>
+        <a href="reviewqueue.html" class="nav-item">
+            <i class="fas fa-inbox"></i> Review Queue
+        </a>
+        <a href="adminscore.html" class="nav-item">
+            <i class="fas fa-trophy"></i> Score Board
+        </a>
+        <a href="program.html" class="nav-item">
+            <i class="fas fa-gift"></i> Programs
+        </a>
+        <a href="adminprogram.html" class="nav-item">
+            <i class="fas fa-gift"></i> Bounties
+        </a>
+        <a href="analytics.html" class="nav-item">
+            <i class="fas fa-chart-line"></i> Analytics
+        </a>
+        <a href="#" class="nav-item">
+            <i class="fas fa-gear"></i> Settings
+        </a>
+    </div>
+    <div class="nav-bottom">
+        <a href="#" class="nav-item">
+            <i class="fas fa-user"></i> Profile
+        </a>
+        <a href="#" class="nav-item">
+            <i class="fas fa-arrow-right-from-bracket"></i> Log Out
+        </a>
+    </div>
+</nav>
+
+
+<header class="topbar">
+    <h1>Overview</h1>
+    <div class="topbar-right">
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="Search here">
+        </div>
+        <div class="user-area">
+            <div class="bell-notification">
+                <i class="fas fa-bell"></i>
+                <span class="badge">1</span>
+            </div>
+            <div class="user-profile">
+                <img src="assets/user-avatar.jpg" alt="Danielle Campbell">
+                <span>Danielle Campbell</span>
+                <i class="fas fa-caret-down"></i>
+            </div>
+        </div>
+    </div>
+</header>
+
+
+<main class="main">
+    <h2 class="page-subtitle">Review Queue</h2>
+    <p class="page-description">Pending reports waiting for admin review</p>
+
+    <div class="table-container">
+        <table class="queue-table">
+            <thead>
+                <tr>
+                    <th>Report ID</th>
+                    <th>Title</th>
+                    <th>Reporter</th>
+                    <th>Submitted On</th>
+                    <th>Suggested Severity</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>#12345</td>
+                    <td>Cross-site scripting vulnerability in user profile page</td>
+                    <td>Alex Turner</td>
+                    <td>2023-08-15</td>
+                    <td><span class="severity high">High</span></td>
+                    <td><span class="status pending">Pending</span></td>
+                    <td><a href="report-details.html" class="action-link">View</a></td>
+                </tr>
+                <tr>
+                    <td>#12346</td>
+                    <td>SQL injection vulnerability in login form</td>
+                    <td>Jamie Cook</td>
+                    <td>2023-08-16</td>
+                    <td><span class="severity critical">Critical</span></td>
+                    <td><span class="status pending">Pending</span></td>
+                    <td><a href="#" class="action-link">View</a></td>
+                </tr>
+                <tr>
+                    <td>#12347</td>
+                    <td>Remote code execution vulnerability in file upload</td>
+                    <td>Matt Helders</td>
+                    <td>2023-08-17</td>
+                    <td><span class="severity critical">Critical</span></td>
+                    <td><span class="status pending">Pending</span></td>
+                    <td><a href="#" class="action-link">View</a></td>
+                </tr>
+                <tr>
+                    <td>#12348</td>
+                    <td>Denial of service vulnerability in API endpoint</td>
+                    <td>Nick O'Malley</td>
+                    <td>2023-08-18</td>
+                    <td><span class="severity medium">Medium</span></td>
+                    <td><span class="status pending">Pending</span></td>
+                    <td><a href="#" class="action-link">View</a></td>
+                </tr>
+                <tr>
+                    <td>#12349</td>
+                    <td>Information disclosure vulnerability in error messages</td>
+                    <td>Miles Kane</td>
+                    <td>2023-08-19</td>
+                    <td><span class="severity low">Low</span></td>
+                    <td><span class="status pending">Pending</span></td>
+                    <td><a href="#" class="action-link">View</a></td>
+                </tr>
+                <tr>
+                    <td>#12350</td>
+                    <td>Cross-site request forgery vulnerability in password reset</td>
+                    <td>Bill Ryder-Jones</td>
+                    <td>2023-08-20</td>
+                    <td><span class="severity medium">Medium</span></td>
+                    <td><span class="status pending">Pending</span></td>
+                    <td><a href="#" class="action-link">View</a></td>
+                </tr>
+                <tr>
+                    <td>#12351</td>
+                    <td>Server-side request forgery vulnerability in image proxy</td>
+                    <td>Richard Hawley</td>
+                    <td>2023-08-21</td>
+                    <td><span class="severity high">High</span></td>
+                    <td><span class="status pending">Pending</span></td>
+                    <td><a href="#" class="action-link">View</a></td>
+                </tr>
+                <tr>
+                    <td>#12352</td>
+                    <td>XML external entity vulnerability in document parser</td>
+                    <td>Corinne Bailey Rae</td>
+                    <td>2023-08-22</td>
+                    <td><span class="severity critical">Critical</span></td>
+                    <td><span class="status pending">Pending</span></td>
+                    <td><a href="#" class="action-link">View</a></td>
+                </tr>
+                <tr>
+                    <td>#12353</td>
+                    <td>Directory traversal vulnerability in file server</td>
+                    <td>Badly Drawn Boy</td>
+                    <td>2023-08-23</td>
+                    <td><span class="severity high">High</span></td>
+                    <td><span class="status pending">Pending</span></td>
+                    <td><a href="#" class="action-link">View</a></td>
+                </tr>
+                <tr>
+                    <td>#12354</td>
+                    <td>Open redirect vulnerability in login redirect</td>
+                    <td>Eliza Carthy</td>
+                    <td>2023-08-24</td>
+                    <td><span class="severity low">Low</span></td>
+                    <td><span class="status pending">Pending</span></td>
+                    <td><a href="#" class="action-link">View</a></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+   
+    <div class="pagination">
+        <a href="#" class="prev"><</a>
+        <a href="#" class="page active">1</a>
+        <a href="#" class="page">2</a>
+        <a href="#" class="page">3</a>
+        <a href="#" class="page">4</a>
+        <a href="#" class="page">5</a>
+        <a href="#" class="next">></a>
+    </div>
+</main>
+
+</body>
+</html>

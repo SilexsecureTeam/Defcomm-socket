@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Defcomm -  Bounty</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<nav class="sidebar">
+    <div class="logo">
+        <img src="assets/defcomm-logo.png" alt="Defcomm">
+    </div>
+
+    <div class="nav-main">
+        <a href="index.html" class="nav-item active">
+            <i class="fas fa-grid-2"></i> Dashboard
+        </a>
+        <a href="Submissions.html" class="nav-item">
+            <i class="fas fa-file-lines"></i> Reports
+        </a>
+         <a href="Reports.html" class="nav-item">
+            <i class="fas fa-file-lines"></i> Submissions
+        </a>
+        <a href="reviewqueue.html" class="nav-item">
+            <i class="fas fa-inbox"></i> Review Queue
+        </a>
+        <a href="adminscore.html" class="nav-item">
+            <i class="fas fa-trophy"></i> Score Board
+        </a>
+        <a href="program.html" class="nav-item">
+            <i class="fas fa-gift"></i> Programs
+        </a>
+        <a href="adminprogram.html" class="nav-item">
+            <i class="fas fa-gift"></i> Bounties
+        </a>
+        <a href="analytics.html" class="nav-item">
+            <i class="fas fa-chart-line"></i> Analytics
+        </a>
+        <a href="#" class="nav-item">
+            <i class="fas fa-gear"></i> Settings
+        </a>
+    </div>
+
+    <div class="nav-bottom">
+        <a href="#" class="nav-item">
+            <i class="fas fa-user"></i> Profile
+        </a>
+        <a href="#" class="nav-item">
+            <i class="fas fa-arrow-right-from-bracket"></i> Log Out
+        </a>
+    </div>
+</nav>
+
+<header class="topbar">
+    <h1>Program</h1>
+    <div class="topbar-right">
+        <div class="search-box"><i class="fas fa-search"></i><input type="text" placeholder="Search here"></div>
+        <div class="user-area">
+            <div class="bell-notification"><i class="fas fa-bell"></i><span class="badge">1</span></div>
+            <div class="user-profile">
+                <img src="assets/user-avatar.jpg" alt="Danielle Campbell">
+                <span>Danielle Campbell</span><i class="fas fa-caret-down"></i>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="main">
+    <div class="program-header">
+        <h2>Program Details: SecureApp Bounty</h2>
+        <button class="btn-edit">Edit</button>
+    </div>
+    <p class="page-description">Manage and monitor the SecureApp Bounty program.</p>
+
+    <div class="program-actions">
+        <button class="btn-clone">Clone</button>
+        <button class="btn-archive">Archive</button>
+    </div>
+
+    <section class="program-section">
+        <h3>Program Brief</h3>
+        <p>SecureApp Bounty is a program focused on identifying vulnerabilities within the SecureApp application. This program aims to enhance the security posture of SecureApp by engaging with the security research community.</p>
+
+        <h4>In-Scope Assets</h4>
+        <ul>
+            <li>SecureApp iOS Application</li>
+            <li>SecureApp Android Application</li>
+            <li>SecureApp API Endpoints</li>
+        </ul>
+
+        <h4>Out-of-Scope</h4>
+        <ul>
+            <li>SecureApp Website (marketing pages)</li>
+            <li>Third-party integrations</li>
+        </ul>
+
+        <h4>Rules of Engagement</h4>
+        <ul>
+            <li>Researchers must adhere to responsible disclosure practices.</li>
+            <li>Testing should not disrupt the availability of SecureApp services.</li>
+            <li>Exploitation of vulnerabilities is limited to proof-of-concept demonstrations.</li>
+        </ul>
+    </section>
+
+    <section class="program-section reward-table">
+        <h3>Reward Table</h3>
+        <table>
+            <thead>
+                <tr><th>Severity</th><th>Reward</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Critical</td><td>$5,000</td></tr>
+                <tr><td>High</td><td>$2,500</td></tr>
+                <tr><td>Medium</td><td>$1,000</td></tr>
+                <tr><td>Low</td><td>$500</td></tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section class="program-section metrics">
+        <h3>Metrics & Analytics</h3>
+        <div class="metrics-cards">
+            <div class="metric">Total Reports <strong>125</strong></div>
+            <div class="metric">Accepted Reports <strong>85</strong></div>
+            <div class="metric">Rejected Reports <strong>40</strong></div>
+        </div>
+
+        <div class="charts-row">
+            <div class="chart-card">
+                <h4>Traffic by Device</h4>
+                <div class="bar-chart-mini" style="display:flex;align-items:flex-end;justify-content:space-around;height:120px;">
+                    <div style="width:25%;height:30%;background:#ff4757;"></div>
+                    <div style="width:25%;height:70%;background:#ffd60a;"></div>
+                    <div style="width:25%;height:50%;background:#ffd60a;"></div>
+                    <div style="width:25%;height:90%;background:#00ff9d;"></div>
+                </div>
+                <div class="chart-labels">Critical High Medium Low</div>
+            </div>
+            <div class="chart-card">
+                <h4>Reports Over Time</h4>
+                <svg viewBox="0 0 300 120" style="width:100%;height:120px;">
+                    <path d="M0,90 Q50,30 100,80 Q150,40 200,70 Q250,20 300,60" fill="none" stroke="#00ff9d" stroke-width="3"/>
+                </svg>
+                <div class="chart-labels">Jan Feb Mar Apr May Jun</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="program-section">
+        <h3>Top Contributors</h3>
+        <table class="contributors-table">
+            <thead><tr><th>Hacker</th><th>Accepted Reports</th><th>Rewards</th></tr></thead>
+            <tbody>
+                <tr><td>Alex</td><td>25</td><td>$12,500</td></tr>
+                <tr><td>Jordan</td><td>20</td><td>$10,000</td></tr>
+                <tr><td>Taylor</td><td>15</td><td>$7,500</td></tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section class="program-section">
+        <h3>Recent Reports</h3>
+        <table class="recent-reports">
+            <thead><tr><th>Report ID</th><th>Title</th><th>Severity</th><th>Status</th><th>Submitted Date</th></tr></thead>
+            <tbody>
+                <tr><td>#125</td><td>SQL Injection in User Login</td><td><span class="severity critical">Critical</span></td><td><span class="status accepted">Accepted</span></td><td>2023-07-15</td></tr>
+                <tr><td>#124</td><td>Cross-Site Scripting (XSS) in Profile Page</td><td><span class="severity high">High</span></td><td><span class="status accepted">Accepted</span></td><td>2023-07-10</td></tr>
+                <tr><td>#123</td><td>Insecure Direct Object References (IDOR) in API</td><td><span class="severity medium">Medium</span></td><td><span class="status accepted">Accepted</span></td><td>2023-07-05</td></tr>
+                <tr><td>#122</td><td>Information Disclosure in Error Messages</td><td><span class="severity low">Low</span></td><td><span class="status rejected">Rejected</span></td><td>2023-06-30</td></tr>
+                <tr><td>#121</td><td>Missing Rate Limiting on Password Reset</td><td><span class="severity medium">Medium</span></td><td><span class="status accepted">Accepted</span></td><td>2023-06-25</td></tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section class="program-section metadata">
+        <h3>Metadata</h3>
+        <div class="metadata-grid">
+            <div><strong>Launch Date</strong><span>16-05-2025</span></div>
+            <div><strong>Last Updated</strong><span>16-05-2025</span></div>
+        </div>
+    </section>
+</main>
+</body>
+</html>

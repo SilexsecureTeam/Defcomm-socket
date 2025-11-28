@@ -69,7 +69,7 @@
             </div>
             <!--end:Menu item-->
             @endif
-            @if(auth()->user()->access == 'full' || auth()->user()->access == 'attendance')
+            {{--@if(auth()->user()->access == 'full' || auth()->user()->access == 'attendance')
             <!--begin:Menu item-->
             <div data-kt-menu-trigger="{default: 'click', lg: 'hover'}" data-kt-menu-placement="right-start" class="menu-item py-2">
                 <!--begin:Menu link-->
@@ -82,7 +82,7 @@
                 <!--end:Menu link-->
             </div>
             <!--end:Menu item-->
-            @endif
+            @endif--}}
             @if(auth()->user()->access == 'full')
             <!--begin:Menu item-->
             <div data-kt-menu-trigger="{default: 'click', lg: 'hover'}" data-kt-menu-placement="right-start" class="menu-item py-2">

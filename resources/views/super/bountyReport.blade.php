@@ -44,7 +44,7 @@
 <div class="tab-content">
     <div class="tab-pane fade" id="review">
         <!--begin::Card-->
-        <div class="card">
+        <div class="card table-wrapper">
             <!--begin::Card header-->
             <div class="card-header border-0 pt-6">
                 <!--begin::Card title-->
@@ -52,7 +52,7 @@
                     <!--begin::Search-->
                     <div class="d-flex align-items-center position-relative my-1">
                         <i class="ki-outline ki-magnifier fs-3 position-absolute ms-5"></i>
-                        <input type="text" data-kt-user-table-filter="search" class="form-control form-control-solid w-250px ps-13" placeholder="Search user" />
+                        <input type="text" data-kt-user-table-filter="search" class="table-search form-control form-control-solid w-250px ps-13" placeholder="Search user" />
                     </div>
                     <!--end::Search-->
                 </div>
@@ -115,7 +115,7 @@
     </div>
     <div class="tab-pane fade show active" id="new">
         <!--begin::Card-->
-        <div class="card">
+        <div class="card table-wrapper">
             <!--begin::Card header-->
             <div class="card-header border-0 pt-6">
                 <!--begin::Card title-->
@@ -123,7 +123,7 @@
                     <!--begin::Search-->
                     <div class="d-flex align-items-center position-relative my-1">
                         <i class="ki-outline ki-magnifier fs-3 position-absolute ms-5"></i>
-                        <input type="text" data-kt-user-table-filter="search" class="form-control form-control-solid w-250px ps-13" placeholder="Search user" />
+                        <input type="text" data-kt-user-table-filter="search" class="table-search form-control form-control-solid w-250px ps-13" placeholder="Search user" />
                     </div>
                     <!--end::Search-->
                 </div>
@@ -185,7 +185,7 @@
     </div>
     <div class="tab-pane fade" id="accept">
         <!--begin::Card-->
-        <div class="card">
+        <div class="card table-wrapper">
             <!--begin::Card header-->
             <div class="card-header border-0 pt-6">
                 <!--begin::Card title-->
@@ -193,7 +193,7 @@
                     <!--begin::Search-->
                     <div class="d-flex align-items-center position-relative my-1">
                         <i class="ki-outline ki-magnifier fs-3 position-absolute ms-5"></i>
-                        <input type="text" data-kt-user-table-filter="search" class="form-control form-control-solid w-250px ps-13" placeholder="Search user" />
+                        <input type="text" data-kt-user-table-filter="search" class="table-search form-control form-control-solid w-250px ps-13" placeholder="Search user" />
                     </div>
                     <!--end::Search-->
                 </div>
@@ -253,7 +253,7 @@
         </div>
         <!--end::Card-->
     </div>
-    
+
 </div>
 
 @endsection

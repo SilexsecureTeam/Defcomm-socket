@@ -2,7 +2,7 @@
 
 @section('content')
 <!--begin::Card-->
-<div class="card">
+<div class="card table-wrapper">
     <!--begin::Card header-->
     <div class="card-header border-0 pt-6">
         <!--begin::Card title-->
@@ -10,7 +10,7 @@
             <!--begin::Search-->
             <div class="d-flex align-items-center position-relative my-1">
                 <i class="ki-outline ki-magnifier fs-3 position-absolute ms-5"></i>
-                <input type="text" data-kt-user-table-filter="search" class="form-control form-control-solid w-250px ps-13" placeholder="Search user" />
+                <input type="text" data-kt-user-table-filter="search" class="table-search form-control form-control-solid w-250px ps-13" placeholder="Search user" />
             </div>
             <!--end::Search-->
         </div>
@@ -89,6 +89,18 @@
                                         <!--end::Label-->
                                         <!--begin::Input-->
                                         <select name="signup" class="form-control form-control-solid mb-3 mb-lg-0">
+                                            <option value="">Select</option>
+                                            <option value="enabled">Enabled</option>
+                                            <option value="disabled">Disabled</option>
+                                        </select>
+                                        <!--end::Input-->
+                                    </div>
+                                    <div class="fv-row mb-7">
+                                        <!--begin::Label-->
+                                        <label class="required fw-semibold fs-6 mb-2">Attendance</label>
+                                        <!--end::Label-->
+                                        <!--begin::Input-->
+                                        <select name="attendance" class="form-control form-control-solid mb-3 mb-lg-0">
                                             <option value="">Select</option>
                                             <option value="enabled">Enabled</option>
                                             <option value="disabled">Disabled</option>
@@ -355,6 +367,18 @@
                                 <option value="">Select</option>
                                 <option value="enabled" {{$dt->signup == 'enabled' ? 'selected' : '' }}>Enabled</option>
                                 <option value="disabled" {{$dt->signup == 'disabled' ? 'selected' : '' }}>Disabled</option>
+                            </select>
+                            <!--end::Input-->
+                        </div>
+                        <div class="fv-row mb-7">
+                            <!--begin::Label-->
+                            <label class="required fw-semibold fs-6 mb-2">Attendance</label>
+                            <!--end::Label-->
+                            <!--begin::Input-->
+                            <select name="attendance" class="form-control form-control-solid mb-3 mb-lg-0">
+                                <option value="">Select</option>
+                                <option value="enabled" {{$dt->attendance == 'enabled' ? 'selected' : '' }}>Enabled</option>
+                                <option value="disabled" {{$dt->attendance == 'disabled' ? 'selected' : '' }}>Disabled</option>
                             </select>
                             <!--end::Input-->
                         </div>

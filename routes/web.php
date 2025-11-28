@@ -137,6 +137,7 @@ Route::middleware(['auth', 'user-role:admin'])->group(function () {
     Route::get('/admin/form/application/{id}', [AdminController::class, 'formApplication'])->name('admin.form.application');
     Route::post('/admin/form/create', [AdminController::class, 'formCreate'])->name('admin.form.create');
     Route::post('/admin/form/update', [AdminController::class, 'formUpdate'])->name('admin.form.update');
+    Route::get('/admin/form/attendance/{id}/{userId}', [AdminController::class, 'attendanceUser'])->name('admin.attendanceUser');
 
     Route::get('/admin/file', [AdminController::class, 'file'])->name('admin.file');
     Route::get('/admin/file/user', [AdminController::class, 'fileUser'])->name('admin.file.user');

@@ -6,7 +6,10 @@
     "license": "MIT",
     "require": {
         "php": "^8.1",
+        "attestra/qr-code": "^4.4",
         "beyondcode/laravel-websockets": "^1.14",
+        "chillerlan/php-qrcode": "^5.0",
+        "endroid/qr-code": "^5.0",
         "firebase/php-jwt": "^6.11",
         "google/cloud-speech": "^2.1",
         "google/cloud-text-to-speech": "^2.2",
@@ -22,6 +25,7 @@
         "pusher/pusher-php-server": "^7.2",
         "setasign/fpdf": "^1.8",
         "setasign/fpdi": "^2.6",
+        "simplesoftwareio/simple-qrcode": "^4.2",
         "stevebauman/location": "^7.6",
         "vinkla/hashids": "^11.0"
     },

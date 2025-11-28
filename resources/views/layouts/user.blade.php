@@ -318,6 +318,20 @@
 
     @livewireScripts
 
+    <script>
+        document.querySelectorAll(".table-wrapper").forEach(wrapper => {
+            const input = wrapper.querySelector(".table-search");
+            const rows = wrapper.querySelectorAll("table tbody tr");
+
+            input.addEventListener("keyup", function() {
+                const value = this.value.toLowerCase();
+                rows.forEach(row => {
+                    row.style.display = row.textContent.toLowerCase().includes(value) ? "" : "none";
+                });
+            });
+        });
+    </script>
+
     <script src="{{ asset('demo3/plugins/global/plugins.bundle.js')}}"></script>
     <script src="{{ asset('demo3/js/scripts.bundle.js')}}"></script>
     <!--end::Global Javascript Bundle-->

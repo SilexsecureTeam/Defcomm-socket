@@ -22,6 +22,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Services\FileEncryptorService;
+use App\Models\EventRegistrationsAttendances;
 
 class AdminController extends Controller
 {
@@ -198,6 +199,7 @@ class AdminController extends Controller
             'group_id' => $request->group_id ? decrypt($request->group_id) : null,
             'meeting_id' => $request->meeting_id ? decryptHelper($request->meeting_id) : null,
             'signup' => $request->signup ?? "disabled",
+            'attendance' => $request->attendance ?? "disabled",
             'status' => $request->status ?? "active",
             'user_id' => auth()->user()->id,
         ]);
@@ -213,10 +215,23 @@ class AdminController extends Controller
             'group_id' => decrypt($request->group_id),
             'meeting_id' => $request->meeting_id ? decryptHelper($request->meeting_id) : null,
             'signup' => $request->signup,
+            'attendance' => $request->attendance,
             'status' => $request->status,
         ]);
 
         return redirect()->back()->with('success', "Event form successfully created");
+    }
+
+    public function attendanceUser($id, $userId)
+    {
+        $data = EventRegistrationsAttendances::updateOrCreate([
+            'form_id' => decrypt($id),
+            'user_id' => decrypt($userId),
+        ], [
+            'comment' => "Checked by " . auth()->user()->name,
+        ]);
+
+        return redirect()->back()->with('tab', '');
     }
 
     public function group()
