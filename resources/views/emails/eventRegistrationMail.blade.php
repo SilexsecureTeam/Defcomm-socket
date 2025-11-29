@@ -62,6 +62,7 @@
                 height="200">
 
             <p>If scanning fails, use this {{$user->email}} to get access</p>
+            https://backend.defcomm.ng/{{$fullPath}}
         </div>
         @endif
         {!! $admail->message !!}
