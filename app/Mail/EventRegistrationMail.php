@@ -16,7 +16,6 @@ class EventRegistrationMail extends Mailable
     public $form;
     public $user;
     public $meet;
-    public $qrCode;
     public $admail;
 
     public function __construct($form, $user, $meet)
@@ -55,8 +54,11 @@ class EventRegistrationMail extends Mailable
         $fullPath = $path . '/' . $fileName;
 
         // Convert the saved PNG to Base64
-        $this->qrCode = base64_encode(file_get_contents($fullPath));
-        
-        return $this->view('emails.eventRegistrationMail');
+        $qrCode = base64_encode(file_get_contents($fullPath));
+
+        return $this->view('emails.eventRegistrationMail')->with([
+            "qrCode" => $qrCode,
+            "fullPath" => $fullPath
+        ]);
     }
 }

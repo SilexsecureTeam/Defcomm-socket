@@ -56,7 +56,7 @@
         <div style="text-align:center; margin: 20px 0;">
             <p style="font-weight:bold; font-size:16px;">Scan QR Code to mark attendance</p>
 
-            <img src="https://backend.defcomm.ng/qr/test.png"
+            <img src="https://backend.defcomm.ng/{{$fullPath}}"
                 alt="QR Code"
                 width="200"
                 height="200">
