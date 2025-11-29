@@ -58,7 +58,7 @@ class EventRegistrationMail extends Mailable
 
         return $this->view('emails.eventRegistrationMail')->with([
             "qrCode" => $qrCode,
-            "fullPath" => $fullPath
+            "fileName" => $fileName
         ]);
     }
 }

@@ -56,13 +56,12 @@
         <div style="text-align:center; margin: 20px 0;">
             <p style="font-weight:bold; font-size:16px;">Scan QR Code to mark attendance</p>
 
-            <img src="https://backend.defcomm.ng/{{$fullPath}}"
+            <img src="https://backend.defcomm.ng/qr/{{$fileName}}"
                 alt="QR Code"
                 width="200"
                 height="200">
 
             <p>If scanning fails, use this {{$user->email}} to get access</p>
-            https://backend.defcomm.ng/{{$fullPath}}
         </div>
         @endif
         {!! $admail->message !!}
