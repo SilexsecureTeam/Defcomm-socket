@@ -15,15 +15,15 @@ class EventRegistrationMail extends Mailable
     public $form;
     public $user;
     public $meet;
-    public $qrCode;
+    public $fileName;
     public $admail;
 
-    public function __construct($form, $user, $meet, $qrCode)
+    public function __construct($form, $user, $meet, $fileName)
     {
         $this->form = $form;
         $this->user = $user;
         $this->meet = $meet;
-        $this->qrCode = $qrCode;
+        $this->fileName = $fileName;
         $this->admail = SystemMail::where('label', 'event')->first();
     }
 
