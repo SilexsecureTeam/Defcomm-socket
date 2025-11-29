@@ -19,6 +19,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\ContactSubmissionAdmMail;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class WebController extends Controller
 {
@@ -141,7 +142,27 @@ class WebController extends Controller
                 'join_status' => 'invite'
             ]);
         }
-        Mail::to($request->email)->send(new EventRegistrationMail($form, $user, $meet));
+
+        $qrData = url("/admin/form/attendance/" . encrypt($form->id) . "/" . encrypt($user->id));
+        $fileName = null;
+        if($form->attendance == "enabled"){
+            $path = public_path('qr');
+            if (!file_exists($path)) {
+                mkdir($path, 0777, true);
+            }
+            $fileName = time() . '_qr.png';
+            QrCode::format('png')
+                ->size(200)
+                ->margin(1)
+                ->generate($qrData, $path . '/' . $fileName);
+            $fullPath = $path . '/' . $fileName;
+            // $qrCode = base64_encode(file_get_contents($fullPath));
+        }
+        Mail::to($request->email)->send(new EventRegistrationMail($form, $user, $meet, $fileName));
+
+        if($fileName){
+            unlink($fullPath);
+        }
 
         // Handle event form submission logic here
         return response()->json([
