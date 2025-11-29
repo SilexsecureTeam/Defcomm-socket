@@ -8,6 +8,7 @@ use App\Mail\FileShare;
 use App\Models\Meeting;
 use App\Mail\Invitation;
 use App\Models\EventForm;
+use App\Mail\EventSentMail;
 use App\Models\CompanyUser;
 use App\Models\FilesShares;
 use App\Models\CompanyGroup;
@@ -16,12 +17,14 @@ use App\Models\Notification;
 use Illuminate\Http\Request;
 use App\Models\CompanyGroupUser;
 use App\Models\EventRegistration;
+use App\Mail\EventRegistrationMail;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Services\FileEncryptorService;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use App\Models\EventRegistrationsAttendances;
 
 class AdminController extends Controller
@@ -187,6 +190,16 @@ class AdminController extends Controller
         $data = EventRegistration::where('form_id', decrypt($id))->get();
         return view('admin.formApplication', [
             'option' => "Event Application",
+            'id' => $id,
+            'data' => $data
+        ]);
+    }
+
+    public function formAttendance($id)
+    {
+        $data = EventRegistrationsAttendances::where('form_id', decrypt($id))->get();
+        return view('admin.formAttendance', [
+            'option' => "Event Attendance",
             'data' => $data
         ]);
     }
@@ -218,6 +231,37 @@ class AdminController extends Controller
             'attendance' => $request->attendance,
             'status' => $request->status,
         ]);
+
+        return redirect()->back()->with('success', "Event form successfully created");
+    }
+
+    public function formMail(Request $request)
+    {
+        $id = decrypt($request->id);
+        $user = json_decode($request->users, true);
+        $form = EventForm::findOrFail($id);
+        $meet = Meeting::find($form->meeting_id);
+        if (!empty($user)) {
+            foreach ($user as $dt) {
+                $usr = EventRegistration::find($dt);
+                $qrData = url("/admin/form/attendance/" . encrypt($form->id) . "/" . encrypt($usr->user->id));
+                $fileName = null;
+                if ($form->attendance == "enabled") {
+                    $path = public_path('qr');
+                    if (!file_exists($path)) {
+                        mkdir($path, 0777, true);
+                    }
+                    $fileName = time() . '_qr.png';
+                    QrCode::format('png')
+                        ->size(200)
+                        ->margin(1)
+                        ->generate($qrData, $path . '/' . $fileName);
+                    $fullPath = $path . '/' . $fileName;
+                    // $qrCode = base64_encode(file_get_contents($fullPath));
+                }
+                Mail::to($usr->user->email)->send(new EventRegistrationMail($form, $usr->user, $meet, $fileName, $request->subject, htmlentities($request->message)));
+            }
+        }
 
         return redirect()->back()->with('success', "Event form successfully created");
     }

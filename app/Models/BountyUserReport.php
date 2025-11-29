@@ -21,4 +21,14 @@ class BountyUserReport extends Model
     {
         return $this->belongsTo(BountyUserProgram::class, 'program_id')->withDefault();
     }
+
+    public function categori()
+    {
+        return $this->belongsTo(BountyCategory::class, 'category')->withDefault();
+    }
+    
+    public function categorySub()
+    {
+        return $this->belongsTo(BountyCategorySub::class, 'category_sub')->withDefault();
+    }
 }

@@ -105,7 +105,18 @@ Route::middleware(['auth', 'user-role:super'])->group(function () {
     Route::get('/super/bounty/program', [SuperAdminController::class, 'bountyProgram'])->name('super.bountyProgram');
     Route::post('/super/bounty/program/add', [SuperAdminController::class, 'bountyProgramAdd'])->name('super.bountyProgramAdd');
     Route::post('/super/bounty/program/update', [SuperAdminController::class, 'bountyProgramUpdate'])->name('super.bountyProgramUpdate');
-    Route::get('/super/bounty/report/{severity?}', [SuperAdminController::class, 'bountyReport'])->name('super.bountyReport');
+    Route::post('/super/bountyuser/active', [SuperAdminController::class, 'bountyUserActive'])->name('super.bountyUser.active');
+    Route::post('/super/bountyuser/block', [SuperAdminController::class, 'bountyUserBlock'])->name('super.bountyUser.block');
+    Route::get('/super/bounty/category', [SuperAdminController::class, 'bountyCategory'])->name('super.bountyCategory');
+    Route::post('/super/bounty/category/add', [SuperAdminController::class, 'bountyCategoryAdd'])->name('super.bountyCategoryAdd');
+    Route::post('/super/bounty/category/update', [SuperAdminController::class, 'bountyCategoryUpdate'])->name('super.bountyCategoryUpdate');
+    Route::get('/super/bounty/subCategory/{id}', [SuperAdminController::class, 'bountySubCategory'])->name('super.bountySubCategory');
+    Route::post('/super/bounty/subCategory/add', [SuperAdminController::class, 'bountySubCategoryAdd'])->name('super.bountySubCategoryAdd');
+    Route::post('/super/bounty/subCategory/update', [SuperAdminController::class, 'bountySubCategoryUpdate'])->name('super.bountySubCategoryUpdate');
+    Route::get('/super/bounty/report/{severity?}/{category?}/{sub?}', [SuperAdminController::class, 'bountyReport'])->name('super.bountyReport');
+    Route::get('/super/bounty/reportView/{id}', [SuperAdminController::class, 'bountyReportView'])->name('super.bountyReportView');
+    Route::post('/super/bounty/reportApproval', [SuperAdminController::class, 'reportApproval'])->name('super.reportApproval');
+    Route::get('/super/bounty/reportMarkFix/{id}', [SuperAdminController::class, 'reportMarkFix'])->name('super.reportMarkFix');
 
     Route::get('/super/program', [SuperAdminController::class, 'program'])->name('super.program');
     Route::post('/super/program/add', [SuperAdminController::class, 'programAdd'])->name('super.programAdd');
@@ -135,9 +146,11 @@ Route::middleware(['auth', 'user-role:admin'])->group(function () {
 
     Route::get('/admin/form', [AdminController::class, 'form'])->name('admin.form');
     Route::get('/admin/form/application/{id}', [AdminController::class, 'formApplication'])->name('admin.form.application');
+    Route::get('/admin/form/attendance/{id}', [AdminController::class, 'formAttendance'])->name('admin.form.attendance');
     Route::post('/admin/form/create', [AdminController::class, 'formCreate'])->name('admin.form.create');
     Route::post('/admin/form/update', [AdminController::class, 'formUpdate'])->name('admin.form.update');
     Route::get('/admin/form/attendance/{id}/{userId}', [AdminController::class, 'attendanceUser'])->name('admin.attendanceUser');
+    Route::post('/admin/form/mail', [AdminController::class, 'formMail'])->name('admin.form.mail');
 
     Route::get('/admin/file', [AdminController::class, 'file'])->name('admin.file');
     Route::get('/admin/file/user', [AdminController::class, 'fileUser'])->name('admin.file.user');

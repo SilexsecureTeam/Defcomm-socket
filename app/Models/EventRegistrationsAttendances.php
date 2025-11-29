@@ -9,6 +9,8 @@ class EventRegistrationsAttendances extends Model
 {
     use HasFactory;
 
+    protected $guarded = [];
+
     public function form()
     {
         return $this->belongsTo(EventForm::class, 'form_id')->withDefault();

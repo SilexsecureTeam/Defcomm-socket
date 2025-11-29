@@ -7,8 +7,10 @@ use App\Models\BountyUser;
 use App\Mail\BountyUserOtp;
 use Illuminate\Http\Request;
 use App\Mail\BountyUserVerify;
+use App\Models\BountyCategory;
 use App\Models\BountyUserReport;
 use App\Models\BountyUserProgram;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
@@ -62,7 +64,7 @@ class BountyController extends Controller
     {
         $user = BountyUser::where('email', $request->userlogin)->orWhere('username', $request->userlogin)->first();
 
-        if($user->otp != $request->otp){
+        if ($user->otp != $request->otp) {
             return response()->json([
                 'status' => '400',
                 'message' => 'Wrong OTP. Try again!',
@@ -102,7 +104,7 @@ class BountyController extends Controller
             $otp = rand(1000, 9999);
             $user->update(['otp' => $otp]);
             // $this->smsSent($request->get('phone'), $otp);
-            
+
             Mail::to($user->email)->send(new BountyUserOtp($user, $otp));
 
             $bodysms = 'Welcome to Defcomm!, Your OTP is ' . $otp . ' or use https://cloud.defcomm.ng/onboarding to join.';
@@ -117,7 +119,7 @@ class BountyController extends Controller
     // Login user
     public function login(Request $request)
     {
-        if($request->userlogin && $request->password){
+        if ($request->userlogin && $request->password) {
             $user = BountyUser::where('email', $request->userlogin)->orWhere('username', $request->userlogin)->first();
 
             if (!Hash::check($request->password, $user->password)) {
@@ -154,7 +156,7 @@ class BountyController extends Controller
                 // 'token' => $token,
                 // 'user' => $user,
             ], 201);
-        }else{
+        } else {
             return response()->json([
                 'status' => '400',
                 'message' => 'Please enter your credentials.',
@@ -166,7 +168,7 @@ class BountyController extends Controller
     // Login user
     public function loginVerify(Request $request)
     {
-        if($request->userlogin){
+        if ($request->userlogin) {
             $user = BountyUser::where('email', $request->userlogin)->orWhere('username', $request->userlogin)->first();
 
             if ($user->otp != $request->otp) {
@@ -193,7 +195,7 @@ class BountyController extends Controller
                 'token' => $token,
                 'user' => $user,
             ], 201);
-        }else{
+        } else {
             return response()->json([
                 'status' => '400',
                 'message' => 'Please enter your credentials.',
@@ -300,7 +302,30 @@ class BountyController extends Controller
                 'detail' => $dt->detail
             ];
         }
-        
+
+        return response()->json(
+            [
+                'status' => '200',
+                'message' => 'Record listed',
+                'data' => $data
+            ],
+            201
+        );
+    }
+
+    public function category()
+    {
+        $datas = BountyCategory::where('status', 'active')->get();
+        $data = [];
+        foreach ($datas as $dt) {
+            $data[] = [
+                'id' => $dt->id,
+                'label' => $dt->label,
+                'description' => $dt->description,
+                'sub' => $dt->sub
+            ];
+        }
+
         return response()->json(
             [
                 'status' => '200',
@@ -313,67 +338,210 @@ class BountyController extends Controller
 
     public function report(Request $request)
     {
-
         $paths = [];
 
-        // foreach ($request->file('attachment') as $file) {
-            if($request->hasFile('attachment')){
-                $file = $request->file('attachment');
-                // Generate a unique name
-                $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+        // Check if multiple files were uploaded
+        if ($request->hasFile('attachment')) {
 
-                // Move file directly to public/uploads folder
-                $file->move(public_path('bounty'), $filename);
+            foreach ($request->file('attachment') as $file) {
+                if ($file->isValid()) {
 
-                // Save public path or URL
-                $paths[] = 'bounty/' . $filename;
+                    // Generate unique filename
+                    $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+
+                    // Move file to public/bounty
+                    $file->move(public_path('bounty'), $filename);
+
+                    // Save path
+                    $paths[] = 'bounty/' . $filename;
+                }
             }
-        // }
+        }
 
-        // Convert to JSON string for database
+        // Convert paths to JSON string for storage
         $pathsJson = json_encode($paths);
 
         $data = BountyUserReport::create([
-            'ref' => 'RBT' . strtoupper(uniqid()),
-            'user_id' => auth()->user()->id,
-            'program_id' => decrypt($request->program_id),
-            'title' => $request->title,
-            'detail' => $request->detail,
-            'attachment' => $pathsJson,
-            'category' => $request->category,
-            'severity' => $request->severity,
-            'status' => 'new',
+            'ref'          => 'RBT' . strtoupper(uniqid()),
+            'user_id'      => auth()->user()->id,
+            'program_id'   => decrypt($request->program_id),
+            'title'        => $request->title,
+            'detail'       => $request->detail,
+            'attachment'   => $pathsJson,
+            'category'     => $request->category,
+            'category_sub' => $request->category_sub,
+            'severity'     => $request->severity,
+            'status'       => 'new',
         ]);
+
+        return response()->json([
+            'status'  => '200',
+            'message' => 'Record created',
+            'data'    => [
+                'id'  => encrypt($data->id),
+                'ref' => $data->ref,
+            ]
+        ], 201);
+    }
+
+    public function reportUpdate(Request $request)
+    {
+        $report = BountyUserReport::findOrFail(decrypt($request->id));
+
+        // Allowed fields
+        $fillable = [
+            'title',
+            'detail',
+            'category',
+            'category_sub',
+            'severity',
+            'status',
+            'program_id',
+        ];
+
+        // Prepare update data
+        $updateData = [];
+
+        foreach ($fillable as $field) {
+            if ($request->has($field) && $request->$field !== null) {
+
+                // decrypt program_id if sent
+                if ($field === 'program_id') {
+                    $updateData[$field] = decrypt($request->$field);
+                } else {
+                    $updateData[$field] = $request->$field;
+                }
+            }
+        }
+
+        // ----------------------------
+        // 📌 ATTACHMENT UPDATE HANDLING
+        // ----------------------------
+
+        if ($request->hasFile('attachment')) {
+
+            // 1️⃣ DELETE OLD FILES
+            $oldAttachments = json_decode($report->attachment, true) ?? [];
+
+            foreach ($oldAttachments as $oldFile) {
+                $filePath = public_path($oldFile);
+
+                if (file_exists($filePath)) {
+                    @unlink($filePath);
+                }
+            }
+
+            // 2️⃣ UPLOAD NEW FILES
+            $newPaths = [];
+            foreach ($request->file('attachment') as $file) {
+                if ($file->isValid()) {
+
+                    $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+
+                    $file->move(public_path('bounty'), $filename);
+
+                    $newPaths[] = 'bounty/' . $filename;
+                }
+            }
+
+            // Store new attachments as JSON
+            $updateData['attachment'] = json_encode($newPaths);
+        }
+
+        // ----------------------------
+        // 📌 UPDATE RECORD
+        // ----------------------------
+        if (!empty($updateData)) {
+            $report->update($updateData);
+        }
+
+        return response()->json([
+            'status'  => 200,
+            'message' => 'Report updated successfully',
+            'data'    => $report,
+        ]);
+    }
+
+
+    public function reportLog()
+    {
+        $datas = BountyUserReport::where('user_id', auth()->user()->id)->orderBy('created_at', "DESC")->get();
+        $data = [];
+
+        foreach ($datas as $dt) {
+            $data[] = [
+                'id' => encrypt($dt->id),
+                'ref' => $dt->ref,
+                'program' => $dt->program->title,
+                'title' => $dt->title,
+                'detail' => $dt->detail,
+                'attachment' => json_decode($dt->attachment),
+                'category' => $dt->categori->label,
+                'category_sub' => $dt->categorySub->label,
+                'severity' => $dt->severity,
+                'status' => $dt->status,
+            ];
+        }
 
         return response()->json(
             [
                 'status' => '200',
                 'message' => 'Record listed',
-                'data' => [
-                    'id' => encrypt($data->id),
-                    'ref' => $data->ref,
-                ]
+                'data' => $data
             ],
             201
         );
     }
 
-    public function reportLog()
+    public function reportInfo()
     {
-        $datas = BountyUserReport::where('user_id', auth()->user()->id)->get();
+        $datas = BountyUserReport::where('user_id', auth()->user()->id)->orderBy('created_at', "DESC");
+        $data = [
+            "report" => $datas->count(),
+            "reportnew" => $datas->where('status', 'new')->count(),
+            "reportreview" => $datas->where('status', 'review')->count(),
+            "reportaccept" => $datas->where('status', 'accept')->count(),
+            "reportreject" => $datas->where('status', 'reject')->count(),
+            "reportfix" => $datas->where('status', 'fix')->count(),
+            "reportclose" => $datas->where('status', 'close')->count(),
+            "reportamount" => $datas->sum('amount'),
+            "reportpoint" => $datas->sum('point'),
+        ];
+
+        return response()->json(
+            [
+                'status' => '200',
+                'message' => 'Record listed',
+                'data' => $data
+            ],
+            201
+        );
+    }
+
+    public function leaderboard()
+    {
+        $datas = BountyUserReport::select(
+            'user_id',
+            DB::raw('SUM(point) as total_points'),
+            DB::raw('SUM(amount) as total_amount'),
+            DB::raw('COUNT(*) as total_reports')
+        )
+            ->groupBy('user_id')
+            ->orderByDesc('total_points')
+            ->get();
+
         $data = [];
 
-        foreach($datas as $dt){
+        foreach ($datas as $ky => $dt) {
             $data[] = [
-                'id' => encrypt($dt->id),
-                'ref' => $dt->ref,
-                'program_id' => encrypt($dt->program_id),
-                'title' => $dt->title,
-                'detail' => $dt->detail,
-                'attachment' => json_decode($dt->attachment),
-                'category' => $dt->category,
-                'severity' => $dt->severity,
-                'status' => $dt->status,
+                'no' => $ky + 1,
+                'firstName' => $dt->user->firstName,
+                'lastName' => $dt->user->lastName,
+                'username' => $dt->user->username,
+                'photo' => $dt->user->photo,
+                'total_points' => $dt->total_points,
+                'total_amount' => $dt->total_amount,
+                'total_reports' => $dt->total_reports,
             ];
         }
 

@@ -21,14 +21,11 @@
         <button class="nav-link" data-bs-toggle="tab" data-bs-target="#pending" type="button">Pending</button>
     </li>
     <li class="nav-item">
-        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#verified" type="button">verified</button>
+        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#Active" type="button">Active</button>
     </li>
     <li class="nav-item">
         <button class="nav-link" data-bs-toggle="tab" data-bs-target="#disable" type="button">Disabled</button>
     </li>
-    {{--<li class="nav-item">
-        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#active" type="button">Active</button>
-    </li>--}}
 </ul>
 
 
@@ -49,6 +46,19 @@
                     <!--end::Search-->
                 </div>
                 <!--begin::Card title-->
+                <div class="card-toolbar">
+                    <!--begin::Toolbar-->
+                    <div class="d-flex justify-content-end" data-kt-user-table-toolbar="base">
+                        <div class="d-flex justify-content-between">
+                            <form action="{{ route('super.bountyUser.active')}}" method="post" enctype="multipart/form-data">
+                                @csrf
+                                <input type="hidden" name="users" id="output1">
+                                <button type="submit" class="btn btn-primary ml-3">
+                                    Activate Users</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
             </div>
             <!--end::Card header-->
             <!--begin::Card body-->
@@ -59,7 +69,7 @@
                         <tr class="text-start text-muted fw-bold fs-7 text-uppercase gs-0">
                             <th class="w-10px pe-2">
                                 <div class="form-check form-check-sm form-check-custom form-check-solid me-3">
-                                    <input class="form-check-input" type="checkbox" data-kt-check="true" data-kt-check-target="#kt_table_users .form-check-input" value="1" />
+                                    <input class="form-check-input" type="checkbox" id="checkAll1" />
                                 </div>
                             </th>
                             <th class="min-w-125px">User</th>
@@ -74,14 +84,22 @@
                         <tr>
                             <td>
                                 <div class="form-check form-check-sm form-check-custom form-check-solid">
-                                    <input class="form-check-input" type="checkbox" value="1" />
+                                    <input class="form-check-input checkbox1" type="checkbox" value="{{$dt->id}}" />
                                 </div>
                             </td>
                             <td>{{$dt->firstName}} {{$dt->lastName}}</td>
                             <td>{{$dt->email}}</td>
                             <td>{{$dt->phone}}</td>
                             <td>{{$dt->rel_group ? $dt->group->username : "System"}}</td>
-                            <td></td>
+                            <td>
+                                @if($dt->emailVerify == "true")
+                                <button type="button" class="btn btn-primary">
+                                    Verified</button>
+                                @else
+                                <button type="button" class="btn btn-danger">
+                                    Unverified</button>
+                                @endif
+                            </td>
                             <td class="text-end">
                                 <a href="#" class="btn btn-light btn-active-light-primary btn-flex btn-center btn-sm" data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end">Actions
                                     <i class="ki-outline ki-down fs-5 ms-1"></i></a>
@@ -104,7 +122,7 @@
         </div>
         <!--end::Card-->
     </div>
-    <div class="tab-pane fade show active" id="verified">
+    <div class="tab-pane fade show active" id="Active">
         <!--begin::Card-->
         <div class="card table-wrapper">
             <!--begin::Card header-->
@@ -119,6 +137,19 @@
                     <!--end::Search-->
                 </div>
                 <!--begin::Card title-->
+                <div class="card-toolbar">
+                    <!--begin::Toolbar-->
+                    <div class="d-flex justify-content-end" data-kt-user-table-toolbar="base">
+                        <div class="d-flex justify-content-between">
+                            <form action="{{ route('super.bountyUser.block')}}" method="post" enctype="multipart/form-data">
+                                @csrf
+                                <input type="hidden" name="users" id="output2">
+                                <button type="submit" class="btn btn-primary ml-3">
+                                    Block Users</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
             </div>
             <!--end::Card header-->
             <!--begin::Card body-->
@@ -129,7 +160,7 @@
                         <tr class="text-start text-muted fw-bold fs-7 text-uppercase gs-0">
                             <th class="w-10px pe-2">
                                 <div class="form-check form-check-sm form-check-custom form-check-solid me-3">
-                                    <input class="form-check-input" type="checkbox" data-kt-check="true" data-kt-check-target="#kt_table_users .form-check-input" value="1" />
+                                    <input class="form-check-input" type="checkbox" id="checkAll2" />
                                 </div>
                             </th>
                             <th class="min-w-125px">User</th>
@@ -144,14 +175,22 @@
                         <tr>
                             <td>
                                 <div class="form-check form-check-sm form-check-custom form-check-solid">
-                                    <input class="form-check-input" type="checkbox" value="1" />
+                                    <input class="form-check-input checkbox2" type="checkbox" value="{{$dt->id}}" />
                                 </div>
                             </td>
                             <td>{{$dt->firstName}} {{$dt->lastName}}</td>
                             <td>{{$dt->email}}</td>
                             <td>{{$dt->phone}}</td>
                             <td>{{$dt->rel_group ? $dt->group->username : "System"}}</td>
-                            <td></td>
+                            <td>
+                                @if($dt->emailVerify == "true")
+                                <button type="button" class="btn btn-primary">
+                                    Verified</button>
+                                @else
+                                <button type="button" class="btn btn-danger">
+                                    Unverified</button>
+                                @endif
+                            </td>
                             <td class="text-end">
                                 <a href="#" class="btn btn-light btn-active-light-primary btn-flex btn-center btn-sm" data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end">Actions
                                     <i class="ki-outline ki-down fs-5 ms-1"></i></a>
@@ -189,6 +228,19 @@
                     <!--end::Search-->
                 </div>
                 <!--begin::Card title-->
+                <div class="card-toolbar">
+                    <!--begin::Toolbar-->
+                    <div class="d-flex justify-content-end" data-kt-user-table-toolbar="base">
+                        <div class="d-flex justify-content-between">
+                            <form action="{{ route('super.bountyUser.active')}}" method="post" enctype="multipart/form-data">
+                                @csrf
+                                <input type="hidden" name="users" id="output3">
+                                <button type="submit" class="btn btn-primary ml-3">
+                                    Activate Users</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
             </div>
             <!--end::Card header-->
             <!--begin::Card body-->
@@ -199,7 +251,7 @@
                         <tr class="text-start text-muted fw-bold fs-7 text-uppercase gs-0">
                             <th class="w-10px pe-2">
                                 <div class="form-check form-check-sm form-check-custom form-check-solid me-3">
-                                    <input class="form-check-input" type="checkbox" data-kt-check="true" data-kt-check-target="#kt_table_users .form-check-input" value="1" />
+                                    <input class="form-check-input" type="checkbox" id="checkAll3" />
                                 </div>
                             </th>
                             <th class="min-w-125px">User</th>
@@ -214,14 +266,22 @@
                         <tr>
                             <td>
                                 <div class="form-check form-check-sm form-check-custom form-check-solid">
-                                    <input class="form-check-input" type="checkbox" value="1" />
+                                    <input class="form-check-input checkbox3" type="checkbox" value="{{$dt->id}}" />
                                 </div>
                             </td>
                             <td>{{$dt->firstName}} {{$dt->lastName}}</td>
                             <td>{{$dt->email}}</td>
                             <td>{{$dt->phone}}</td>
                             <td>{{$dt->rel_group ? $dt->group->username : "System"}}</td>
-                            <td></td>
+                            <td>
+                                @if($dt->emailVerify == "true")
+                                <button type="button" class="btn btn-primary">
+                                    Verified</button>
+                                @else
+                                <button type="button" class="btn btn-danger">
+                                    Unverified</button>
+                                @endif
+                            </td>
                             <td class="text-end">
                                 <a href="#" class="btn btn-light btn-active-light-primary btn-flex btn-center btn-sm" data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end">Actions
                                     <i class="ki-outline ki-down fs-5 ms-1"></i></a>
@@ -313,5 +373,117 @@
 <!--end::Card-->
 </div>--}}
 </div>
+
+<script type="text/javascript">
+    document.addEventListener('DOMContentLoaded', function() {
+        const checkAll1 = document.getElementById('checkAll1');
+        const checkboxes1 = document.querySelectorAll('.checkbox1');
+
+        function updateOutput1() {
+            let checkedValues1 = [];
+
+            checkboxes1.forEach(function(checkbox1) {
+                if (checkbox1.checked) {
+                    checkedValues1.push(parseInt(checkbox1.value));
+                }
+            });
+
+            document.getElementById('output1').value = JSON.stringify(checkedValues1);
+        }
+
+        checkboxes1.forEach(function(checkbox1) {
+            checkbox1.addEventListener('change', function() {
+                updateOutput1();
+                if (!checkbox1.checked) {
+                    checkAll1.checked = false;
+                }
+            });
+        });
+
+        checkAll1.addEventListener('change', function() {
+            const isChecked1 = checkAll1.checked;
+            checkboxes1.forEach(function(checkbox1) {
+                checkbox1.checked = isChecked1;
+            });
+            updateOutput1();
+        });
+
+        updateOutput1();
+    });
+</script>
+<script type="text/javascript">
+    document.addEventListener('DOMContentLoaded', function() {
+        const checkAll2 = document.getElementById('checkAll2');
+        const checkboxes2 = document.querySelectorAll('.checkbox2');
+
+        function updateOutput2() {
+            let checkedValues2 = [];
+
+            checkboxes2.forEach(function(checkbox2) {
+                if (checkbox2.checked) {
+                    checkedValues2.push(parseInt(checkbox2.value));
+                }
+            });
+
+            document.getElementById('output2').value = JSON.stringify(checkedValues2);
+        }
+
+        checkboxes2.forEach(function(checkbox2) {
+            checkbox2.addEventListener('change', function() {
+                updateOutput2();
+                if (!checkbox2.checked) {
+                    checkAll2.checked = false;
+                }
+            });
+        });
+
+        checkAll2.addEventListener('change', function() {
+            const isChecked2 = checkAll2.checked;
+            checkboxes2.forEach(function(checkbox2) {
+                checkbox2.checked = isChecked2;
+            });
+            updateOutput2();
+        });
+
+        updateOutput2();
+    });
+</script>
+<script type="text/javascript">
+    document.addEventListener('DOMContentLoaded', function() {
+        const checkAll3 = document.getElementById('checkAll3');
+        const checkboxes3 = document.querySelectorAll('.checkbox3');
+
+        function updateOutput3() {
+            let checkedValues3 = [];
+
+            checkboxes3.forEach(function(checkbox3) {
+                if (checkbox3.checked) {
+                    checkedValues3.push(parseInt(checkbox3.value));
+                }
+            });
+
+            document.getElementById('output3').value = JSON.stringify(checkedValues3);
+        }
+
+        checkboxes3.forEach(function(checkbox3) {
+            checkbox3.addEventListener('change', function() {
+                updateOutput3();
+                if (!checkbox3.checked) {
+                    checkAll3.checked = false;
+                }
+            });
+        });
+
+        checkAll3.addEventListener('change', function() {
+            const isChecked3 = checkAll3.checked;
+            checkboxes3.forEach(function(checkbox3) {
+                checkbox3.checked = isChecked3;
+            });
+            updateOutput3();
+        });
+
+        updateOutput3();
+    });
+</script>
 
 @endsection

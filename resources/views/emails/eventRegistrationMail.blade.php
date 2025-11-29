@@ -8,6 +8,10 @@
         <div style=" display:flex; align-items:center; margin-top:10px; justify-content:center; ">
             <p style="padding: 10px; display: inline-block; font-size: 20px; text-align: center; font-weight: bold; margin: 0 auto;">
                 {{$form->name}}
+                @if($subject)
+                <br /><br />
+                {{$subject}}
+            @endif
             </p>
         </div>
 
@@ -60,11 +64,15 @@
                 alt="QR Code"
                 width="200"
                 height="200">
-            {{$fileName}}
             {{--<img src="data:image/png;base64,{{ $qrCode }}" width="200" alt="QR Code">--}}
 
             <p>If scanning fails, use this {{$user->email}} to get access</p>
         </div>
+        @endif
+        @if($message)
+        {!! html_entity_decode($mssg) !!}
+        <br />
+        <br />
         @endif
         {!! $admail->message !!}
 

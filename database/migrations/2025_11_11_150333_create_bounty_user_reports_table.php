@@ -20,8 +20,10 @@ return new class extends Migration
             $table->text('detail')->nullable();
             $table->text('admin_comment')->nullable();
             $table->json('attachment')->nullable();
-            $table->double('score')->nullable();
-            $table->string('category')->nullable();
+            $table->double('point')->nullable();
+            $table->double('amount')->nullable();
+            $table->integer('category')->nullable();
+            $table->integer('category_sub')->nullable();
             $table->enum('severity', ['low', 'medium', 'high', 'critical'])->default('low');
             $table->enum('status', ['new', 'review', 'accept', 'reject', 'fix', 'close'])->default('new');
             $table->timestamps();

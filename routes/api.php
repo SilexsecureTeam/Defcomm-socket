@@ -170,12 +170,17 @@ Route::post('/bounty/login', [BountyController::class, 'login']);
 Route::post('/bounty/loginVerify', [BountyController::class, 'loginVerify']);
 Route::post('/bounty/forgot-password', [BountyController::class, 'forgotPassword']);
 Route::post('/bounty/reset-password', [BountyController::class, 'resetPassword']);
+Route::get('/bounty/leaderboard', [BountyController::class, 'leaderboard']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/bounty/profile', [BountyController::class, 'profile']);
+    Route::post('/bounty/profile', [BountyController::class, 'profile']);
     Route::post('/bounty/logout', [BountyController::class, 'logout']);
 
     Route::get('/bounty/program', [BountyController::class, 'program']);
+    Route::get('/bounty/category', [BountyController::class, 'category']);
     Route::post('/bounty/report', [BountyController::class, 'report']);
+    Route::post('/bounty/reportUpdate', [BountyController::class, 'reportUpdate']);
     Route::get('/bounty/reportlog', [BountyController::class, 'reportLog']);
+    Route::get('/bounty/reportInfo', [BountyController::class, 'reportInfo']);
 });

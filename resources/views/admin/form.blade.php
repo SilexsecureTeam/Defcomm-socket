@@ -217,7 +217,13 @@
                             <div class="menu-item px-3">
                                 <a href="{{url('admin/form/application')}}/{{encrypt($dt->id)}}" class="menu-link px-3">Application</a>
                             </div>
+                            @if($dt->attendance == "enabled")
+                            <!--begin::Menu item-->
+                            <div class="menu-item px-3">
+                                <a href="{{url('admin/form/attendance')}}/{{encrypt($dt->id)}}" class="menu-link px-3">Attendance</a>
+                            </div>
                             <!--end::Menu item-->
+                            @endif
                             <!--begin::Menu item-->
                             <div class="menu-item px-3">
                                 <a href="#" class="menu-link px-3" data-kt-users-table-filter="delete_row">Delete</a>

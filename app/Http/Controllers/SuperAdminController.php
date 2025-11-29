@@ -14,9 +14,11 @@ use App\Models\SystemMail;
 use App\Models\CompanyUser;
 use App\Models\UserLoginLog;
 use Illuminate\Http\Request;
+use App\Models\BountyCategory;
 use App\Models\ContactBooking;
 use App\Models\UserLoginDevice;
 use App\Models\BountyUserReport;
+use App\Models\BountyCategorySub;
 use App\Models\BountyUserProgram;
 use App\Models\ContactSubmission;
 use App\Models\ProgramAttendance;
@@ -435,6 +437,72 @@ class SuperAdminController extends Controller
         ]);
     }
 
+    public function bountyCategory()
+    {
+        $data = BountyCategory::get();
+
+        return view('super.bountyCategory', [
+            'page' => "Bounty Category",
+            'opt' => 'admin',
+            'data' => $data
+        ]);
+    }
+
+    public function bountyCategoryAdd(Request $request)
+    {
+        BountyCategory::create([
+            'label' => $request->label,
+            'description' => $request->description,
+        ]);
+        return redirect()->back()->with('success', "Category successfully created");
+    }
+
+    public function bountyCategoryUpdate(Request $request)
+    {
+        BountyCategory::find(decrypt($request->id))->update([
+            'label' => $request->label,
+            'description' => $request->description,
+            'status' => $request->status,
+        ]);
+        return redirect()->back()->with('success', "Category successfully updated");
+    }
+
+    public function bountySubCategory($id)
+    {
+        $data = BountyCategorySub::where('category_id', decrypt($id))->get();
+
+        return view('super.bountyCategorySub', [
+            'page' => "Bounty Sub-Category",
+            'opt' => 'admin',
+            'category_id' => $id,
+            'data' => $data
+        ]);
+    }
+
+    public function bountySubCategoryAdd(Request $request)
+    {
+        BountyCategorySub::create([
+            'category_id' => decrypt($request->category_id),
+            'label' => $request->label,
+            'award_point' => $request->award_point,
+            'award_amount' => $request->award_amount,
+            'description' => $request->description,
+        ]);
+        return redirect()->back()->with('success', "Category successfully created");
+    }
+
+    public function bountySubCategoryUpdate(Request $request)
+    {
+        BountyCategorySub::find(decrypt($request->id))->update([
+            'label' => $request->label,
+            'award_point' => $request->award_point,
+            'award_amount' => $request->award_amount,
+            'description' => $request->description,
+            'status' => $request->status,
+        ]);
+        return redirect()->back()->with('success', "Category successfully updated");
+    }
+
     public function bountyProgram()
     {
         $data = BountyUserProgram::get();
@@ -466,38 +534,137 @@ class SuperAdminController extends Controller
         return redirect()->back()->with('success', "Program successfully updated");
     }
 
-    public function bountyReport($severity = null)
+    public function bountyReport($severity = null, $category = null, $sub = null)
     {
-        if($severity){
-            $data = BountyUserReport::get();
-            $dataNew = BountyUserReport::where('status', 'new')->where('severity', $severity)->get();
-            $dataReview = BountyUserReport::where('status', 'review')->where('severity', $severity)->get();
-            $dataAccept = BountyUserReport::where('status', 'accept')->where('severity', $severity)->get();
-            $dataReject = BountyUserReport::where('status', 'reject')->where('severity', $severity)->get();
-            $dataFix = BountyUserReport::where('status', 'fix')->where('severity', $severity)->get();
-            $dataClose = BountyUserReport::where('status', 'close')->where('severity', $severity)->get();
-        }else{
-            $data = BountyUserReport::get();
-            $dataNew = BountyUserReport::where('status', 'new')->get();
-            $dataReview = BountyUserReport::where('status', 'review')->get();
-            $dataAccept = BountyUserReport::where('status', 'accept')->get();
-            $dataReject = BountyUserReport::where('status', 'reject')->get();
-            $dataFix = BountyUserReport::where('status', 'fix')->get();
-            $dataClose = BountyUserReport::where('status', 'close')->get();
+        // Base query with optional filters
+        $baseQuery = BountyUserReport::query();
+
+        if ($severity && $severity != 'all') {
+            $baseQuery->where('severity', $severity);
+        }
+
+        if ($category) {
+            $baseQuery->where('category', $category);
+        }
+
+        if ($sub) {
+            $baseQuery->where('category_sub', $sub);
+        }
+
+        // Get all reports
+        $data = $baseQuery->get();
+
+        // Define all statuses
+        $statuses = ['new', 'review', 'accept', 'reject', 'fix', 'close'];
+
+        // Build status-wise collections dynamically
+        $statusData = [];
+
+        foreach ($statuses as $status) {
+            $statusData["data" . ucfirst($status)] = (clone $baseQuery)
+                ->where('status', $status)->orderBy('updated_at', "DESC")
+                ->get();
+        }
+
+        $cat = BountyCategory::get();
+        $catsub = null;
+        if($category){
+            $catsub = BountyCategorySub::where('category_id', $category)->get();
         }
 
         return view('super.bountyReport', [
             'page' => "Bounty User Report",
             'opt' => 'admin',
             'data' => $data,
-            'dataNew' => $dataNew,
-            'dataReview' => $dataReview,
-            'dataAccept' => $dataAccept,
-            'dataReject' => $dataReject,
-            'dataFix' => $dataFix,
-            'dataClose' => $dataClose,
-            'severity' => $severity ?? "all"
+            'cat' => $cat,
+            'catsub' => $catsub,
+            'catLab' => $category ? BountyCategory::find($category)->label : "All",
+            'catsubLab' => $sub ? BountyCategory::find($sub)->label : "All",
+            'dataNew' => $statusData['dataNew'],
+            'dataReview' => $statusData['dataReview'],
+            'dataAccept' => $statusData['dataAccept'],
+            'dataReject' => $statusData['dataReject'],
+            'dataFix' => $statusData['dataFix'],
+            'dataClose' => $statusData['dataClose'],
+            'severity' => $severity ?? "all",
+            'category' => $category,
+            'sub' => $sub
         ]);
+    }
+
+
+    public function bountyReportView($id)
+    {
+        $data = BountyUserReport::find(decrypt($id));
+        if($data->status == 'new'){
+            $data->update(["status" => "review"]);
+        }
+
+        return view('super.bountyReportDetail', [
+            'page' => "Bounty Report",
+            'opt' => 'admin',
+            'data' => $data
+        ]);
+    }
+
+    public function reportApproval(Request $request)
+    {
+        $data = BountyUserReport::find(decrypt($request->id));
+        if($request->status == "accept"){
+            $data->update([
+                "admin_comment" => $request->admin_comment,
+                "amount" => $request->amount,
+                "point" => $request->point,
+                "status" => $request->status
+            ]);
+        }else{
+            $data->update([
+                "admin_comment" => $request->admin_comment,
+                "status" => $request->status
+            ]);
+        }
+
+        return redirect()->back()->with('success', "Report status successfully updated");
+    }
+
+    public function reportMarkFix($id)
+    {
+        $data = BountyUserReport::find(decrypt($id));
+        $data->update([ "status" => "fix"]);
+
+        return redirect()->back()->with('success', "Report status successfully updated");
+    }
+
+    public function bountyUserActive(Request $request)
+    {
+        $user = json_decode($request->users, true);
+        if (!empty($user)) {
+            foreach ($user as $dt) {
+                BountyUser::find($dt)->update([
+                    'status' => 'active'
+                ]);
+            }
+
+            return redirect()->back()->with('success', "User account activated successfully");
+        }
+
+        return redirect()->back()->with('error', "Please ensure to select a user");
+    }
+
+    public function bountyUserBlock(Request $request)
+    {
+        $user = json_decode($request->users, true);
+        if (!empty($user)) {
+            foreach ($user as $dt) {
+                BountyUser::find($dt)->update([
+                    'status' => 'block'
+                ]);
+            }
+
+            return redirect()->back()->with('success', "User account deactivated successfully");
+        }
+
+        return redirect()->back()->with('error', "Please ensure to select a user");
     }
 
     public function program()
