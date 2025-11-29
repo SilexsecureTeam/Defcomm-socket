@@ -160,9 +160,9 @@ class WebController extends Controller
         }
         Mail::to($request->email)->send(new EventRegistrationMail($form, $user, $meet, $fileName));
 
-        if($fileName){
-            unlink($fullPath);
-        }
+        // if($fileName){
+        //     unlink($fullPath);
+        // }
 
         // Handle event form submission logic here
         return response()->json([
