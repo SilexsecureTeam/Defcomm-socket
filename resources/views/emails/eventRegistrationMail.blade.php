@@ -60,7 +60,7 @@
                 alt="QR Code"
                 width="200"
                 height="200">
-                code
+            {{$fileName}}
             {{--<img src="data:image/png;base64,{{ $qrCode }}" width="200" alt="QR Code">--}}
 
             <p>If scanning fails, use this {{$user->email}} to get access</p>
