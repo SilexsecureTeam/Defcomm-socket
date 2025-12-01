@@ -13,7 +13,7 @@ class BountyCategory extends Model
 
     public function sub()
     {
-        return $this->hasMany(BountyCategorySub::class, 'category');
+        return $this->hasMany(BountyCategorySub::class, 'category_id');
     }
 
     public function report()
