@@ -187,7 +187,7 @@ class BountyController extends Controller
                 ], 401);
             }
 
-            if($user->emailVerify == "false"){
+            if ($user->emailVerify == "false") {
                 $user->update(["emailVerify" => "true"]);
             }
 
@@ -290,9 +290,35 @@ class BountyController extends Controller
     // Protected route example
     public function profile(Request $request)
     {
-        return response()->json([
-            'user' => $request->user(),
-        ]);
+        $user = BountyUser::find(auth()->user()->id);
+        $data = [
+            'id'          => encryptHelper($user->id),
+            'firstName'   => $user->firstName,
+            'lastName'    => $user->lastName,
+            'username'    => $user->username,
+            'email'       => $user->email,
+            'country'     => $user->country,
+            'phone'       => $user->phone,
+            'zipcode'     => $user->zipcode,
+            'timezone'    => $user->timezone,
+            'photo'       => $user->photo,
+            'bio'         => $user->bio,
+            'point'     => $user->report->sum('point'),
+            'balance'     => $user->report->sum('amount'),
+            'status'      => $user->status,
+            'created_at'  => $user->created_at,
+            'updated_at'  => $user->updated_at,
+            'emailVerify' => $user->emailVerify,
+        ];
+
+        return response()->json(
+            [
+                'status' => '200',
+                'message' => 'Record listed',
+                'data' => $data
+            ],
+            201
+        );
     }
 
     public function program()
@@ -489,6 +515,8 @@ class BountyController extends Controller
                 'category' => $dt->categori->label,
                 'category_sub' => $dt->categorySub->label,
                 'severity' => $dt->severity,
+                'point' => $dt->point,
+                'amount' => $dt->amount,
                 'status' => $dt->status,
             ];
         }
