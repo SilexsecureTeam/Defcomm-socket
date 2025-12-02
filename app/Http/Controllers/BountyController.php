@@ -187,6 +187,10 @@ class BountyController extends Controller
                 ], 401);
             }
 
+            if($user->emailVerify == "false"){
+                $user->update(["emailVerify" => "true"]);
+            }
+
             $token = $user->createToken('bounty_token')->plainTextToken;
 
             return response()->json([
@@ -469,13 +473,19 @@ class BountyController extends Controller
         $data = [];
 
         foreach ($datas as $dt) {
+            $attachments = collect(json_decode($dt->attachment))
+                ->map(function ($file) {
+                    return url($file); // or asset('storage/...'), depending on your path
+                })
+                ->toArray();
+
             $data[] = [
                 'id' => encrypt($dt->id),
                 'ref' => $dt->ref,
                 'program' => $dt->program->title,
                 'title' => $dt->title,
                 'detail' => $dt->detail,
-                'attachment' => json_decode($dt->attachment),
+                'attachment' => $attachments,
                 'category' => $dt->categori->label,
                 'category_sub' => $dt->categorySub->label,
                 'severity' => $dt->severity,
