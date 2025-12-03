@@ -518,6 +518,8 @@ class BountyController extends Controller
                 'point' => $dt->point,
                 'amount' => $dt->amount,
                 'status' => $dt->status,
+                'created_at' => $dt->created_at,
+                'updated_at' => $dt->updated_at,
             ];
         }
 
