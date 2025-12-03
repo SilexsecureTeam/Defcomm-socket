@@ -39,7 +39,7 @@
                     <p><strong>Subject:</strong> {{ $data->title }}</p>
 
                     <p><strong>Details:</strong></p>
-                    <p>{!! $data->detail !!}</p>
+                    <p style="margin-left: 20px;">{!! $data->detail !!}</p>
 
                     <p><strong>Attachments:</strong></p>
                     @foreach(json_decode($data->attachment, true) as $item)
