@@ -394,7 +394,7 @@ class BountyController extends Controller
         $data = BountyUserReport::create([
             'ref'          => 'RBT' . strtoupper(uniqid()),
             'user_id'      => auth()->user()->id,
-            'program_id'   => decrypt($request->program_id),
+            'program_id'   => $request->program_id ? decrypt($request->program_id) : 1,
             'title'        => $request->title,
             'detail'       => $request->detail,
             'attachment'   => $pathsJson,
