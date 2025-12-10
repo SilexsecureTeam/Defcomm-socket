@@ -474,6 +474,7 @@ class UserController extends Controller
         $user = User::find(auth()->user()->id);
         $data = [
             "id" => encryptHelper($user->id),
+            "encrypt_id" => encrypt($user->id),
             "name" => $user->name,
             "email" => $user->email,
             "email_verified_at" => $user->email_verified_at,
