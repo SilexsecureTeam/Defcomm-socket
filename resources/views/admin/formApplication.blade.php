@@ -20,19 +20,19 @@
             <!--begin::Toolbar-->
             <div class="d-flex justify-content-end" data-kt-user-table-toolbar="base">
                 <!--begin::Add user-->
-                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#kt_modal_add_user">
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#kt_modal_add_userMail">
                     <i class="ki-outline ki-plus fs-2"></i>Send Mail</button>
                 <!--end::Add user-->
             </div>
             <!--end::Toolbar-->
             <!--begin::Modal - Add task-->
-            <div class="modal fade" id="kt_modal_add_user" tabindex="-1" aria-hidden="true">
+            <div class="modal fade" id="kt_modal_add_userMail" tabindex="-1" aria-hidden="true">
                 <!--begin::Modal dialog-->
                 <div class="modal-dialog modal-dialog-centered mw-650px">
                     <!--begin::Modal content-->
                     <div class="modal-content">
                         <!--begin::Modal header-->
-                        <div class="modal-header" id="kt_modal_add_user_header">
+                        <div class="modal-header" id="kt_modal_add_user_headerMail">
                             <!--begin::Modal title-->
                             <h2 class="fw-bold">Send Mail</h2>
                             <!--end::Modal title-->
@@ -178,6 +178,62 @@
 <!--end::Card body-->
 </div>
 <!--end::Card-->
+
+@foreach($data as $dt)
+<!--begin::Modal - Add task-->
+<div class="modal fade" id="kt_modal_add_user-{{$dt->id}}" tabindex="-1" aria-hidden="true">
+    <!--begin::Modal dialog-->
+    <div class="modal-dialog modal-dialog-centered mw-650px">
+        <!--begin::Modal content-->
+        <div class="modal-content">
+            <!--begin::Modal header-->
+            <div class="modal-header" id="kt_modal_add_user_header">
+                <!--begin::Modal title-->
+                <h2 class="fw-bold">{{$dt->name}}</h2>
+                <!--end::Modal title-->
+                <!--begin::Close-->
+                <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal">
+                    <i class="ki-outline ki-cross fs-1"></i>
+                </div>
+                <!--end::Close-->
+            </div>
+            <!--end::Modal header-->
+            <!--begin::Modal body-->
+            <div class="modal-body px-5 my-7">
+                <!--begin::Form-->
+                <div>
+                    Name: {{$dt->name}}<br>
+                    Email: {{$dt->email}}<br>
+                    Phone: {{$dt->phone}}<br>
+                    <pre>{{ json_encode(json_decode($dt->data, true), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) }}</pre>
+                </div>
+                <!--end::Form-->
+            </div>
+            <!--end::Modal body-->
+        </div>
+        <!--end::Modal content-->
+    </div>
+    <!--end::Modal dialog-->
+</div>
+<!--end::Modal - Add task-->
+<script>
+    tinymce.init({
+        selector: '#editor-<?= $dt->id ?>',
+        height: 400,
+        menubar: true,
+        plugins: [
+            'advlist', 'autolink', 'lists', 'link', 'image', 'charmap',
+            'preview', 'anchor', 'searchreplace', 'visualblocks',
+            'code', 'fullscreen', 'insertdatetime', 'media', 'table', 'help', 'wordcount'
+        ],
+        toolbar: 'undo redo | formatselect | ' +
+            'bold italic backcolor | alignleft aligncenter ' +
+            'alignright alignjustify | bullist numlist outdent indent | ' +
+            'removeformat | help',
+        content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
+    });
+</script>
+@endforeach
 
 <script type="text/javascript">
     document.addEventListener('DOMContentLoaded', function() {
