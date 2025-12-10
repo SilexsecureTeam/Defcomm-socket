@@ -193,7 +193,11 @@ class AuthController extends Controller
             $bodysms = 'Welcome to Defcomm!, Your OTP is ' . $otp . ' or use https://cloud.defcomm.ng/onboarding to join.';
 
             $this->TermiiSms($request->phone, $bodysms);
-            return response()->json(['status' => 200, 'message' => 'OTP has been sent'], 200);
+            return response()->json([
+                'status' => 200,
+                'message' => 'OTP has been sent',
+                'otp' => $otp
+            ], 200);
         } else {
             return response()->json(['status' => 400, 'error' => "This user does not exist."], 400);
         }
