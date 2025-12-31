@@ -26,6 +26,7 @@ use App\Models\StatementAgreement;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
+use App\Models\Notification;
 
 class SuperAdminController extends Controller
 {
@@ -248,6 +249,70 @@ class SuperAdminController extends Controller
             'status' => $request->status
         ]);
         return redirect()->back()->with('success', "agreements successfully updated");
+    }
+    
+    public function notification()
+    {
+        $notify = Notification::where('source', 'super')->get();
+        return view('super.notification', [
+            'notify' => $notify,
+        ]);
+    }
+
+    public function notificationCreate(Request $request)
+    {
+        $file_name = null;
+        if($request->hasFile('icon')) {
+            $file = $request->file('icon');
+            $file_name = time() . "icon." . $file->getClientOriginalExtension();
+            $file->move(public_path('icon'), $file_name);
+        }
+
+        Notification::create([
+            'label' => $request->label,
+            'short_message' => $request->short_message,
+            'body_message' => $request->body_message,
+            'expire' => $request->expire,
+            'status' => $request->status,
+            'icon' => $file_name,
+            'company_id' => auth()->user()->id,
+            'source' => 'super',
+        ]);
+
+        // Mail::to($request->email)->send(new Invitation($request->name, $request->email, $encrypt));
+
+        return redirect()->back()->with('success', "Notification successfully added");
+    }
+
+    public function notificationDelete($id)
+    {
+        $idUser = decrypt($id);
+        Notification::find($idUser)->delete();
+        return redirect()->back()->with('success', "Notification successfully removed");
+    }
+
+    public function notificationEdit(Request $request)
+    {
+        $idUser = decrypt($request->id);
+        $file_name = null;
+        if($request->hasFile('icon')) {
+            $file = $request->file('icon');
+            $file_name = time() . "icon." . $file->getClientOriginalExtension();
+            $file->move(public_path('icon'), $file_name);
+            $old_file = Notification::find($idUser)->icon;
+            if ($old_file) {
+                unlink(public_path('icon') . '/' . $old_file);
+            }
+        }
+        Notification::find($idUser)->update([
+            'label' => $request->label,
+            'short_message' => $request->short_message,
+            'body_message' => $request->body_message,
+            'expire' => $request->expire,
+            'status' => $request->status,
+            'icon' => $file_name,
+        ]);
+        return redirect()->back()->with('success', "Notification successfully updated");
     }
 
     public function systemMail()

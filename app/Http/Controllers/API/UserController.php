@@ -1634,7 +1634,19 @@ class UserController extends Controller
 
     public function notification()
     {
-        $data = Notification::where('status', 'active')->where('company_id', auth()->user()->company_id)->get();
+       $data = Notification::where('status', 'active')
+    ->where(function ($q) {
+        $q->whereNull('expire')
+          ->orWhere('expire', '>=', Carbon::now());
+    })
+    ->where(function ($q) {
+        $q->where('company_id', auth()->user()->company_id)
+          ->orWhere('source', 'super');
+    })
+    ->orderByDesc('id')
+    ->get();
+
+
 
         return response()->json(
             [

@@ -47,7 +47,7 @@
                         <!--begin::Modal body-->
                         <div class="modal-body px-5 my-7">
                             <!--begin::Form-->
-                            <form id="kt_modal_add_user_form" class="form" action="{{route('admin.notification.create')}}" method="post" enctype="multipart/form-data">
+                            <form id="kt_modal_add_user_form" class="form" action="{{route('super.notification.create')}}" method="post" enctype="multipart/form-data">
                                 @csrf
                                 <!--begin::Scroll-->
                                 <div class="d-flex flex-column scroll-y px-5 px-lg-10" id="kt_modal_add_user_scroll" data-kt-scroll="true" data-kt-scroll-activate="true" data-kt-scroll-max-height="auto" data-kt-scroll-dependencies="#kt_modal_add_user_header" data-kt-scroll-wrappers="#kt_modal_add_user_scroll" data-kt-scroll-offset="300px">
@@ -184,7 +184,7 @@
                             <!--begin::Menu item-->
                             <div class="menu-item px-3">
                                 <a href="#" data-bs-toggle="modal" data-bs-target="#kt_modal_add_user-{{$dt->id}}" class="menu-link px-3">Edit</a>
-                                <a href="{{ route('admin.notification.delete', ['id' => encrypt($dt->id)])}}" class="menu-link px-3" data-kt-users-table-filter="delete_row">Delete</a>
+                                <a href="{{ route('super.notification.delete', ['id' => encrypt($dt->id)])}}" class="menu-link px-3" data-kt-users-table-filter="delete_row">Delete</a>
                             </div>
                             <!--end::Menu item-->
                         </div>
@@ -222,7 +222,7 @@
                         <!--begin::Modal body-->
                         <div class="modal-body px-5 my-7">
                             <!--begin::Form-->
-                            <form id="kt_modal_add_user_form" class="form" action="{{route('admin.notification.edit')}}" method="post" enctype="multipart/form-data">
+                            <form id="kt_modal_add_user_form" class="form" action="{{route('super.notification.edit')}}" method="post" enctype="multipart/form-data">
                                 @csrf
                                 <input type="hidden" name="id" value="{{encrypt($dt->id)}}">
                                 <!--begin::Scroll-->

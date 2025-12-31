@@ -72,7 +72,7 @@ class AdminController extends Controller
 
     public function notification()
     {
-        $notify = Notification::get();
+        $notify = Notification::where('company_id', auth()->user()->company_id)->get();
         return view('admin.notification', [
             'notify' => $notify,
         ]);
@@ -80,9 +80,12 @@ class AdminController extends Controller
 
     public function notificationCreate(Request $request)
     {
-        $file = $request->file('icon');
-        $file_name = time() . "icon." . $file->getClientOriginalExtension();
-        $file->move(public_path('icon'), $file_name);
+        $file_name = null;
+        if($request->hasFile('icon')) {
+            $file = $request->file('icon');
+            $file_name = time() . "icon." . $file->getClientOriginalExtension();
+            $file->move(public_path('icon'), $file_name);
+        }
 
         Notification::create([
             'label' => $request->label,
@@ -104,6 +107,30 @@ class AdminController extends Controller
         $idUser = decrypt($id);
         Notification::find($idUser)->delete();
         return redirect()->back()->with('success', "Notification successfully removed");
+    }
+
+    public function notificationEdit(Request $request)
+    {
+        $idUser = decrypt($request->id);
+        $file_name = null;
+        if($request->hasFile('icon')) {
+            $file = $request->file('icon');
+            $file_name = time() . "icon." . $file->getClientOriginalExtension();
+            $file->move(public_path('icon'), $file_name);
+            $old_file = Notification::find($idUser)->icon;
+            if ($old_file) {
+                unlink(public_path('icon') . '/' . $old_file);
+            }
+        }
+        Notification::find($idUser)->update([
+            'label' => $request->label,
+            'short_message' => $request->short_message,
+            'body_message' => $request->body_message,
+            'expire' => $request->expire,
+            'status' => $request->status,
+            'icon' => $file_name,
+        ]);
+        return redirect()->back()->with('success', "Notification successfully updated");
     }
 
     public function accountStatus($id, $status)

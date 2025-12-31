@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('body_message')->nullable();
             $table->string('icon')->nullable();
             $table->dateTime('expire')->nullable();  
+            $table->enum('source',['super','admin'])->default('admin'); 
             $table->enum('status',['pending','active'])->default('pending'); 
             $table->timestamps();
         });

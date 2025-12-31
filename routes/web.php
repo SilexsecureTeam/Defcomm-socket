@@ -88,6 +88,11 @@ Route::middleware(['auth', 'user-role:super'])->group(function () {
     Route::post('/super/agreementsCreate', [SuperAdminController::class, 'agreementsCreate'])->name('super.agreementsCreate');
     Route::post('/super/agreementsEdit', [SuperAdminController::class, 'agreementsEdit'])->name('super.agreementsEdit');
 
+    Route::get('/super/notification', [SuperAdminController::class, 'notification'])->name('super.notification');
+    Route::post('/super/notification/create', [SuperAdminController::class, 'notificationCreate'])->name('super.notification.create');
+    Route::get('/super/notification/delete/{id}', [SuperAdminController::class, 'notificationDelete'])->name('super.notification.delete');
+    Route::post('/super/notification/edit', [SuperAdminController::class, 'notificationEdit'])->name('super.notification.edit');
+
     Route::get('/super/store/user', [SuperAdminController::class, 'storeUser'])->name('super.store.user');
     Route::get('/super/store/user/{id}', [SuperAdminController::class, 'storeUserDetail'])->name('super.store.user.detail');
     Route::post('/super/store/user/detailSub', [SuperAdminController::class, 'storeuserdetailSub'])->name('super.store.user.detailSub');
@@ -130,6 +135,7 @@ Route::middleware(['auth', 'user-role:admin'])->group(function () {
     Route::get('/admin/notification', [AdminController::class, 'notification'])->name('admin.notification');
     Route::post('/admin/notification/create', [AdminController::class, 'notificationCreate'])->name('admin.notification.create');
     Route::get('/admin/notification/delete/{id}', [AdminController::class, 'notificationDelete'])->name('admin.notification.delete');
+    Route::post('/admin/notification/edit', [AdminController::class, 'notificationEdit'])->name('admin.notification.edit');
     Route::get('/admin/account', [AdminController::class, 'account'])->name('admin.account');
     Route::get('/admin/account/{id}/{status}', [AdminController::class, 'accountStatus'])->name('admin.account.status');
     Route::post('/admin/account/create', [AdminController::class, 'accountCreate'])->name('admin.account.create');

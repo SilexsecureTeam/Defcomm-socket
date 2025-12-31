@@ -12,6 +12,7 @@ use App\Models\FileShareLog;
 use Illuminate\Http\Request;
 use App\Models\CompanyGroupUser;
 use Illuminate\Support\Facades\Mail;
+use App\Models\Notification;
 
 class UserController extends Controller
 {
@@ -332,4 +333,5 @@ class UserController extends Controller
         ContactList::find($idUser)->delete();
         return redirect()->back()->with('success', "Contact successfully removed");
     }
+    
 }
