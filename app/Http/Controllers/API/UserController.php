@@ -871,8 +871,17 @@ class UserController extends Controller
 
     public function getmeetingDetail($id)
     {
-        $datas = Meeting::find(decryptHelper($id));
-
+        $datas = Meeting::where("id", decryptHelper($id))->orWhere("meeting_id", $id)->first();
+        if( !$datas){
+            return response()->json(
+                [
+                    'status' => '404',
+                    'message' => 'Record not found',
+                    'data' => null
+                ],
+                404
+            );
+        }
         $data = [
             'id' => encryptHelper($datas->id),
             'meeting_link' => $datas->meeting_link,
@@ -1158,18 +1167,21 @@ class UserController extends Controller
 
     public function messagesIsread($id)
     {
-        $chat = ChatMessage::find(decryptHelper($id));
-        $chat->update(['is_read' => 'yes']);
+        $chat = ChatMessage::where('id', decryptHelper($id))->where('user_to', auth()->user()->id)->first();
+        $data = null;
+        if($chat){
+            $chat->update(['is_read' => 'yes']);
 
-        $data = $this->ChatService->lastMessage();
-        $lastMessage = [
-            "state" => "last_message",
-            "data" => $data
-        ];
-        if ($chat->user_group == 'group') {
-            broadcast(new PrivateGroupMessageSent(encryptHelper(auth()->user()->id), encryptHelper(auth()->user()->id), $lastMessage))->toOthers();
-        } else {
-            broadcast(new PrivateMessageSent(encryptHelper(auth()->user()->id), encryptHelper(auth()->user()->id), $lastMessage))->toOthers();
+            $data = $this->ChatService->lastMessage();
+            $lastMessage = [
+                "state" => "last_message",
+                "data" => $data
+            ];
+            if ($chat->user_group == 'group') {
+                broadcast(new PrivateGroupMessageSent(encryptHelper(auth()->user()->id), encryptHelper(auth()->user()->id), $lastMessage))->toOthers();
+            } else {
+                broadcast(new PrivateMessageSent(encryptHelper(auth()->user()->id), encryptHelper(auth()->user()->id), $lastMessage))->toOthers();
+            }
         }
 
         return response()->json(

@@ -61,6 +61,8 @@ Route::prefix('web')->group(function () {
     // Route::delete('/{id}', [WebController::class, 'destroy']); // delete
 });
 
+Route::get('/user/getmeeting/{id}', [UserController::class, 'getmeetingDetail']);
+
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/qr/{code}/approve', [QrLoginController::class, 'approve']); // mobile approves
 
@@ -75,6 +77,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('auth/loginblockip', [AuthController::class, 'loginblockip']);
     Route::get('auth/loginblockip/list', [AuthController::class, 'loginblockipList']);
     Route::post('auth/loginunblockip', [AuthController::class, 'loginunblockip']);
+    Route::post('auth/updateHeartBeat', [AuthController::class, 'updateHeartBeat']);
+    Route::get('auth/heartBeat', [AuthController::class, 'heartBeat']);
     Route::post('auth/logout', [AuthController::class, 'logout']);
 
     Route::get('/user/file', [UserController::class, 'file']);
@@ -114,7 +118,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/user/meeting/create', [UserController::class, 'meetingCreate']);
     Route::post('/user/meeting/update', [UserController::class, 'meetingUpdate']);
     Route::get('/user/getmeeting', [UserController::class, 'getmeeting']);
-    Route::get('/user/getmeeting/{id}', [UserController::class, 'getmeetingDetail']);
+    // Route::get('/user/getmeeting/{id}', [UserController::class, 'getmeetingDetail']);
     Route::get('/user/getmeetingid/{id}/{type}', [UserController::class, 'getmeetingid']);
     Route::post('/user/meetingInvitation', [UserController::class, 'meetingInvitation']);
     Route::post('/user/meetingInvitationGroup', [UserController::class, 'meetingInvitationGroup']);

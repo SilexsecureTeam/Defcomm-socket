@@ -6,7 +6,9 @@ use Carbon\Carbon;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Models\QrLoginRequest;
+use App\Http\Services\AuthService;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 
 class QrLoginController extends Controller
 {
@@ -71,7 +73,7 @@ class QrLoginController extends Controller
     }
 
     // 4) Desktop: exchange approved QR for token (single-use)
-    public function exchange($code)
+    public function exchange(Request $request, $code)
     {
         $qr = QrLoginRequest::where('code', $code)->first();
         if (!$qr) return response()->json(['message' => 'Not found'], 404);
@@ -90,15 +92,18 @@ class QrLoginController extends Controller
         $qr->redeemed_at = now();
         $qr->save();
 
-        return response()->json([
-            'status' => 200,
-            'message' => 'Login successfully',
-            'data' => [
-                'access_token' => $token,
-                'token_type' => 'Bearer',
-                'user_enid' => encryptHelper($user->id),
-                'user' => $user
+        $logDevice = (new AuthService())->authLogin($user, $request);
+        if ($logDevice == 'block') {
+            Auth::logout();
+            return response()->json(['status' => 400, 'error' => "This device does not have access to this account"], 401);
+        }
+        return response()->json(
+            [
+                'status' => 200,
+                'message' => 'Login successfully',
+                'data' => $logDevice
             ],
-        ], 201);
+            201
+        );
     }
 }

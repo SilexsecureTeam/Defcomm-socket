@@ -148,13 +148,14 @@ class AuthController extends Controller
             Auth::logout();
             return response()->json(['status' => 400, 'error' => "Your account is not active. Contact support"], 401);
         }
-        $logDevice = (new AuthService())->loginLog($user, $request);
-        if ($logDevice[0] == 'block') {
+
+        $logDevice = (new AuthService())->authLogin($user, $request);
+        if ($logDevice == 'block') {
             Auth::logout();
             return response()->json(['status' => 400, 'error' => "This device does not have access to this account"], 401);
         }
 
-        $token = $user->createToken('auth_token')->plainTextToken;
+        // $token = $user->createToken('auth_token')->plainTextToken;
 
         if ($request->device_token) {
             $user->update(['device_token' => $request->device_token]);
@@ -164,19 +165,14 @@ class AuthController extends Controller
             $user->update(['device_type' => $request->device_type]);
         }
 
-
-
-        return response()->json([
-            'message' => 'Login successfully',
-            'data' => [
-                'access_token' => $token,
-                'token_type' => 'Bearer',
-                'user_enid' => encryptHelper($user->id),
-                'user' => $user,
-                'plan' => $user->plan,
-                'device_id' => $logDevice[1] ?? null
+        return response()->json(
+            [
+                'status' => 200,
+                'message' => 'Login successfully',
+                'data' => $logDevice
             ],
-        ], 201);
+            201
+        );
     }
 
     public function requestOtpSms(Request $request)
@@ -209,28 +205,19 @@ class AuthController extends Controller
         if ($user->get()->isNotEmpty()) {
             $cur = Carbon::now()->subMinute(2)->format('Y-m-d H:i:s');
             if (strtotime($user->first()->updated_at->format('Y-m-d H:i:s')) >= strtotime($cur)) {
-                if ($user->first()->status !== "active") {
-                    return response()->json(['status' => 400, 'error' => "Your account is not active. Contact support"], 401);
-                }
-                $logDevice = (new AuthService())->loginLog($user->first(), $request);
-                if ($logDevice[0] == 'block') {
+                $logDevice = (new AuthService())->authLogin($user->first(), $request);
+                if ($logDevice == 'block') {
                     Auth::logout();
                     return response()->json(['status' => 400, 'error' => "This device does not have access to this account"], 401);
                 }
-                $token = $user->first()->createToken('auth_token')->plainTextToken;
-                return response()->json([
-                    'status' => 200,
-                    'message' => 'Login successfully',
-                    'data' => [
-                        'access_token' => $token,
-                        'token_type' => 'Bearer',
-                        'user_encrypt' => encrypt($user->first()->id),
-                        'user_enid' => encryptHelper($user->first()->id),
-                        'user' => $user->first(),
-                        'plan' => $user->first()->plan,
-                        'device_id' => $logDevice[1] ?? null
+                return response()->json(
+                    [
+                        'status' => 200,
+                        'message' => 'Login successfully',
+                        'data' => $logDevice
                     ],
-                ], 201);
+                    201
+                );
             } else {
                 return response()->json(['status' => 400, 'error' => "The OTP has expired. Request again"], 401);
             }
@@ -308,16 +295,20 @@ class AuthController extends Controller
 
         if ($user) {
             $user->update(['device' => 'yes']);
-            $token = $user->createToken('auth_token')->plainTextToken;
-            return response()->json([
-                'message' => 'Login successfully',
-                'data' => [
-                    'access_token' => $token,
-                    'token_type' => 'Bearer',
-                    'user_enid' => encrypt($user->id),
-                    'user' => $user
+            // $token = $user->createToken('auth_token')->plainTextToken;
+            $logDevice = (new AuthService())->authLogin($user->first(), $request);
+            if ($logDevice == 'block') {
+                Auth::logout();
+                return response()->json(['status' => 400, 'error' => "This device does not have access to this account"], 401);
+            }
+            return response()->json(
+                [
+                    'status' => 200,
+                    'message' => 'Login successfully',
+                    'data' => $logDevice
                 ],
-            ], 201);
+                201
+            );
         }
 
         return response()->json([
@@ -594,6 +585,7 @@ class AuthController extends Controller
                 'status' => $log->status,
                 'created_at' => $log->created_at,
                 'updated_at' => $log->updated_at,
+                'online' => $log->last_heartbeat > Carbon::now()->subSecond(120) ? true : false,
             ];
         }
 
@@ -693,6 +685,52 @@ class AuthController extends Controller
             'message' => 'User plan',
             'data' => $user->plan
         ]);
+    }
+
+    public function updateHeartBeat(Request $request)
+    {
+        $device = UserLoginDevice::find(decryptHelper($request->device_id));
+        if ($device) {
+            $device->update(['last_heartbeat' => Carbon::now()]);
+            return response()->json([
+                'status' => 200,
+                'message' => 'Heartbeat updated successfully',
+                'data' => ''
+            ]);
+        } else {
+            return response()->json([
+                'status' => 400,
+                'message' => 'Device not found',
+                'data' => ''
+            ], 400);
+        }
+    }
+
+    public function heartBeat()
+    {
+        $device = UserLoginDevice::where('user_id', Auth::user()->id)
+            ->orderBy('last_heartbeat', 'desc');
+        $session = UserLoginLog::where('user_id', Auth::user()->id)
+            ->orderBy('created_at', 'desc');
+        if ($device) {
+            return response()->json([
+                'status' => 200,
+                'message' => 'Heartbeat retrieved successfully',
+                'data' => [
+                    'last_heartbeat_ts' => $device->first()->last_heartbeat,
+                    'total_devices' => $device->count(),
+                    'active_devices' => $device->where('status', 'active')->count(),
+                    'online_devices' => $device->where('last_heartbeat', '>', Carbon::now()->subSecond(120))->count(),
+                    'active_sessions' => $session->count(),
+                ]
+            ]);
+        } else {
+            return response()->json([
+                'status' => 400,
+                'message' => 'Device not found',
+                'data' => ''
+            ], 400);
+        }
     }
 
     public function logout(Request $request)

@@ -9,6 +9,29 @@ use Stevebauman\Location\Facades\Location;
 
 class AuthService
 {
+
+    public function authLogin($user, $request)
+    {
+        if ($user->first()->status !== "active") {
+            return response()->json(['status' => 400, 'error' => "Your account is not active. Contact support"], 401);
+        }
+        $logDevice = $this->loginLog($user, $request);
+        if ($logDevice[0] == 'block') {
+            return "block";
+        }
+        $token = $user->createToken('auth_token')->plainTextToken;
+        return [
+            'access_token' => $token,
+            'token_type' => 'Bearer',
+            'user_encrypt' => encrypt($user->id),
+            'user_enid' => encryptHelper($user->id),
+            'user' => $user,
+            'plan' => $user->plan,
+            'device_id' => $logDevice[1] ?? null
+        ];
+        
+    }
+
     public function loginLog($user, $request)
     {
         // Get IP

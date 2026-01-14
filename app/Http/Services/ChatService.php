@@ -21,6 +21,9 @@ use App\Events\PrivateGroupMessageSent;
 
 class ChatService
 {
+    public $authId;
+    public $userTo;
+
     public function submitChat($current_chat_user_type, $current_chat_user, $userLastLog, $message, $is_file, $mss_type = 'text', $tag_user = null, $tag_mess = null)
     {
         $user = User::find(auth()->user()->id);
@@ -172,15 +175,15 @@ class ChatService
         }
         $lastMessage = [
             "state" => "last_message",
-            "data" => $this->lastMessage()
+            "data" => $this->lastMessage($current_chat_user)
         ];
         if ($current_chat_user_type == 'group') {
             broadcast(new PrivateGroupMessageSent(encryptHelper(auth()->user()->id), encryptHelper(auth()->user()->id), $lastMessage))->toOthers();
         } else {
-            broadcast(new PrivateMessageSent(encryptHelper(auth()->user()->id), encryptHelper(auth()->user()->id), $lastMessage))->toOthers();
+            broadcast(new PrivateMessageSent(encryptHelper($current_chat_user), encryptHelper($current_chat_user), $lastMessage))->toOthers();
         }
 
-        
+
 
         return [
             'chat_meta' => $chat_meta,
@@ -241,9 +244,13 @@ class ChatService
     }
 
 
-    public function lastMessage()
+    public function lastMessage($authId = null)
     {
-        $authId = auth()->id();
+        if (is_null($authId)) { 
+            $authId = auth()->id();
+        }
+
+        $this->authId = $authId;
 
         $record = ChatLastLog::select(DB::raw('
                 CASE 
@@ -282,10 +289,23 @@ class ChatService
                 return null;
             }
 
-            $unreadCount = ChatMessage::where('user_id', $userTo)
-                ->where('user_to', $authId)
-                ->where('is_read', 'no')
-                ->count();
+            $this->userTo = $userTo;
+
+            // if ($chat_user_type == 'group') {
+            //     $record = ChatMessage::where('user_to', $this->current_chat_user)->orderBy('created_at', 'DESC')->paginate(10);
+            // } else {
+                $record = ChatMessage::where(function ($query) {
+                    $query->where('user_id', $this->userTo)
+                        ->orWhere('group_to', $this->userTo)
+                        ->orWhere('user_to', $this->userTo);
+                })->where(function ($query) {
+                    $query->where('user_id', $this->authId)
+                        ->orWhere('group_to', $this->authId)
+                        ->orWhere('user_to', $this->authId);
+                })->orderBy('created_at', 'DESC')->paginate(10);
+            // }
+
+            $unreadCount = $record->where('is_read', 'no')->count();
 
             return [
                 'id' => encryptHelper($dt->id),
