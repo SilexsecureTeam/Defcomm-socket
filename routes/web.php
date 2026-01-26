@@ -7,7 +7,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\CommonController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SuperAdminController;
-use App\Http\Controllers\AuthenticateController;
+use App\Http\Controllers\AuthenticateController; 
 
 /*
 |--------------------------------------------------------------------------

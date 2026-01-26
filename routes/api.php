@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AdminController;
 use Illuminate\Support\Facades\Broadcast;
 use App\Http\Controllers\BountyController;
 use App\Http\Controllers\API\WebController;
@@ -10,6 +11,7 @@ use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\TranslateController;
 use App\Http\Controllers\API\QrLoginController;
 use App\Http\Controllers\GoogleAiTransController;
+use App\Http\Controllers\API\SuperAdminController;
 use App\Http\Controllers\API\WalkieTalkieController;
 
 /*
@@ -187,4 +189,115 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/bounty/reportUpdate', [BountyController::class, 'reportUpdate']);
     Route::get('/bounty/reportlog', [BountyController::class, 'reportLog']);
     Route::get('/bounty/reportInfo', [BountyController::class, 'reportInfo']);
+});
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/super/dashboard', [SuperAdminController::class, 'dashboard'])->name('api.super.dashboard');
+    Route::get('/super/account/{user}', [SuperAdminController::class, 'account'])->name('api.super.account');
+    Route::post('/super/accountCreate', [SuperAdminController::class, 'accountCreate'])->name('api.super.accountCreate');
+    Route::post('/super/accountEdit', [SuperAdminController::class, 'accountEdit'])->name('api.super.accountEdit');
+    Route::get('/super/accountView/{id}', [SuperAdminController::class, 'accountView'])->name('api.super.accountView');
+    Route::get('/super/accessLog/{id}', [SuperAdminController::class, 'accessLog'])->name('api.super.accessLog');
+    Route::get('/super/accountDelete/{id}', [SuperAdminController::class, 'accountDelete'])->name('api.super.accountDelete');
+    Route::get('/super/accountToken', [SuperAdminController::class, 'accountToken'])->name('api.super.accountToken');
+
+    Route::get('/super/systemMail', [SuperAdminController::class, 'systemMail'])->name('api.super.systemMail');
+    Route::post('/super/systemMailUpdate', [SuperAdminController::class, 'systemMailUpdate'])->name('api.super.systemMailUpdate');
+
+    Route::get('/super/language', [SuperAdminController::class, 'language'])->name('api.super.language');
+    Route::post('/super/languageCreate', [SuperAdminController::class, 'languageCreate'])->name('api.super.languageCreate');
+    Route::post('/super/languageEdit', [SuperAdminController::class, 'languageEdit'])->name('api.super.languageEdit');
+
+    Route::get('/super/agreements', [SuperAdminController::class, 'agreements'])->name('api.super.agreements');
+    Route::post('/super/agreementsCreate', [SuperAdminController::class, 'agreementsCreate'])->name('api.super.agreementsCreate');
+    Route::post('/super/agreementsEdit', [SuperAdminController::class, 'agreementsEdit'])->name('api.super.agreementsEdit');
+
+    Route::get('/super/notification', [SuperAdminController::class, 'notification'])->name('api.super.notification');
+    Route::post('/super/notification/create', [SuperAdminController::class, 'notificationCreate'])->name('api.super.notification.create');
+    Route::get('/super/notification/delete/{id}', [SuperAdminController::class, 'notificationDelete'])->name('api.super.notification.delete');
+    Route::post('/super/notification/edit', [SuperAdminController::class, 'notificationEdit'])->name('api.super.notification.edit');
+
+    Route::get('/super/store/user', [SuperAdminController::class, 'storeUser'])->name('api.super.store.user');
+    Route::get('/super/store/user/{id}', [SuperAdminController::class, 'storeUserDetail'])->name('api.super.store.user.detail');
+    Route::post('/super/store/user/detailSub', [SuperAdminController::class, 'storeuserdetailSub'])->name('api.super.store.user.detailSub');
+    Route::get('/super/store/app/{id?}', [SuperAdminController::class, 'storeApp'])->name('api.super.store.app');
+    Route::get('/super/store/app/detail/{id}', [SuperAdminController::class, 'storeappdetail'])->name('api.super.store.appt.detail');
+    Route::post('/super/store/app/detailSub', [SuperAdminController::class, 'storeappdetailSub'])->name('api.super.store.app.detailSub');
+    Route::get('/super/web/contact', [SuperAdminController::class, 'webContact'])->name('api.super.web.contact');
+    Route::get('/super/web/booking', [SuperAdminController::class, 'webBooking'])->name('api.super.web.booking');
+    Route::get('/super/plan', [SuperAdminController::class, 'plan'])->name('api.super.plan');
+    Route::post('/super/planAdd', [SuperAdminController::class, 'planAdd'])->name('api.super.planAdd');
+    Route::post('/super/planEdit', [SuperAdminController::class, 'planEdit'])->name('api.super.planEdit');
+
+    Route::get('/super/bounty/user/{type?}', [SuperAdminController::class, 'bountyUser'])->name('api.super.bountyUser');
+    Route::get('/super/bounty/userId/{id}', [SuperAdminController::class, 'bountyUserId'])->name('api.super.bountyUserId');
+    Route::get('/super/bounty/program', [SuperAdminController::class, 'bountyProgram'])->name('api.super.bountyProgram');
+    Route::post('/super/bounty/program/add', [SuperAdminController::class, 'bountyProgramAdd'])->name('api.super.bountyProgramAdd');
+    Route::post('/super/bounty/program/update', [SuperAdminController::class, 'bountyProgramUpdate'])->name('api.super.bountyProgramUpdate');
+    Route::post('/super/bountyuser/active', [SuperAdminController::class, 'bountyUserActive'])->name('api.super.bountyUser.active');
+    Route::post('/super/bountyuser/block', [SuperAdminController::class, 'bountyUserBlock'])->name('api.super.bountyUser.block');
+    Route::get('/super/bounty/category', [SuperAdminController::class, 'bountyCategory'])->name('api.super.bountyCategory');
+    Route::post('/super/bounty/category/add', [SuperAdminController::class, 'bountyCategoryAdd'])->name('api.super.bountyCategoryAdd');
+    Route::post('/super/bounty/category/update', [SuperAdminController::class, 'bountyCategoryUpdate'])->name('api.super.bountyCategoryUpdate');
+    Route::get('/super/bounty/subCategory/{id}', [SuperAdminController::class, 'bountySubCategory'])->name('api.super.bountySubCategory');
+    Route::post('/super/bounty/subCategory/add', [SuperAdminController::class, 'bountySubCategoryAdd'])->name('api.super.bountySubCategoryAdd');
+    Route::post('/super/bounty/subCategory/update', [SuperAdminController::class, 'bountySubCategoryUpdate'])->name('api.super.bountySubCategoryUpdate');
+    Route::get('/super/bounty/report/{severity?}/{category?}/{sub?}', [SuperAdminController::class, 'bountyReport'])->name('api.super.bountyReport');
+    Route::get('/super/bounty/reportView/{id}', [SuperAdminController::class, 'bountyReportView'])->name('api.super.bountyReportView');
+    Route::post('/super/bounty/reportApproval', [SuperAdminController::class, 'reportApproval'])->name('api.super.reportApproval');
+    Route::get('/super/bounty/reportMarkFix/{id}', [SuperAdminController::class, 'reportMarkFix'])->name('api.super.reportMarkFix');
+
+    Route::get('/super/program', [SuperAdminController::class, 'program'])->name('api.super.program');
+    Route::post('/super/program/add', [SuperAdminController::class, 'programAdd'])->name('api.super.programAdd');
+    Route::post('/super/program/update', [SuperAdminController::class, 'programUpdate'])->name('api.super.programUpdate');
+    Route::get('/super/attendance/{id}', [SuperAdminController::class, 'attendance'])->name('api.super.attendance');
+    Route::get('/program/attendance/{id}/{userId}/{userType}', [SuperAdminController::class, 'attendanceUser'])->name('api.super.attendanceUser');
+});
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('api.admin.dashboard');
+    Route::get('/admin/notification', [AdminController::class, 'notification'])->name('api.admin.notification');
+    Route::post('/admin/notification/create', [AdminController::class, 'notificationCreate'])->name('api.admin.notification.create');
+    Route::get('/admin/notification/delete/{id}', [AdminController::class, 'notificationDelete'])->name('api.admin.notification.delete');
+    Route::post('/admin/notification/edit', [AdminController::class, 'notificationEdit'])->name('api.admin.notification.edit');
+    Route::get('/admin/account', [AdminController::class, 'account'])->name('api.admin.account');
+    Route::get('/admin/account/{id}/{status}', [AdminController::class, 'accountStatus'])->name('api.admin.account.status');
+    Route::post('/admin/account/create', [AdminController::class, 'accountCreate'])->name('api.admin.account.create');
+    Route::post('/admin/account/block', [AdminController::class, 'accountBlock'])->name('api.admin.account.block');
+    Route::get('/admin/group', [AdminController::class, 'group'])->name('api.admin.group');
+    Route::post('/admin/group/create', [AdminController::class, 'groupCreate'])->name('api.admin.group.create');
+    Route::get('/admin/group/member/{id}', [AdminController::class, 'member'])->name('api.admin.member');
+    Route::get('/admin/group/member/{id}/add', [AdminController::class, 'memberAdd'])->name('api.admin.member.add');
+    Route::get('/admin/group/member/{id}/remove', [AdminController::class, 'memberRemove'])->name('api.admin.member.remove');
+    Route::post('/admin/group/member/add', [AdminController::class, 'memberGroupAdd'])->name('api.admin.member.group.add');
+
+    Route::get('/admin/meeting', [AdminController::class, 'meeting'])->name('api.admin.meeting');
+    Route::post('/admin/meeting/create', [AdminController::class, 'meetingCreate'])->name('api.admin.meeting.create');
+
+    Route::get('/admin/form', [AdminController::class, 'form'])->name('api.admin.form');
+    Route::get('/admin/form/application/{id}', [AdminController::class, 'formApplication'])->name('api.admin.form.application');
+    Route::get('/admin/form/attendance/{id}', [AdminController::class, 'formAttendance'])->name('api.admin.form.attendance');
+    Route::post('/admin/form/create', [AdminController::class, 'formCreate'])->name('api.admin.form.create');
+    Route::post('/admin/form/update', [AdminController::class, 'formUpdate'])->name('api.admin.form.update');
+    Route::get('/admin/form/attendance/{id}/{userId}', [AdminController::class, 'attendanceUser'])->name('api.admin.attendanceUser');
+    Route::post('/admin/form/mail', [AdminController::class, 'formMail'])->name('api.admin.form.mail');
+
+    Route::get('/admin/file', [AdminController::class, 'file'])->name('api.admin.file');
+    Route::get('/admin/file/user', [AdminController::class, 'fileUser'])->name('api.admin.file.user');
+    Route::get('/admin/file/request', [AdminController::class, 'fileRequest'])->name('api.admin.file.request');
+    Route::get('/admin/file/view/{id}', [AdminController::class, 'fileView'])->name('api.admin.file.view');
+    Route::get('/admin/file/download/{id}', [AdminController::class, 'fileDownload'])->name('api.admin.file.download');
+    Route::post('/admin/file/upload', [AdminController::class, 'fileUpload'])->name('api.admin.file.upload');
+    Route::get('/admin/file/share/group/{id}', [AdminController::class, 'fileShareGroup'])->name('api.admin.file.share.group');
+    Route::post('/admin/file/share/group/add', [AdminController::class, 'fileShareGroupAdd'])->name('api.admin.file.share.group.add');
+    Route::get('/admin/file/share/user/{id}', [AdminController::class, 'fileShareUser'])->name('api.admin.file.share.user');
+    Route::post('/admin/file/share/user/add', [AdminController::class, 'fileShareUserAdd'])->name('api.admin.file.share.user.add');
+    Route::get('/admin/file/access/group/{id}', [AdminController::class, 'fileAccessGroup'])->name('api.admin.file.access.group');
+    Route::get('/admin/file/access/user/{id}', [AdminController::class, 'fileAccessUser'])->name('api.admin.file.access.user');
+    Route::get('/admin/file/access/{id}/revoke', [AdminController::class, 'fileAccessRevoke'])->name('api.admin.file.access.revoke');
+    Route::get('/admin/file/access/{id}/log', [AdminController::class, 'fileAccessLog'])->name('api.admin.file.access.log');
+    Route::get('/admin/file/{id}/accept', [AdminController::class, 'fileAccept'])->name('api.admin.file.accept');
+    Route::get('/admin/file/{id}/decline', [AdminController::class, 'fileDecline'])->name('api.admin.file.decline');
+    Route::get('/admin/profile', [AdminController::class, 'profile'])->name('api.admin.profile');
+    Route::post('/admin/profile/upload', [AdminController::class, 'profileUpload'])->name('api.admin.profile.upload');
 });
