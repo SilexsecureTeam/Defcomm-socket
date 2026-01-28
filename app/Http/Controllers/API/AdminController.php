@@ -71,11 +71,85 @@ class AdminController extends Controller
     public function account()
     {
         $users = User::where('company_id', auth()->user()->CompanyUser->id)->where('role', 'user')->orderBy('name', 'ASC')->get();
+        $data = [];
+        foreach ($users as $usr) {
+            $data[] = [
+                'id' => encrypt($usr->id),
+                'en_id' => encryptHelper($usr->id),
+
+                'name' => $usr->name,
+                'username' => $usr->username,
+                'email' => $usr->email,
+                'email_verified_at' => $usr->email_verified_at,
+
+                'phone' => $usr->phone,
+                'address' => $usr->address,
+                'country' => $usr->country,
+                'dob' => $usr->dob,
+                'gender' => $usr->gender,
+
+                'role' => $usr->role,
+                'app_role' => $usr->app_role,
+                'company_id' => $usr->company_id,
+
+                'status' => $usr->status,
+                'status_ndpc' => $usr->statusNdpc,
+                'status_app' => $usr->statusApp,
+                'access' => $usr->access,
+
+                'is_online' => $usr->is_online,
+                'device' => $usr->device,
+                'device_type' => $usr->device_type,
+                'device_token' => $usr->device_token,
+
+                'enable_2fa' => (bool) $usr->enable_2fa,
+                'signal_blocking' => $usr->signal_blocking,
+                'remote_management' => $usr->remote_management,
+                'encrypted_storage' => $usr->encrypted_storage,
+                'self_wipe' => $usr->self_wipe,
+
+                'onboarding_stage' => $usr->onboarding_stage,
+
+                'developer_display_name' => $usr->developer_display_name,
+                'website' => $usr->website,
+                'rc_number' => $usr->rc_number,
+                'tin' => $usr->tin,
+
+                'avatar' => $usr->avatar
+                    ? url('/avatar/' . $usr->avatar)
+                    : null,
+
+                'selfie' => $usr->selfie
+                    ? url('/' . $usr->selfie)
+                    : null,
+
+                'rc_doc' => $usr->rc_doc
+                    ? url('/' . $usr->rc_doc)
+                    : null,
+
+                'tin_doc' => $usr->tin_doc
+                    ? url('/' . $usr->tin_doc)
+                    : null,
+
+                'id_card_front' => $usr->id_card_front
+                    ? url('/' . $usr->id_card_front)
+                    : null,
+
+                'id_card_back' => $usr->id_card_back
+                    ? url('/' . $usr->id_card_back)
+                    : null,
+
+                'comment_app' => $usr->commentApp,
+
+                'created_at' => $usr->created_at,
+                'updated_at' => $usr->updated_at,
+            ];
+        }
         return response()->json(
             [
                 'status' => '200',
                 'message' => 'Record listed',
-                'data' => $users
+                'data' => $data
             ],
             201
         );
@@ -84,11 +158,24 @@ class AdminController extends Controller
     public function notification()
     {
         $notify = Notification::where('company_id', auth()->user()->company_id)->get();
+        $data = [];
+        foreach ($notify as $nt) {
+            $data[] = [
+                'id' => encrypt($nt->id),
+                'label' => $nt->label,
+                'short_message' => $nt->short_message,
+                'body_message' => $nt->body_message,
+                'expire' => $nt->expire,
+                'status' => $nt->status,
+                'icon' => url("/icon/".$nt->icon),
+                'created_at' => $nt->created_at,
+            ];
+        }
         return response()->json(
             [
                 'status' => '200',
                 'message' => 'Record listed',
-                'data' => $notify
+                'data' => $data
             ],
             201
         );
@@ -195,10 +282,10 @@ class AdminController extends Controller
             'phone' => 'required|string|unique:users',
         ]);
 
-        $error = "";
+        $error = [];
         if ($validator->fails()) {
             foreach ($validator->messages()->all() as $mess) {
-                $error .= "$mess <br>";
+                $error[] = $mess;
             }
             return response()->json(
                 [
@@ -277,18 +364,27 @@ class AdminController extends Controller
 
     public function form()
     {
-        $data = EventForm::where('user_id', auth()->user()->id)->get();
-        $groups = CompanyGroup::where('company_id', auth()->user()->CompanyUser->id)->get();
-        $meet = Meeting::where('user_id', auth()->user()->id)->get();
+        $event = EventForm::where('user_id', auth()->user()->id)->get();
+        $data = [];
+        foreach ($event as $ev) {
+            $data[] = [
+                'id' => encrypt($ev->id),
+                'name' => $ev->name,
+                'message' => $ev->message,
+                'group_id' => $ev->group->name,
+                'meeting_id' => $ev->meeting->subject,
+                'signup' => $ev->signup,
+                'attendance' => $ev->attendance,
+                'status' => $ev->status,
+                'created_at' => $ev->created_at,
+            ];
+        }
+
         return response()->json(
             [
                 'status' => '200',
                 'message' => 'Record listed',
-                'data' => [
-                    'forms' => $data,
-                    'groups' => $groups,
-                    'meetings' => $meet
-                ]
+                'data' => $data
             ],
             201
         );
@@ -296,7 +392,25 @@ class AdminController extends Controller
 
     public function formApplication($id)
     {
-        $data = EventRegistration::where('form_id', decrypt($id))->get();
+        $event = EventRegistration::where('form_id', decrypt($id))->get();
+        $data = [];
+        foreach ($event as $ev) {
+            $data[] = [
+                'id' => encrypt($ev->id),
+                'user' => [
+                    'id' => encrypt($ev->user->id),
+                    'name' => $ev->user->name,
+                    'email' => $ev->user->email,
+                    'phone' => $ev->user->phone,
+                ],
+                'form_id' => encrypt($ev->form_id),
+                'name' => $ev->name,
+                'email' => $ev->email,
+                'phone' => $ev->phone,
+                'data' => $ev->data,
+                'created_at' => $ev->created_at,
+            ];
+        }
         return response()->json(
             [
                 'status' => '200',
@@ -309,7 +423,23 @@ class AdminController extends Controller
 
     public function formAttendance($id)
     {
-        $data = EventRegistrationsAttendances::where('form_id', decrypt($id))->get();
+        $event = EventRegistrationsAttendances::where('form_id', decrypt($id))->get();
+        $data = [];
+        foreach ($event as $ev) {
+            $data[] = [
+                'id' => encrypt($ev->id),
+                'user' => [
+                    'id' => encrypt($ev->user->id),
+                    'name' => $ev->user->name,
+                    'email' => $ev->user->email,
+                    'phone' => $ev->user->phone,
+                ],
+                'form_id' => encrypt($ev->form_id),
+                'comment' => $ev->comment,
+                'photo' => $ev->photo,
+                'created_at' => $ev->created_at,
+            ];
+        }
         return response()->json(
             [
                 'status' => '200',
@@ -345,11 +475,12 @@ class AdminController extends Controller
 
     public function formUpdate(Request $request)
     {
-        EventForm::find(decrypt($request->id))->update([
+        $eventForm = EventForm::find(decrypt($request->id));
+        $eventForm->update([
             'name' => $request->name,
             'message' => $request->message,
-            'group_id' => decrypt($request->group_id),
-            'meeting_id' => $request->meeting_id ? decryptHelper($request->meeting_id) : null,
+            'group_id' => $request->group_id ? decrypt($request->group_id) : $eventForm->group_id,
+            'meeting_id' => $request->meeting_id ? decryptHelper($request->meeting_id) : $eventForm->meeting_id,
             'signup' => $request->signup,
             'attendance' => $request->attendance,
             'status' => $request->status,
@@ -425,11 +556,25 @@ class AdminController extends Controller
     public function group()
     {
         $groups = CompanyGroup::where('company_id', auth()->user()->CompanyUser->id)->get();
+        $data = [];
+        foreach ($groups as $grp) {
+            $data[] = [
+                'id' => encrypt($grp->id),
+                'name' => $grp->name,
+                'decription' => $grp->decription,
+                'avatar' => $grp->avatar
+                    ? url('/group/' . $grp->avatar)
+                    : null,
+                'company_id' => $grp->company_id,
+                'member_count' => CompanyGroupUser::where('group_id', $grp->id)->count(),
+                'created_at' => $grp->created_at,
+            ];
+        }
         return response()->json(
             [
                 'status' => '200',
                 'message' => 'Record listed',
-                'data' => $groups
+                'data' => $data
             ],
             201
         );
@@ -463,9 +608,17 @@ class AdminController extends Controller
             );
         }
 
+        $file_name = null;
+        if ($request->hasFile('avatar')) {
+            $file = $request->file('avatar');
+            $file_name = time() . "avatar." . $file->getClientOriginalExtension();
+            $file->move(public_path('group'), $file_name);
+        }
+
         CompanyGroup::create([
             'name' => $request->name,
             'decription' => $request->decription,
+            'avatar' => $file_name,
             'company_id' => auth()->user()->CompanyUser->id,
         ]);
 
@@ -479,28 +632,152 @@ class AdminController extends Controller
         );
     }
 
-    public function member($id)
+    public function groupUpdate(Request $request)
     {
-        $idUser = decrypt($id);
-        $member = CompanyGroupUser::where('group_id', $idUser)->get();
+        $id = decrypt($request->id);
+        $file_name = null;
+        if ($request->hasFile('avatar')) {
+            $file = $request->file('avatar');
+            $file_name = time() . "avatar." . $file->getClientOriginalExtension();
+            $file->move(public_path('group'), $file_name);
+            $old_file = CompanyGroup::find($id)->avatar;
+            if ($old_file) {
+                unlink(public_path('group') . '/' . $old_file);
+            }
+            CompanyGroup::find($id)->update(['avatar' => $file_name]);
+        }
+        CompanyGroup::find($id)->update([
+            'name' => $request->name,
+            'decription' => $request->decription,
+        ]);
         return response()->json(
             [
                 'status' => '200',
-                'message' => 'Record listed',
-                'data' => $member
+                'message' => 'Group successfully updated',
+                'data' => []
             ],
             201
         );
     }
 
-    public function memberRemove($id)
+    public function member($id)
     {
         $idUser = decrypt($id);
-        CompanyGroupUser::find($idUser)->delete();
+        $member = CompanyGroupUser::where('group_id', $idUser)->get();
+        $data = [];
+        foreach ($member as $mem) {
+            $data[] = [
+                'id' => encrypt($mem->id),
+                'user' => [
+                'id' => encrypt($mem->user->id),
+                'en_id' => encryptHelper($mem->user->id),
+
+                'name' => $mem->user->name,
+                'username' => $mem->user->username,
+                'email' => $mem->user->email,
+                'email_verified_at' => $mem->user->email_verified_at,
+
+                'phone' => $mem->user->phone,
+                'address' => $mem->user->address,
+                'country' => $mem->user->country,
+                'dob' => $mem->user->dob,
+                'gender' => $mem->user->gender,
+
+                'role' => $mem->user->role,
+                'app_role' => $mem->user->app_role,
+                'company_id' => $mem->user->company_id,
+
+                'status' => $mem->user->status,
+                'status_ndpc' => $mem->user->statusNdpc,
+                'status_app' => $mem->user->statusApp,
+                'access' => $mem->user->access,
+
+                'is_online' => $mem->user->is_online,
+                'device' => $mem->user->device,
+                'device_type' => $mem->user->device_type,
+                'device_token' => $mem->user->device_token,
+
+                'enable_2fa' => (bool) $mem->user->enable_2fa,
+                'signal_blocking' => $mem->user->signal_blocking,
+                'remote_management' => $mem->user->remote_management,
+                'encrypted_storage' => $mem->user->encrypted_storage,
+                'self_wipe' => $mem->user->self_wipe,
+
+                'onboarding_stage' => $mem->user->onboarding_stage,
+
+                'developer_display_name' => $mem->user->developer_display_name,
+                'website' => $mem->user->website,
+                'rc_number' => $mem->user->rc_number,
+                'tin' => $mem->user->tin,
+
+                'avatar' => $mem->user->avatar
+                    ? url('/avatar/' . $mem->user->avatar)
+                    : null,
+
+                'selfie' => $mem->user->selfie
+                    ? url('/' . $mem->user->selfie)
+                    : null,
+
+                'rc_doc' => $mem->user->rc_doc
+                    ? url('/' . $mem->user->rc_doc)
+                    : null,
+
+                'tin_doc' => $mem->user->tin_doc
+                    ? url('/' . $mem->user->tin_doc)
+                    : null,
+
+                'id_card_front' => $mem->user->id_card_front
+                    ? url('/' . $mem->user->id_card_front)
+                    : null,
+
+                'id_card_back' => $mem->user->id_card_back
+                    ? url('/' . $mem->user->id_card_back)
+                    : null,
+
+                'comment_app' => $mem->user->commentApp,
+
+                'created_at' => $mem->user->created_at,
+                'updated_at' => $mem->user->updated_at,
+            ],
+                'group_id' => $mem->group_id,
+                'company_id' => $mem->company_id,
+                'created_at' => $mem->created_at,
+            ];
+        }
         return response()->json(
             [
                 'status' => '200',
-                'message' => 'Group member successfully removed',
+                'message' => 'Record listed',
+                'data' => $data
+            ],
+            201
+        );
+    }
+
+    public function memberRemove(Request $request)
+    {
+        $id = decrypt($request->id);
+        // $user = json_decode($request->users, true);
+        $user = $request->users;
+        if (!empty($user)) {
+            foreach ($user as $dt) {
+                CompanyGroupUser::where('group_id', $id)->where('user_id', decrypt($dt))->first()->delete();
+                // Mail::to($request->email)->send(new GroupInvitation($request->name, $request->email, $encrypt, $otp));
+            }
+
+            return response()->json(
+                [
+                    'status' => '200',
+                    'message' => 'Group member removed successfully',
+                    'data' => []
+                ],
+                201
+            );
+        }
+        return response()->json(
+            [
+                'status' => '200',
+                'message' => 'Group member not found',
                 'data' => []
             ],
             201
@@ -523,11 +800,12 @@ class AdminController extends Controller
     public function memberGroupAdd(Request $request)
     {
         $id = decrypt($request->id);
-        $user = json_decode($request->users, true);
+        // $user = json_decode($request->users, true);
+        $user = $request->users;
         if (!empty($user)) {
             foreach ($user as $dt) {
                 CompanyGroupUser::firstOrCreate([
-                    'user_id' => $dt,
+                    'user_id' => decrypt($dt),
                     'group_id' => $id
                 ], [
                     'company_id' => auth()->user()->CompanyUser->id

@@ -2,7 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AdminController;
+use App\Http\Controllers\API\AdminController;
 use Illuminate\Support\Facades\Broadcast;
 use App\Http\Controllers\BountyController;
 use App\Http\Controllers\API\WebController;
@@ -179,6 +179,11 @@ Route::post('/bounty/reset-password', [BountyController::class, 'resetPassword']
 Route::get('/bounty/leaderboard', [BountyController::class, 'leaderboard']);
 
 Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/bounty/createUser', [BountyController::class, 'createUser']);
+    Route::get('/bounty/getUser', [BountyController::class, 'getUser']);
+    Route::get('/bounty/user/report/{userId}', [BountyController::class, 'reportLogUser']);
+    Route::get('/bounty/user/leaderboard', [BountyController::class, 'leaderboard']);
+
     Route::get('/bounty/profile', [BountyController::class, 'profile']);
     Route::post('/bounty/profile', [BountyController::class, 'profile']);
     Route::post('/bounty/logout', [BountyController::class, 'logout']);
@@ -256,19 +261,23 @@ Route::middleware('auth:sanctum')->group(function () {
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('api.admin.dashboard');
+
     Route::get('/admin/notification', [AdminController::class, 'notification'])->name('api.admin.notification');
     Route::post('/admin/notification/create', [AdminController::class, 'notificationCreate'])->name('api.admin.notification.create');
     Route::get('/admin/notification/delete/{id}', [AdminController::class, 'notificationDelete'])->name('api.admin.notification.delete');
     Route::post('/admin/notification/edit', [AdminController::class, 'notificationEdit'])->name('api.admin.notification.edit');
+
     Route::get('/admin/account', [AdminController::class, 'account'])->name('api.admin.account');
     Route::get('/admin/account/{id}/{status}', [AdminController::class, 'accountStatus'])->name('api.admin.account.status');
     Route::post('/admin/account/create', [AdminController::class, 'accountCreate'])->name('api.admin.account.create');
     Route::post('/admin/account/block', [AdminController::class, 'accountBlock'])->name('api.admin.account.block');
+
     Route::get('/admin/group', [AdminController::class, 'group'])->name('api.admin.group');
     Route::post('/admin/group/create', [AdminController::class, 'groupCreate'])->name('api.admin.group.create');
+    Route::post('/admin/group/update', [AdminController::class, 'groupUpdate'])->name('api.admin.group.update');
     Route::get('/admin/group/member/{id}', [AdminController::class, 'member'])->name('api.admin.member');
     Route::get('/admin/group/member/{id}/add', [AdminController::class, 'memberAdd'])->name('api.admin.member.add');
-    Route::get('/admin/group/member/{id}/remove', [AdminController::class, 'memberRemove'])->name('api.admin.member.remove');
+    Route::post('/admin/group/member/remove', [AdminController::class, 'memberRemove'])->name('api.admin.member.remove');
     Route::post('/admin/group/member/add', [AdminController::class, 'memberGroupAdd'])->name('api.admin.member.group.add');
 
     Route::get('/admin/meeting', [AdminController::class, 'meeting'])->name('api.admin.meeting');

@@ -13,6 +13,7 @@ use App\Models\BountyUserProgram;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
 class BountyController extends Controller
@@ -38,6 +39,7 @@ class BountyController extends Controller
                 'username' => $request->username,
                 'email' => $request->email,
                 'phone' => $request->phone,
+                'group_company' => $request->group_company,
                 'country' => $request->country,
                 'user_type' => $request->user_type,
                 'password' => Hash::make($request->password),
@@ -594,4 +596,121 @@ class BountyController extends Controller
             201
         );
     }
+
+    public function createUser(Request $request)
+    {
+        try {
+            $request->validate([
+                'firstName' => 'required|string|max:100',
+                'lastName'  => 'required|string|max:100',
+                'username'  => 'required|string|max:100|unique:bounty_users,username',
+                'email'     => 'required|email|max:150|unique:bounty_users,email',
+                'phone'     => 'nullable|string|max:20|unique:bounty_users,phone',
+                // 'password'  => 'required|string|min:6',
+            ]);
+
+            $otp = rand(1000, 9999);
+
+            $user = BountyUser::create([
+                'firstName' => $request->firstName,
+                'lastName' => $request->lastName,
+                'username' => $request->username,
+                'email' => $request->email,
+                'phone' => $request->phone,
+                'country' => $request->country,
+                'user_type' => 'user',
+                'password' => Hash::make($request->password),
+                'rel_group' => auth()->user()->id,
+                'otp' => $otp
+            ]);
+
+            Mail::to($request->email)->send(new BountyUserVerify($request, $otp, auth()->user()->group_company));
+
+            return response()->json([
+                'status' => '200',
+                'message' => 'User created successfully',
+                'data' => $user,
+            ], 201);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'status' => '400',
+                'message' => 'Validation failed.',
+                'data' => $e->errors(), // full list of field errors
+            ], 401);
+        }
+    }
+
+    public function getUser(Request $request)
+    {
+        $users = BountyUser::where("rel_group", auth()->user()->id)->get();
+        $data = [];
+        foreach ($users as $user) {
+            $data[] = [
+                'id'          => encrypt($user->id),
+                'id_en'          => encryptHelper($user->id),
+                'firstName'   => $user->firstName,
+                'lastName'    => $user->lastName,
+                'username'    => $user->username,
+                'email'       => $user->email,
+                'country'     => $user->country,
+                'phone'       => $user->phone,
+                'zipcode'     => $user->zipcode,
+                'timezone'    => $user->timezone,
+                'photo'       => $user->photo,
+                'bio'         => $user->bio,
+                'point'     => $user->report->sum('point'),
+                'balance'     => $user->report->sum('amount'),
+                'status'      => $user->status,
+                'created_at'  => $user->created_at,
+                'updated_at'  => $user->updated_at,
+                'emailVerify' => $user->emailVerify,
+            ];
+        }
+
+        return response()->json([
+            'status' => '200',
+            'message' => 'Record found',
+            'data' => $data,
+        ], 201);
+    }
+
+    public function reportLogUser($userId)
+    {
+        $datas = BountyUserReport::where('user_id', decrypt($userId))->orderBy('created_at', "DESC")->get();
+        $data = [];
+
+        foreach ($datas as $dt) {
+            $attachments = collect(json_decode($dt->attachment))
+                ->map(function ($file) {
+                    return url($file); // or asset('storage/...'), depending on your path
+                })
+                ->toArray();
+
+            $data[] = [
+                'id' => encrypt($dt->id),
+                'ref' => $dt->ref,
+                'program' => $dt->program->title,
+                'title' => $dt->title,
+                'detail' => $dt->detail,
+                'attachment' => $attachments,
+                'category' => $dt->categori->label,
+                'category_sub' => $dt->categorySub->label,
+                'severity' => $dt->severity,
+                'point' => $dt->point,
+                'amount' => $dt->amount,
+                'status' => $dt->status,
+                'created_at' => $dt->created_at,
+                'updated_at' => $dt->updated_at,
+            ];
+        }
+
+        return response()->json(
+            [
+                'status' => '200',
+                'message' => 'Record listed',
+                'data' => $data
+            ],
+            201
+        );
+    } 
 }

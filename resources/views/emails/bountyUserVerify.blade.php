@@ -14,6 +14,11 @@
 
         <p style="font-weight:bold;">Hi {{ $data->username ?? '' }},</p>
         <div style="margin-bottom:30px;">
+            @if($group_company)
+            <p>
+                You have been invited by {{$group_company}} to join Defcomm Bounty Program.
+            </p>    
+            @endif
             <p>
                 {!! $admail->message !!}
             </p>

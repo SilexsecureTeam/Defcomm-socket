@@ -161,7 +161,7 @@
                         <div class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-600 menu-state-bg-light-primary fw-semibold fs-7 w-125px py-4" data-kt-menu="true">
                             <!--begin::Menu item-->
                             <div class="menu-item px-3">
-                                <a href="#" class="menu-link px-3">Edit</a>
+                                <a href="#" data-bs-toggle="modal" data-bs-target="#kt_modal_add_user{{$dt->id}}" class="menu-link px-3">Edit</a>
                             </div>
                             <!--end::Menu item-->
                             <!--begin::Menu item-->
@@ -186,6 +186,75 @@
     <!--end::Card body-->
 </div>
 <!--end::Card-->
+
+@foreach($groups as $dt)
+<!--begin::Modal - Add task-->
+<div class="modal fade" id="kt_modal_add_user{{$dt->id}}" tabindex="-1" aria-hidden="true">
+    <!--begin::Modal dialog-->
+    <div class="modal-dialog modal-dialog-centered mw-650px">
+        <!--begin::Modal content-->
+        <div class="modal-content">
+            <!--begin::Modal header-->
+            <div class="modal-header" id="kt_modal_add_user{{$dt->id}}_header">
+                <!--begin::Modal title-->
+                <h2 class="fw-bold">Add Group</h2>
+                <!--end::Modal title-->
+                <!--begin::Close-->
+                <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal">
+                    <i class="ki-outline ki-cross fs-1"></i>
+                </div>
+                <!--end::Close-->
+            </div>
+            <!--end::Modal header-->
+            <!--begin::Modal body-->
+            <div class="modal-body px-5 my-7">
+                <!--begin::Form-->
+                <form id="kt_modal_add_user{{$dt->id}}_form" class="form" action="{{route('admin.group.update')}}" method="post">
+                    @csrf
+                    <input type="hidden" name="id" value="{{encrypt($dt->id)}}">
+                    <!--begin::Scroll-->
+                    <div class="d-flex flex-column scroll-y px-5 px-lg-10" id="kt_modal_add_user{{$dt->id}}_scroll" data-kt-scroll="true" data-kt-scroll-activate="true" data-kt-scroll-max-height="auto" data-kt-scroll-dependencies="#kt_modal_add_user{{$dt->id}}_header" data-kt-scroll-wrappers="#kt_modal_add_user{{$dt->id}}_scroll" data-kt-scroll-offset="300px">
+                        <!--begin::Input group-->
+                        <div class="fv-row mb-7">
+                            <!--begin::Label-->
+                            <label class="required fw-semibold fs-6 mb-2">Name</label>
+                            <!--end::Label-->
+                            <!--begin::Input-->
+                            <input type="text" name="name" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="Enter group name" value="{{$dt->name}}" />
+                            <!--end::Input-->
+                        </div>
+                        <!--end::Input group-->
+                        <!--begin::Input group-->
+                        <div class="fv-row mb-7">
+                            <!--begin::Label-->
+                            <label class="fw-semibold fs-6 mb-2">Description</label>
+                            <!--end::Label-->
+                            <!--begin::Input-->
+                            <input type="text" name="decription" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="Enter Description" value="{{$dt->description}}" />
+                            <!--end::Input-->
+                        </div>
+                        <!--end::Input group-->
+                    </div>
+                    <!--end::Scroll-->
+                    <!--begin::Actions-->
+                    <div class="text-center pt-10">
+                        <button type="reset" class="btn btn-light me-3" data-bs-dismiss="modal">Discard</button>
+                        <button type="submit" class="btn btn-primary" data-kt-users-modal-action="submit">
+                            <span class="indicator-label">Submit</span>
+                        </button>
+                    </div>
+                    <!--end::Actions-->
+                </form>
+                <!--end::Form-->
+            </div>
+            <!--end::Modal body-->
+        </div>
+        <!--end::Modal content-->
+    </div>
+    <!--end::Modal dialog-->
+</div>
+<!--end::Modal - Add task-->
+@endforeach
 
 <script type="text/javascript">
     document.addEventListener('DOMContentLoaded', function() {

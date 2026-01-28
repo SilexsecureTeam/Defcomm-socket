@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('password');
             $table->string('country')->nullable();
+            $table->string('group_company')->nullable();
             $table->string('phone')->nullable();
             $table->string('otp')->nullable();
             $table->string('zipcode')->nullable();

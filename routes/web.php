@@ -142,6 +142,7 @@ Route::middleware(['auth', 'user-role:admin'])->group(function () {
     Route::post('/admin/account/block', [AdminController::class, 'accountBlock'])->name('admin.account.block');
     Route::get('/admin/group', [AdminController::class, 'group'])->name('admin.group');
     Route::post('/admin/group/create', [AdminController::class, 'groupCreate'])->name('admin.group.create');
+    Route::post('/admin/group/update', [AdminController::class, 'groupUpdate'])->name('admin.group.update');
     Route::get('/admin/group/member/{id}', [AdminController::class, 'member'])->name('admin.member');
     Route::get('/admin/group/member/{id}/add', [AdminController::class, 'memberAdd'])->name('admin.member.add');
     Route::get('/admin/group/member/{id}/remove', [AdminController::class, 'memberRemove'])->name('admin.member.remove');

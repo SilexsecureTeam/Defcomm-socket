@@ -15,15 +15,17 @@ class BountyUserVerify extends Mailable
     public $data;
     public $otp;
     public $admail;
+    public $group_company;
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($data, $otp)
+    public function __construct($data, $otp, $group_company=null)
     {
         $this->data = $data;
         $this->otp = $otp;
+        $this->group_company = $group_company;
         $this->admail = SystemMail::where('label', 'bounty')->first();
     }
 

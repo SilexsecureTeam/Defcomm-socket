@@ -249,11 +249,12 @@ class AdminController extends Controller
 
     public function formUpdate(Request $request)
     {
-        EventForm::find(decrypt($request->id))->update([
+        $eventForm = EventForm::find(decrypt($request->id));
+        $eventForm->update([
             'name' => $request->name,
             'message' => $request->message,
-            'group_id' => decrypt($request->group_id),
-            'meeting_id' => $request->meeting_id ? decryptHelper($request->meeting_id) : null,
+            'group_id' => $request->group_id ? decrypt($request->group_id) : $eventForm->group_id,
+            'meeting_id' => $request->meeting_id ? decryptHelper($request->meeting_id) : $eventForm->meeting_id,
             'signup' => $request->signup,
             'attendance' => $request->attendance,
             'status' => $request->status,
@@ -335,6 +336,17 @@ class AdminController extends Controller
         ]);
 
         return redirect()->back()->with('success', "Group successfully created");
+    }
+
+    public function groupUpdate(Request $request)
+    {
+        $idUser = decrypt($request->id);
+        CompanyGroup::find($idUser)->update([
+            'name' => $request->name,
+            'decription' => $request->decription,
+        ]);
+
+        return redirect()->back()->with('success', "Group successfully updated");
     }
 
     public function member($id)
