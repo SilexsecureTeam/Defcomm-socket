@@ -15,15 +15,17 @@ class BountyUserOtp extends Mailable
     public $data;
     public $otp;
     public $admail;
+    public $url;
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($data, $otp)
+    public function __construct($data, $otp, $url = null)
     {
         $this->data = $data;
         $this->otp = $otp;
+        $this->url = $url;
         $this->admail = SystemMail::where('label', 'bounty')->first();
     }
 

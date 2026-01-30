@@ -151,7 +151,7 @@ class BountyController extends Controller
             // $token = $user->createToken('bounty_token')->plainTextToken;
             $otp = rand(1000, 9999);
             $user->update(['otp' => $otp]);
-            Mail::to($user->email)->send(new BountyUserOtp($user, $otp));
+            Mail::to($user->email)->send(new BountyUserOtp($user, $otp, $request->url));
             return response()->json([
                 'status' => '200',
                 'message' => 'Waiting for OTP verification',
@@ -712,5 +712,5 @@ class BountyController extends Controller
             ],
             201
         );
-    } 
+    }
 }

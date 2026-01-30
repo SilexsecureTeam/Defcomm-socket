@@ -15,10 +15,16 @@
         <p style="font-weight:bold;">Hi {{ $data->username ?? '' }},</p>
         <div style="margin-bottom:30px;">
 
-            {{--<p>Kindly click the button to proceed</p>
+            @if($url)
+            <p>Kindly click the button to proceed</p>
             <div style="text-align: center;">
-                <a href="https://cloud.defcomm.ng/onboarding?auth=<?= $encrypt ?>" style="background-color: #36460A; padding: 10px; border-radius:5px; color: #ffffff;">Join</a>
-            </div>--}}
+                <a href="<?= $data->url ?>" style="background-color: #36460A; padding: 10px; border-radius:5px; color: #ffffff;">Join</a>
+            </div>
+            or use the link below to proceed
+            <div style="word-break: break-all; text-align: center; margin-top: 10px;">
+                <a href="<?= $data->url ?>"><?= $data->url ?></a>
+            </div>
+            @endif
             <div style="text-align: center; margin-top:50px;">
                 <p style="margin-bottom: 10px;"> Kindly Use the code below to access your account</p>
                 <span style="background-color: #36460A; color: #ffffff; border-radius: 5px; padding: 10px;">

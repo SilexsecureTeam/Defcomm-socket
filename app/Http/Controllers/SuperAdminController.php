@@ -123,14 +123,14 @@ class SuperAdminController extends Controller
             'access' => $request->access
         ]);
 
-        if($request->nameorg){
+        if ($request->nameorg) {
             $comp = CompanyUser::create([
                 'name' => $request->nameorg,
                 'user_id' => $usr->id
             ]);
 
             $usr->update(['company_id' => $comp->id]);
-        }else{
+        } else {
             $usr->update(['status' => "active", 'role' => 'super',]);
         }
 
@@ -168,6 +168,7 @@ class SuperAdminController extends Controller
             'email' => $request->email,
             'phone' => $request->phone,
             'plan_id' => $request->plan_id,
+            'status' => $request->status,
         ]);
 
         if ($request->password) {
@@ -250,7 +251,7 @@ class SuperAdminController extends Controller
         ]);
         return redirect()->back()->with('success', "agreements successfully updated");
     }
-    
+
     public function notification()
     {
         $notify = Notification::where('source', 'super')->get();
@@ -262,7 +263,7 @@ class SuperAdminController extends Controller
     public function notificationCreate(Request $request)
     {
         $file_name = null;
-        if($request->hasFile('icon')) {
+        if ($request->hasFile('icon')) {
             $file = $request->file('icon');
             $file_name = time() . "icon." . $file->getClientOriginalExtension();
             $file->move(public_path('icon'), $file_name);
@@ -295,7 +296,7 @@ class SuperAdminController extends Controller
     {
         $idUser = decrypt($request->id);
         $file_name = null;
-        if($request->hasFile('icon')) {
+        if ($request->hasFile('icon')) {
             $file = $request->file('icon');
             $file_name = time() . "icon." . $file->getClientOriginalExtension();
             $file->move(public_path('icon'), $file_name);
@@ -633,7 +634,7 @@ class SuperAdminController extends Controller
 
         $cat = BountyCategory::get();
         $catsub = null;
-        if($category){
+        if ($category) {
             $catsub = BountyCategorySub::where('category_id', $category)->get();
         }
 
@@ -661,7 +662,7 @@ class SuperAdminController extends Controller
     public function bountyReportView($id)
     {
         $data = BountyUserReport::find(decrypt($id));
-        if($data->status == 'new'){
+        if ($data->status == 'new') {
             $data->update(["status" => "review"]);
         }
 
@@ -675,14 +676,14 @@ class SuperAdminController extends Controller
     public function reportApproval(Request $request)
     {
         $data = BountyUserReport::find(decrypt($request->id));
-        if($request->status == "accept"){
+        if ($request->status == "accept") {
             $data->update([
                 "admin_comment" => $request->admin_comment,
                 "amount" => $request->amount,
                 "point" => $request->point,
                 "status" => $request->status
             ]);
-        }else{
+        } else {
             $data->update([
                 "admin_comment" => $request->admin_comment,
                 "status" => $request->status
@@ -695,7 +696,7 @@ class SuperAdminController extends Controller
     public function reportMarkFix($id)
     {
         $data = BountyUserReport::find(decrypt($id));
-        $data->update([ "status" => "fix"]);
+        $data->update(["status" => "fix"]);
 
         return redirect()->back()->with('success', "Report status successfully updated");
     }
@@ -734,13 +735,12 @@ class SuperAdminController extends Controller
 
     public function program()
     {
-        $data = Program::orderBy('started_at', 'DESC')->get();        
+        $data = Program::orderBy('started_at', 'DESC')->get();
         return view('super.program', [
             'page' => "Program",
             'opt' => 'admin',
             'data' => $data
         ]);
-
     }
 
     public function programAdd(Request $request)
@@ -786,7 +786,7 @@ class SuperAdminController extends Controller
             'user_id' => decrypt($userId),
             'user_type' => decrypt($userType)
         ], [
-            'comment' => "Checked by ". auth()->user()->name,
+            'comment' => "Checked by " . auth()->user()->name,
         ]);
 
         return redirect()->back()->with('tab', '');

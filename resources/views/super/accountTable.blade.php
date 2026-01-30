@@ -333,7 +333,7 @@
             <!--begin::Modal header-->
             <div class="modal-header" id="kt_modal_add_user_header">
                 <!--begin::Modal title-->
-                <h2 class="fw-bold">Add User</h2>
+                <h2 class="fw-bold">Edit User</h2>
                 <!--end::Modal title-->
                 <!--begin::Close-->
                 <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal">
@@ -426,6 +426,20 @@
                             <select name="access" class="form-control form-control-solid mb-3 mb-lg-0">
                                 <option value="full">Full</option>
                                 <option value="attendance">Attendance</option>
+                            </select>
+                            <!--end::Input-->
+                        </div>
+                        <!--end::Input group-->
+                        <!--begin::Input group-->
+                        <div class="fv-row mb-7">
+                            <!--begin::Label-->
+                            <label class="required fw-semibold fs-6 mb-2">Status</label>
+                            <!--end::Label-->
+                            <!--begin::Input-->
+                            <select name="status" class="form-control form-control-solid mb-3 mb-lg-0">
+                                <option value="{{$sur->status}}">{{$sur->status}}</option>
+                                <option value="active">Active</option>
+                                <option value="block">Block</option>
                             </select>
                             <!--end::Input-->
                         </div>
