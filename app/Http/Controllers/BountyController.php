@@ -46,6 +46,10 @@ class BountyController extends Controller
                 'otp' => $otp
             ]);
 
+            if ($request->user_type == 'company' || $request->user_type == 'group') {
+                $user->update(['rel_group' => $user->id]);
+            }
+
             Mail::to($request->email)->send(new BountyUserVerify($request, $otp));
 
             return response()->json([
@@ -74,7 +78,7 @@ class BountyController extends Controller
             ], 401);
         }
 
-        if (now()->diffInSeconds($user->updated_at) > 60) {
+        if (now()->diffInHours($user->updated_at) >= 24) {
             return response()->json([
                 'status' => '400',
                 'message' => 'Token expired. Please login again',
@@ -620,7 +624,7 @@ class BountyController extends Controller
                 'country' => $request->country,
                 'user_type' => 'user',
                 'password' => Hash::make($request->password),
-                'rel_group' => auth()->user()->id,
+                'rel_group' => auth()->user()->rel_group,
                 'otp' => $otp
             ]);
 
@@ -642,7 +646,7 @@ class BountyController extends Controller
 
     public function getUser(Request $request)
     {
-        $users = BountyUser::where("rel_group", auth()->user()->id)->get();
+        $users = BountyUser::where("rel_group", auth()->user()->rel_group)->get();
         $data = [];
         foreach ($users as $user) {
             $data[] = [
