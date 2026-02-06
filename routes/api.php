@@ -161,12 +161,16 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/walkietalkie/subscriberLeave', [WalkieTalkieController::class, 'subscriberLeave']);
     Route::get('/walkietalkie/subscriberActive/{id}', [WalkieTalkieController::class, 'subscriberActive']);
 
-    Route::post('/trans/speech-to-text', [GoogleAiTransController::class, 'speechToText']);
+    Route::post('/trans/speech-to-text', [GoogleAiTransController::class, 'speechToSpeech']);
     Route::post('/trans/text-to-speech', [GoogleAiTransController::class, 'textToSpeech']);
     Route::post('/trans/translate-text', [GoogleAiTransController::class, 'translateText']);
     Route::post('/trans/speech-to-speech', [GoogleAiTransController::class, 'speechToSpeech']);
 
+    Route::get('/user/event/register', [UserController::class, 'eventRegister']);
+    Route::get('/user/event/clock/{id}/{state}', [UserController::class, 'eventClock']);
+
     Route::get('program/attendance', [UserController::class, 'programAttendance']);
+
 });
 
 Route::post('/bounty/register', [BountyController::class, 'register']);

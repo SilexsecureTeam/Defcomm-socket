@@ -135,8 +135,13 @@
                 </td>
                 <td>{{$dt->ref}}</td>
                 <td>
+                    @if($dt->user->group->group_company == "" || $dt->user->group->group_company == null)
+                    <span class="badge badge-light-success">Individual</span>
+                    @else
+                    <span class="badge badge-light-primary">{{$dt->user->group->group_company}}</span>
+                    @endif<br/>
                     {{$dt->user->firstName}} {{$dt->user->lastName}} <br />
-                    {{$dt->email}} <br />
+                    {{$dt->email}} <br /> 
                     {{$dt->phone}}
                 </td>
                 <td>{{$dt->title}}</td>
@@ -233,6 +238,11 @@
                 </td>
                 <td>{{$dt->ref}}</td>
                 <td>
+                    @if($dt->user->group->group_company == "" || $dt->user->group->group_company == null)
+                    <span class="badge badge-light-success">Individual</span>
+                    @else
+                    <span class="badge badge-light-primary">{{$dt->user->group->group_company}}</span>
+                    @endif<br/>
                     {{$dt->user->firstName}} {{$dt->user->lastName}} <br />
                     {{$dt->email}} <br />
                     {{$dt->phone}}
@@ -331,6 +341,11 @@
                 </td>
                 <td>{{$dt->ref}}</td>
                 <td>
+                    @if($dt->user->group->group_company == "" || $dt->user->group->group_company == null)
+                    <span class="badge badge-light-success">Individual</span>
+                    @else
+                    <span class="badge badge-light-primary">{{$dt->user->group->group_company}}</span>
+                    @endif<br/>
                     {{$dt->user->firstName}} {{$dt->user->lastName}} <br />
                     {{$dt->email}} <br />
                     {{$dt->phone}}
@@ -429,6 +444,11 @@
                 </td>
                 <td>{{$dt->ref}}</td>
                 <td>
+                    @if($dt->user->group->group_company == "" || $dt->user->group->group_company == null)
+                    <span class="badge badge-light-success">Individual</span>
+                    @else
+                    <span class="badge badge-light-primary">{{$dt->user->group->group_company}}</span>
+                    @endif<br/>
                     {{$dt->user->firstName}} {{$dt->user->lastName}} <br />
                     {{$dt->email}} <br />
                     {{$dt->phone}}
@@ -527,6 +547,11 @@
                 </td>
                 <td>{{$dt->ref}}</td>
                 <td>
+                    @if($dt->user->group->group_company == "" || $dt->user->group->group_company == null)
+                    <span class="badge badge-light-success">Individual</span>
+                    @else
+                    <span class="badge badge-light-primary">{{$dt->user->group->group_company}}</span>
+                    @endif<br/>
                     {{$dt->user->firstName}} {{$dt->user->lastName}} <br />
                     {{$dt->email}} <br />
                     {{$dt->phone}}
@@ -625,6 +650,11 @@
                 </td>
                 <td>{{$dt->ref}}</td>
                 <td>
+                    @if($dt->user->group->group_company == "" || $dt->user->group->group_company == null)
+                    <span class="badge badge-light-success">Individual</span>
+                    @else
+                    <span class="badge badge-light-primary">{{$dt->user->group->group_company}}</span>
+                    @endif<br/>
                     {{$dt->user->firstName}} {{$dt->user->lastName}} <br />
                     {{$dt->email}} <br />
                     {{$dt->phone}}

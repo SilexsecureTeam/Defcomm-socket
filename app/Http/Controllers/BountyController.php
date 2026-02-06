@@ -566,25 +566,68 @@ class BountyController extends Controller
 
     public function leaderboard()
     {
-        $datas = BountyUserReport::select(
-            'user_id',
-            DB::raw('SUM(point) as total_points'),
-            DB::raw('SUM(amount) as total_amount'),
-            DB::raw('COUNT(*) as total_reports')
-        )
-            ->groupBy('user_id')
+        $query = BountyUserReport::join('bounty_users', 'bounty_user_reports.user_id', '=', 'bounty_users.id')
+            ->select(
+                DB::raw('COALESCE(bounty_users.rel_group, bounty_users.id) as group_id'),
+                DB::raw('SUM(point) as total_points'),
+                DB::raw('SUM(amount) as total_amount'),
+                DB::raw('COUNT(bounty_user_reports.id) as total_reports')
+            );
+
+        if (auth()->check()) {
+            $user = auth()->user();
+            $query->where(DB::raw('COALESCE(bounty_users.rel_group, bounty_users.id)'), $user->rel_group ? $user->rel_group : $user->id);
+        }
+
+        $datas = $query->groupBy(DB::raw('COALESCE(bounty_users.rel_group, bounty_users.id)'))
             ->orderByDesc('total_points')
             ->get();
 
         $data = [];
 
+        // Fetch count of unique reporters for each group in the result set
+        $group_ids = $datas->pluck('group_id')->unique();
+        $groupReporterCounts = BountyUser::whereIn(DB::raw('COALESCE(rel_group, id)'), $group_ids)
+            ->whereHas('report')
+            ->groupBy(DB::raw('COALESCE(rel_group, id)'))
+            ->select(DB::raw('COALESCE(rel_group, id) as group_id'), DB::raw('count(*) as count'))
+            ->pluck('count', 'group_id');
+            
+        // Fetch group leader details
+        $groupLeaders = BountyUser::whereIn('id', $group_ids)->get()->keyBy('id');
+
+        // Fetch all members for the groups in the result set
+        $allMembers = BountyUser::whereIn(DB::raw('COALESCE(rel_group, id)'), $group_ids)
+            ->whereHas('report')
+            ->withSum('report as individual_points', 'point')
+            ->withSum('report as individual_amount', 'amount')
+            ->get();
+
+        $groupedMembers = $allMembers->groupBy(function ($user) {
+            return $user->rel_group ? $user->rel_group : $user->id;
+        });
+
         foreach ($datas as $ky => $dt) {
+            $leader = $groupLeaders[$dt->group_id] ?? null;
+
+            $members = $groupedMembers->get($dt->group_id, collect([]))->map(function ($m) {
+                return [
+                    'name' => $m->firstName . " " . $m->lastName,
+                    'username' => $m->username,
+                    'photo' => $m->photo,
+                    'points' => $m->individual_points ?? 0,
+                    'amount' => $m->individual_amount ?? 0,
+                ];
+            });
+
             $data[] = [
                 'no' => $ky + 1,
-                'firstName' => $dt->user->firstName,
-                'lastName' => $dt->user->lastName,
-                'username' => $dt->user->username,
-                'photo' => $dt->user->photo,
+                "name" => ($leader && $leader->group_company) ? $leader->group_company : (($leader) ? $leader->firstName . " " . $leader->lastName : "Unknown"),
+                'username' => $leader->username ?? "N/A",
+                'members' => $members,
+                'photo' => $leader->photo ?? null,
+                'group_company' => $leader->group_company ? "group_company" : "individual",
+                "total_user" => $groupReporterCounts[$dt->group_id] ?? 1,
                 'total_points' => $dt->total_points,
                 'total_amount' => $dt->total_amount,
                 'total_reports' => $dt->total_reports,

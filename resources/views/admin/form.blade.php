@@ -63,16 +63,66 @@
                                     <!--begin::Input group-->
                                     <div class="fv-row mb-7">
                                         <!--begin::Label-->
-                                        <label class="required fw-semibold fs-6 mb-2">Meeting</label>
+                                        <label class="fw-semibold fs-6 mb-2">Meeting</label>
                                         <!--end::Label-->
                                         <!--begin::Input-->
                                         <input type="text" name="meeting_id" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="Enter meeting_id" />
                                         <!--end::Input-->
                                     </div>
                                     <!--end::Input group-->
+                                    <!--begin::Input group-->
                                     <div class="fv-row mb-7">
                                         <!--begin::Label-->
-                                        <label class="required fw-semibold fs-6 mb-2">Group</label>
+                                        <label class="fw-semibold fs-6 mb-2">Started</label>
+                                        <!--end::Label-->
+                                        <!--begin::Input-->
+                                        <input type="datetime-local" name="started_at" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="Enter started_at" />
+                                        <!--end::Input-->
+                                    </div>
+                                    <!--end::Input group-->
+                                    <!--begin::Input group-->
+                                    <div class="fv-row mb-7">
+                                        <!--begin::Label-->
+                                        <label class="fw-semibold fs-6 mb-2">Ended</label>
+                                        <!--end::Label-->
+                                        <!--begin::Input-->
+                                        <input type="datetime-local" name="ended_at"  class="form-control form-control-solid mb-3 mb-lg-0" placeholder="Enter ended_at" />
+                                        <!--end::Input-->
+                                    </div>
+                                    <!--end::Input group-->
+                                    <!--begin::Input group-->
+                                    <div class="fv-row mb-7">
+                                        <!--begin::Label-->
+                                        <label class="fw-semibold fs-6 mb-2">Location</label>
+                                        <!--end::Label-->
+                                        <!--begin::Input-->
+                                        <input type="text" name="location" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="Enter location" />
+                                        <!--end::Input-->
+                                    </div>
+                                    <!--end::Input group-->
+                                    <!--begin::Input group-->
+                                    <div class="fv-row mb-7">
+                                        <!--begin::Label-->
+                                        <label class="fw-semibold fs-6 mb-2">Latitude</label>
+                                        <!--end::Label-->
+                                        <!--begin::Input-->
+                                        <input type="text" name="latitude" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="Enter latitude" />
+                                        <!--end::Input-->
+                                    </div>
+                                    <!--end::Input group-->
+                                    <!--begin::Input group-->
+                                    <div class="fv-row mb-7">
+                                        <!--begin::Label-->
+                                        <label class="fw-semibold fs-6 mb-2">Longitude</label>
+                                        <!--end::Label-->
+                                        <!--begin::Input-->
+                                        <input type="text" name="longitude" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="Enter longitude" />
+                                        <!--end::Input-->
+                                    </div>
+                                    <!--end::Input group-->
+                                    <div class="fv-row mb-7">
+                                        <!--begin::Label-->
+                                        <label class="fw-semibold fs-6 mb-2">Group</label>
                                         <!--end::Label-->
                                         <!--begin::Input-->
                                         <select name="group_id" class="form-control form-control-solid mb-3 mb-lg-0">
@@ -85,7 +135,7 @@
                                     </div>
                                     <div class="fv-row mb-7">
                                         <!--begin::Label-->
-                                        <label class="required fw-semibold fs-6 mb-2">Signup</label>
+                                        <label class="fw-semibold fs-6 mb-2">Signup</label>
                                         <!--end::Label-->
                                         <!--begin::Input-->
                                         <select name="signup" class="form-control form-control-solid mb-3 mb-lg-0">
@@ -97,7 +147,7 @@
                                     </div>
                                     <div class="fv-row mb-7">
                                         <!--begin::Label-->
-                                        <label class="required fw-semibold fs-6 mb-2">Attendance</label>
+                                        <label class="fw-semibold fs-6 mb-2">Attendance</label>
                                         <!--end::Label-->
                                         <!--begin::Input-->
                                         <select name="attendance" class="form-control form-control-solid mb-3 mb-lg-0">
@@ -314,7 +364,7 @@
             <!--begin::Modal header-->
             <div class="modal-header" id="kt_modal_add_user_header">
                 <!--begin::Modal title-->
-                <h2 class="fw-bold">Add Form</h2>
+                <h2 class="fw-bold">Edit Form</h2>
                 <!--end::Modal title-->
                 <!--begin::Close-->
                 <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal">
@@ -344,16 +394,66 @@
                         <!--begin::Input group-->
                         <div class="fv-row mb-7">
                             <!--begin::Label-->
-                            <label class="required fw-semibold fs-6 mb-2">Meeting</label>
+                            <label class="fw-semibold fs-6 mb-2">Meeting</label>
                             <!--end::Label-->
                             <!--begin::Input-->
                             <input type="text" name="meeting_id" value="{{encryptHelper($dt->meeting_id)}}" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="Enter meeting_id" />
                             <!--end::Input-->
                         </div>
                         <!--end::Input group-->
+                        <!--begin::Input group-->
                         <div class="fv-row mb-7">
                             <!--begin::Label-->
-                            <label class="required fw-semibold fs-6 mb-2">Group</label>
+                            <label class="fw-semibold fs-6 mb-2">Started</label>
+                            <!--end::Label-->
+                            <!--begin::Input-->
+                            <input type="datetime-local" name="started_at" value="{{$dt->started_at}}" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="Enter started_at" />
+                            <!--end::Input-->
+                        </div>
+                        <!--end::Input group-->
+                        <!--begin::Input group-->
+                        <div class="fv-row mb-7">
+                            <!--begin::Label-->
+                            <label class="fw-semibold fs-6 mb-2">Ended</label>
+                            <!--end::Label-->
+                            <!--begin::Input-->
+                            <input type="datetime-local" name="ended_at" value="{{$dt->ended_at}}" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="Enter ended_at" />
+                            <!--end::Input-->
+                        </div>
+                        <!--end::Input group-->
+                        <!--begin::Input group-->
+                        <div class="fv-row mb-7">
+                            <!--begin::Label-->
+                            <label class="fw-semibold fs-6 mb-2">Location</label>
+                            <!--end::Label-->
+                            <!--begin::Input-->
+                            <input type="text" name="location" value="{{$dt->location}}" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="Enter location" />
+                            <!--end::Input-->
+                        </div>
+                        <!--end::Input group-->
+                        <!--begin::Input group-->
+                        <div class="fv-row mb-7">
+                            <!--begin::Label-->
+                            <label class="fw-semibold fs-6 mb-2">Latitude</label>
+                            <!--end::Label-->
+                            <!--begin::Input-->
+                            <input type="text" name="latitude" value="{{$dt->latitude}}" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="Enter latitude" />
+                            <!--end::Input-->
+                        </div>
+                        <!--end::Input group-->
+                        <!--begin::Input group-->
+                        <div class="fv-row mb-7">
+                            <!--begin::Label-->
+                            <label class="fw-semibold fs-6 mb-2">Longitude</label>
+                            <!--end::Label-->
+                            <!--begin::Input-->
+                            <input type="text" name="longitude" value="{{$dt->longitude}}" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="Enter longitude" />
+                            <!--end::Input-->
+                        </div>
+                        <!--end::Input group-->
+                        <div class="fv-row mb-7">
+                            <!--begin::Label-->
+                            <label class="fw-semibold fs-6 mb-2">Group</label>
                             <!--end::Label-->
                             <!--begin::Input-->
                             <select name="group_id" class="form-control form-control-solid mb-3 mb-lg-0">
@@ -366,7 +466,7 @@
                         </div>
                         <div class="fv-row mb-7">
                             <!--begin::Label-->
-                            <label class="required fw-semibold fs-6 mb-2">Signup</label>
+                            <label class="fw-semibold fs-6 mb-2">Signup</label>
                             <!--end::Label-->
                             <!--begin::Input-->
                             <select name="signup" class="form-control form-control-solid mb-3 mb-lg-0">
@@ -378,7 +478,7 @@
                         </div>
                         <div class="fv-row mb-7">
                             <!--begin::Label-->
-                            <label class="required fw-semibold fs-6 mb-2">Attendance</label>
+                            <label class="fw-semibold fs-6 mb-2">Attendance</label>
                             <!--end::Label-->
                             <!--begin::Input-->
                             <select name="attendance" class="form-control form-control-solid mb-3 mb-lg-0">

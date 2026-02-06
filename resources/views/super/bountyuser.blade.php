@@ -87,7 +87,14 @@
                                     <input class="form-check-input checkbox1" type="checkbox" value="{{$dt->id}}" />
                                 </div>
                             </td>
-                            <td>{{$dt->firstName}} {{$dt->lastName}}</td>
+                            <td>
+                                @if($dt->group->group_company == "" || $dt->group->group_company == null)
+                                <span class="badge badge-light-success">Individual</span>
+                                @else
+                                <span class="badge badge-light-primary">{{$dt->group->group_company}}</span>
+                                @endif<br/>
+                                {{$dt->firstName}} {{$dt->lastName}}
+                            </td>
                             <td>{{$dt->email}}</td>
                             <td>{{$dt->phone}}</td>
                             <td>{{$dt->rel_group ? $dt->group->username : "System"}}</td>
@@ -178,7 +185,14 @@
                                     <input class="form-check-input checkbox2" type="checkbox" value="{{$dt->id}}" />
                                 </div>
                             </td>
-                            <td>{{$dt->firstName}} {{$dt->lastName}}</td>
+                            <td>
+                                @if($dt->group->group_company == "" || $dt->group->group_company == null)
+                                <span class="badge badge-light-success">Individual</span>
+                                @else
+                                <span class="badge badge-light-primary">{{$dt->group->group_company}}</span>
+                                @endif<br/>
+                                {{$dt->firstName}} {{$dt->lastName}}
+                            </td>
                             <td>{{$dt->email}}</td>
                             <td>{{$dt->phone}}</td>
                             <td>{{$dt->rel_group ? $dt->group->username : "System"}}</td>
@@ -269,7 +283,14 @@
                                     <input class="form-check-input checkbox3" type="checkbox" value="{{$dt->id}}" />
                                 </div>
                             </td>
-                            <td>{{$dt->firstName}} {{$dt->lastName}}</td>
+                            <td>
+                                @if($dt->group->group_company == "" || $dt->group->group_company == null)
+                                <span class="badge badge-light-success">Individual</span>
+                                @else
+                                <span class="badge badge-light-primary">{{$dt->group->group_company}}</span>
+                                @endif<br/>
+                                {{$dt->firstName}} {{$dt->lastName}}
+                            </td>
                             <td>{{$dt->email}}</td>
                             <td>{{$dt->phone}}</td>
                             <td>{{$dt->rel_group ? $dt->group->username : "System"}}</td>

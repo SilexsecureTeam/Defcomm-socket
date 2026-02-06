@@ -27,6 +27,10 @@ use App\Models\Notification;
 use Illuminate\Http\Request;
 use App\Mail\MeetingInvitation;
 use App\Models\CompanyGroupUser;
+use App\Models\EventForm;
+use App\Models\EventRegistration;
+use App\Models\EventRegistrationsAttendances;
+use Stevebauman\Location\Facades\Location;
 use App\Events\PrivateMessageSent;
 use App\Http\Services\ChatService;
 use Illuminate\Support\Facades\DB;
@@ -2091,6 +2095,144 @@ class UserController extends Controller
             ],
             201
         );
+    }
+
+    public function eventRegister()
+    {
+        $datas = EventRegistration::where('user_id', auth()->user()->id)->get();
+        $data = [];
+        foreach ($datas as $dt) {
+            $data[] = [
+                "id" => encryptHelper($dt->id),
+                "id_enc" => encrypt($dt->id),
+                "event_id" => encryptHelper($dt->form->id),
+                "event_id_enc" => encrypt($dt->form->id),
+                "name" => $dt->form->name,
+                "formType" => $dt->form->form_type,
+                "group_id" => $dt->form->group->name,
+                "group_id_enc" => encrypt($dt->form->group->id),
+                "group_id" => encryptHelper($dt->form->group->id),
+                "group_name" => $dt->form->group->name,
+                "meeting_id" => encryptHelper($dt->form->meeting->id),
+                "meeting_id_enc" => encrypt($dt->form->meeting->id),
+                "meeting_title" => $dt->form->meeting->title,
+                "meeting_link" => $dt->form->meeting->meeting_link,
+                "meeting_uid" => $dt->form->meeting->meeting_id,
+                "description" => $dt->form->message,
+                "submission" => json_decode($dt->data),
+                "submission_date" => $dt->created_at,
+                "created_at" => $dt->form->created_at,
+                "started_at" => $dt->form->started_at,
+                "ended_at" => $dt->form->ended_at,
+                "status" => $dt->form->status,
+            ];
+        }
+
+        return response()->json(
+            [
+                'status' => '200',
+                'message' => 'Record listed',
+                'data' => $data
+            ],
+            201
+        );
+    }
+
+    public function eventClock(Request $request, $id, $state)
+    {
+        $registrationId = decrypt($id);
+        $registration = EventRegistration::find($registrationId);
+
+        if (!$registration) {
+            return response()->json(['status' => '404', 'message' => 'Registration not found'], 404);
+        }
+
+        $form = $registration->form;
+        if (!$form) {
+            return response()->json(['status' => '404', 'message' => 'Event form not found'], 404);
+        }
+
+        // Time Validation
+        $now = now();
+        $start = Carbon::parse($form->started_at);
+        $end = Carbon::parse($form->ended_at);
+
+        if ($now->lt($start) || $now->gt($end)) {
+            return response()->json(['status' => '400', 'message' => 'Event is not active at this time'], 400);
+        }
+
+        // Location Validation
+        if ($form->latitude && $form->longitude) {
+            $userLat = $request->latitude;
+            $userLon = $request->longitude;
+
+            if (!$userLat || !$userLon) {
+                $locationData = Location::get($request->ip());
+                // return response()->json(['status' => '400', 'message' => $request->ip()], 400);
+                if ($locationData) {
+                    $userLat = $locationData->latitude;
+                    $userLon = $locationData->longitude;
+
+                    // return response()->json(['status' => '400', 'message' => ['latitude' => $userLat, 'longitude' => $userLon]], 400);
+                }
+            }
+
+            if (!$userLat || !$userLon) {
+                return response()->json(['status' => '400', 'message' => 'Location data required'], 400);
+            }
+
+            $distance = $this->calculateDistance(
+                $userLat,
+                $userLon,
+                $form->latitude,
+                $form->longitude
+            );
+
+            if ($distance > 500) { // 500 meters
+                return response()->json(['status' => '400', 'message' => 'You are too far from the event location'], 400);
+            }
+        }
+
+        $attendance = EventRegistrationsAttendances::firstOrNew([
+            'user_id' => auth()->user()->id,
+            'form_id' => $registration->id // Storing EventRegistration ID here as requested
+        ]);
+
+        if ($state === 'in') {
+            $attendance->clockin = $now->toDateTimeString();
+        } elseif ($state === 'out') {
+            $attendance->clockout = $now->toDateTimeString();
+        }
+
+        $attendance->latitude = $request->latitude;
+        $attendance->longitude = $request->longitude;
+        $attendance->location = $request->location;
+        $attendance->timezone = $request->timezone ?? 'UTC';
+        $attendance->save();
+
+        return response()->json([
+            'status' => '200',
+            'message' => 'Successfully clocked ' . $state,
+            'data' => $attendance
+        ], 200);
+    }
+
+    private function calculateDistance($lat1, $lon1, $lat2, $lon2)
+    {
+        $earthRadius = 6371000; // meters
+
+        $lat1 = deg2rad($lat1);
+        $lon1 = deg2rad($lon1);
+        $lat2 = deg2rad($lat2);
+        $lon2 = deg2rad($lon2);
+
+        $latDelta = $lat2 - $lat1;
+        $lonDelta = $lon2 - $lon1;
+
+        $angle = 2 * asin(sqrt(pow(sin($latDelta / 2), 2) +
+            cos($lat1) * cos($lat2) * pow(sin($lonDelta / 2), 2)));
+
+        return $angle * $earthRadius;
     }
 
     public function programAttendance()
