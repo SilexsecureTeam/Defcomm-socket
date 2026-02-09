@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Mail\OtpMail;
 use App\Mail\Invitation;
 use App\Models\Language;
+use App\Mail\PasswordMail;
 use App\Models\CompanyUser;
 use App\Models\UserBlockIp;
 use Illuminate\Support\Str;
@@ -233,42 +234,40 @@ class AuthController extends Controller
         $user = User::where('email', $request->email)->first();
 
         if ($user) {
-            $token = Str::random(64);
-            $user->password_reset_token = $token;
+            $token = rand(1000, 9999);
+            $user->otp = $token;
             $user->save();
 
             // Send email with password reset link
             // This is a simplified example
-            Mail::send('emails.reset_password', ['token' => $token], function ($message) use ($request) {
-                $message->to($request->email);
-                $message->subject('Reset Password Notification');
-            });
+            Mail::to($user->email)->send(new PasswordMail($user->name, $token));
         }
 
-        return response()->json(['message' => 'If your email is registered, you will receive a password reset link'], 201);
+        return response()->json(['status' => 200, 'message' => 'If your email is registered, you will receive a password reset link'], 201);
     }
 
     public function resetPassword(Request $request)
-    {
-        $request->validate([
-            'token' => 'required|string',
-            'email' => 'required|string|email',
-            'password' => 'required|string|min:8|confirmed',
-        ]);
+    {       
 
-        $user = User::where('email', $request->email)->where('password_reset_token', $request->token)->first();
+        $user = User::where('email', $request->email)->where('otp', $request->token)->first();
 
-        if (!$user) {
+        if ($user) {
+            $cur = Carbon::now()->subMinute(2)->format('Y-m-d H:i:s');
+            if (strtotime($user->updated_at->format('Y-m-d H:i:s')) >= strtotime($cur)) {
+
+                $user->password = Hash::make($request->password);
+                $user->otp = null;
+                $user->save();
+
+                // event(new PasswordReset($user));
+
+                return response()->json(['status' => 200, 'message' => 'Password has been successfully reset'], 201);
+            }else{
+                return response()->json(['message' => 'Token has expired'], 401);
+            }
+        }else{
             return response()->json(['message' => 'Invalid token or email'], 401);
         }
-
-        $user->password = Hash::make($request->password);
-        $user->password_reset_token = null;
-        $user->save();
-
-        event(new PasswordReset($user));
-
-        return response()->json(['message' => 'Password has been successfully reset'], 201);
     }
 
     public function verifyEmail(Request $request, $id, $hash)
