@@ -19,8 +19,9 @@ class EventRegistrationMail extends Mailable
     public $admail;
     public $subject;
     public $mssg;
+    public $url;
 
-    public function __construct($form, $user, $meet, $fileName, $subject = null, $mssg = null )
+    public function __construct($form, $user, $meet, $fileName, $subject = null, $mssg = null, $url = null)
     {
         $this->form = $form;
         $this->user = $user;
@@ -28,6 +29,7 @@ class EventRegistrationMail extends Mailable
         $this->fileName = $fileName;
         $this->subject = $subject;
         $this->mssg = $mssg;
+        $this->url = $url;
         $this->admail = SystemMail::where('label', 'event')->first();
     }
 

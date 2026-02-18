@@ -158,7 +158,7 @@ class WebController extends Controller
             $fullPath = $path . '/' . $fileName;
             // $qrCode = base64_encode(file_get_contents($fullPath));
         }
-        Mail::to($request->email)->send(new EventRegistrationMail($form, $user, $meet, $fileName));
+        Mail::to($request->email)->send(new EventRegistrationMail($form, $user, $meet, $fileName, null, null, $request->url));
 
         // if($fileName){
         //     unlink($fullPath);

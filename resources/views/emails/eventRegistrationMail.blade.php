@@ -11,7 +11,7 @@
                 @if($subject)
                 <br /><br />
                 {{$subject}}
-            @endif
+                @endif
             </p>
         </div>
 
@@ -67,6 +67,16 @@
             {{--<img src="data:image/png;base64,{{ $qrCode }}" width="200" alt="QR Code">--}}
 
             <p>If scanning fails, use this {{$user->email}} to get access</p>
+            @if($url)
+            <p>Kindly click the button to proceed</p>
+            <div style="text-align: center;">
+                <a href="<?= $data->url ?>" style="background-color: #36460A; padding: 10px; border-radius:5px; color: #ffffff;">Access</a>
+            </div>
+            or use the link below to  
+            <div style="word-break: break-all; text-align: center; margin-top: 10px;">
+                <a href="<?= $data->url ?>"><?= $data->url ?></a>
+            </div>
+            @endif
         </div>
         @endif
         @if($message)
