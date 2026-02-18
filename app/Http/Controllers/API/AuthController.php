@@ -178,7 +178,22 @@ class AuthController extends Controller
 
     public function requestOtpSms(Request $request)
     {
-        $users = User::where('phone', '=', $request->input('phone'))->orWhere('phone', '=', '+234' . $request->input('phone'))->orWhere('phone', '=', '234' . $request->input('phone'))->orWhere('phone', '=', preg_replace('/^\+?234/', '', $request->input('phone')))->orWhere('phone', '=', preg_replace('/^\+?+234/', '', $request->input('phone')));
+        // $users = User::where('phone', '=', $request->input('phone'))->orWhere('phone', '=', '+234' . $request->input('phone'))->orWhere('phone', '=', '234' . $request->input('phone'))->orWhere('phone', '=', preg_replace('/^\+?234/', '', $request->input('phone')))->orWhere('phone', '=', preg_replace('/^\+?+234/', '', $request->input('phone')));
+
+        $login = $request->input('phone');
+
+        $users = User::where(function ($query) use ($login) {
+
+            // Email condition
+            $query->where('email', $login)
+
+                // Phone conditions
+                ->orWhere('phone', $login)
+                ->orWhere('phone', '+234' . $login)
+                ->orWhere('phone', '234' . $login)
+                ->orWhere('phone', preg_replace('/^\+?234/', '', $login))
+                ->orWhere('phone', preg_replace('/^\+?+234/', '', $login));
+        });
 
         if ($users->first()) {
             $user = $users->first();

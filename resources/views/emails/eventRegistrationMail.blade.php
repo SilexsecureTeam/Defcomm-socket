@@ -73,7 +73,7 @@
                 <a href="<?= $url ?>" style="background-color: #36460A; padding: 10px; border-radius:5px; color: #ffffff;">Access</a>
             </div>
             or use the link below to  
-            <div style="word-break: break-all; text-align: center; margin-top: 10px;">
+            <div style="word-break: break-all; text-align: center; margin-top: 20px;">
                 <a href="<?= $url ?>"><?= $url ?></a>
             </div>
             @endif
