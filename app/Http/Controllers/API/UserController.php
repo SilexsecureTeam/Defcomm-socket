@@ -2124,6 +2124,9 @@ class UserController extends Controller
                 "created_at" => $dt->form->created_at,
                 "started_at" => $dt->form->started_at,
                 "ended_at" => $dt->form->ended_at,
+                "location" => $dt->form->location,
+                "latitude" => $dt->form->latitude,
+                "longitude" => $dt->form->longitude,
                 "status" => $dt->form->status,
             ];
         }
