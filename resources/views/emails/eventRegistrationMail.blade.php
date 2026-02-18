@@ -70,11 +70,11 @@
             @if($url)
             <p>Kindly click the button to proceed</p>
             <div style="text-align: center;">
-                <a href="<?= $data->url ?>" style="background-color: #36460A; padding: 10px; border-radius:5px; color: #ffffff;">Access</a>
+                <a href="<?= $url ?>" style="background-color: #36460A; padding: 10px; border-radius:5px; color: #ffffff;">Access</a>
             </div>
             or use the link below to  
             <div style="word-break: break-all; text-align: center; margin-top: 10px;">
-                <a href="<?= $data->url ?>"><?= $data->url ?></a>
+                <a href="<?= $url ?>"><?= $url ?></a>
             </div>
             @endif
         </div>

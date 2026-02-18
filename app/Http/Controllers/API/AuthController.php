@@ -204,8 +204,8 @@ class AuthController extends Controller
     {
         // $user = User::where('phone', '=', $request->input('phone'))->where('otp', $request->otp);
         $user = User::where(function ($query) use ($request) {
-            $query->where('phone', $request->input('login'))
-                ->orWhere('email', $request->input('login'));
+            $query->where('phone', $request->input('phone'))
+                ->orWhere('email', $request->input('phone'));
         })
             ->where('otp', $request->otp);
         if ($user->get()->isNotEmpty()) {
