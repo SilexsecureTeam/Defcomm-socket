@@ -202,7 +202,12 @@ class AuthController extends Controller
 
     public function loginWithPhone(Request $request)
     {
-        $user = User::where('phone', '=', $request->input('phone'))->where('otp', $request->otp);
+        // $user = User::where('phone', '=', $request->input('phone'))->where('otp', $request->otp);
+        $user = User::where(function ($query) use ($request) {
+            $query->where('phone', $request->input('login'))
+                ->orWhere('email', $request->input('login'));
+        })
+            ->where('otp', $request->otp);
         if ($user->get()->isNotEmpty()) {
             $cur = Carbon::now()->subMinute(2)->format('Y-m-d H:i:s');
             if (strtotime($user->first()->updated_at->format('Y-m-d H:i:s')) >= strtotime($cur)) {
