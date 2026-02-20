@@ -876,7 +876,7 @@ class UserController extends Controller
     public function getmeetingDetail($id)
     {
         $datas = Meeting::where("id", decryptHelper($id))->orWhere("meeting_id", $id)->first();
-        if( !$datas){
+        if (!$datas) {
             return response()->json(
                 [
                     'status' => '404',
@@ -1173,7 +1173,7 @@ class UserController extends Controller
     {
         $chat = ChatMessage::where('id', decryptHelper($id))->where('user_to', auth()->user()->id)->first();
         $data = null;
-        if($chat){
+        if ($chat) {
             $chat->update(['is_read' => 'yes']);
 
             $data = $this->ChatService->lastMessage();
@@ -1650,17 +1650,17 @@ class UserController extends Controller
 
     public function notification()
     {
-       $data = Notification::where('status', 'active')
-    ->where(function ($q) {
-        $q->whereNull('expire')
-          ->orWhere('expire', '>=', Carbon::now());
-    })
-    ->where(function ($q) {
-        $q->where('company_id', auth()->user()->company_id)
-          ->orWhere('source', 'super');
-    })
-    ->orderByDesc('id')
-    ->get();
+        $data = Notification::where('status', 'active')
+            ->where(function ($q) {
+                $q->whereNull('expire')
+                    ->orWhere('expire', '>=', Carbon::now());
+            })
+            ->where(function ($q) {
+                $q->where('company_id', auth()->user()->company_id)
+                    ->orWhere('source', 'super');
+            })
+            ->orderByDesc('id')
+            ->get();
 
 
 
@@ -2171,12 +2171,12 @@ class UserController extends Controller
 
             if (!$userLat || !$userLon) {
                 $locationData = Location::get($request->ip());
-                return response()->json(['status' => '400', 'message' => $request->ip()], 400);
+                // return response()->json(['status' => '400', 'message' => $request->ip()], 400);
                 if ($locationData) {
                     $userLat = $locationData->latitude;
                     $userLon = $locationData->longitude;
 
-                    // return response()->json(['status' => '400', 'message' => ['latitude' => $userLat, 'longitude' => $userLon]], 400);
+                    return response()->json(['status' => '400', 'message' => ['latitude' => $userLat, 'longitude' => $userLon]], 400);
                 }
             }
 
