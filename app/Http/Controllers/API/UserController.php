@@ -2171,7 +2171,7 @@ class UserController extends Controller
 
             if (!$userLat || !$userLon) {
                 $locationData = Location::get($request->ip());
-                // return response()->json(['status' => '400', 'message' => $request->ip()], 400);
+                return response()->json(['status' => '400', 'message' => $request->ip()], 400);
                 if ($locationData) {
                     $userLat = $locationData->latitude;
                     $userLon = $locationData->longitude;
