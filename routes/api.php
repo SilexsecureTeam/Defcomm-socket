@@ -300,8 +300,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/admin/form/certificate/create', [AdminController::class, 'certificateCreate'])->name('api.admin.form.certificate.create');
     Route::post('/admin/form/certificate/update', [AdminController::class, 'certificateUpdate'])->name('api.admin.form.certificate.update');
     Route::get('/admin/form/certificate/delete/{id}', [AdminController::class, 'certificateDelete'])->name('api.admin.form.certificate.delete');
-    Route::get('/admin/form/certificate/applicants/{id}', [AdminController::class, 'certificateApplicants'])->name('api.admin.form.certificate.applicants');
-    Route::post('/admin/form/certificate/applicants/collect', [AdminController::class, 'certificateCollect'])->name('api.admin.form.certificate.collect');
+    Route::get('/admin/form/certificate/applicant/{id}', [AdminController::class, 'certificateApplicants'])->name('api.admin.form.certificate.applicants');
+    Route::post('/admin/form/certificateApplicants/collect', [AdminController::class, 'certificateCollect'])->name('api.admin.form.certificate.collect');
     Route::post('/admin/form/certificate/mail', [AdminController::class, 'certificateMail'])->name('api.admin.form.certificate.mail');
 
     // Souvenir Management
