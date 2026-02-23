@@ -276,6 +276,16 @@
                             @endif
                             <!--begin::Menu item-->
                             <div class="menu-item px-3">
+                                <a href="{{url('admin/form/certificate')}}/{{encrypt($dt->id)}}" class="menu-link px-3">Certificate</a>
+                            </div>
+                            <!--end::Menu item-->
+                            <!--begin::Menu item-->
+                            <div class="menu-item px-3">
+                                <a href="{{url('admin/form/souvenir')}}/{{encrypt($dt->id)}}" class="menu-link px-3">Souvenir</a>
+                            </div>
+                            <!--end::Menu item-->
+                            <!--begin::Menu item-->
+                            <div class="menu-item px-3">
                                 <a href="#" class="menu-link px-3" data-kt-users-table-filter="delete_row">Delete</a>
                             </div>
                             <!--end::Menu item-->

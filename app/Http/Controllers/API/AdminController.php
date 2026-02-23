@@ -27,6 +27,11 @@ use Illuminate\Support\Facades\Validator;
 use App\Http\Services\FileEncryptorService;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use App\Models\EventRegistrationsAttendances;
+use App\Models\Certificate;
+use App\Models\Souvenir;
+use App\Mail\CertificateMail;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
 
 class AdminController extends Controller
 {
@@ -1238,5 +1243,346 @@ class AdminController extends Controller
             ],
             201
         );
+    }
+
+    // Certificate Management
+    public function certificateList($id)
+    {
+        $formId = decrypt($id);
+        $certs = Certificate::where('form_id', $formId)->get();
+
+        $data = [];
+        foreach($certs as $cert) {
+            $data[] =  [
+                'form_id' => $id,
+                "form_name" => $cert->form->name,
+                "id" => encrypt($cert->id),
+                "form_id" => encrypt($cert->form_id),
+                "name" => $cert->name,
+                "image" => url('certificates/' . $cert->image),
+                "status" => $cert->status,
+                "created_at" => $cert->created_at,
+            ];
+        }
+
+        return response()->json([
+            'status' => '200',
+            'message' => 'Record listed',
+            'data' => $data
+        ], 201);
+    }
+
+    public function certificateCreate(Request $request)
+    {
+        $formId = decrypt($request->id);
+        $file_name = null;
+        if($request->hasFile('template')) {
+            $file = $request->file('template');
+            $file_name = time() . "_cert." . $file->getClientOriginalExtension();
+            $file->move(public_path('certificates'), $file_name);
+        }
+
+        Certificate::create([
+            'form_id' => $formId,
+            'name' => $request->name,
+            'template' => $file_name,
+            'status' => $request->status ?? 'active',
+        ]);
+
+        return response()->json([
+            'status' => '200',
+            'message' => 'Certificate successfully created',
+            'data' => []
+        ], 201);
+    }
+
+    public function certificateUpdate(Request $request)
+    {
+        $id = decrypt($request->id);
+        $cert = Certificate::findOrFail($id);
+        
+        if($request->hasFile('template')) {
+            $file = $request->file('template');
+            $file_name = time() . "_cert." . $file->getClientOriginalExtension();
+            $file->move(public_path('certificates'), $file_name);
+            
+            if ($cert->template && file_exists(public_path('certificates/' . $cert->template))) {
+                unlink(public_path('certificates/' . $cert->template));
+            }
+            $cert->template = $file_name;
+        }
+
+        $cert->update([
+            'name' => $request->name,
+            'status' => $request->status,
+        ]);
+
+        return response()->json([
+            'status' => '200',
+            'message' => 'Certificate successfully updated',
+            'data' => []
+        ], 201);
+    }
+
+    public function certificateDelete($id)
+    {
+        $cert = Certificate::findOrFail(decrypt($id));
+        if ($cert->template && file_exists(public_path('certificates/' . $cert->template))) {
+            unlink(public_path('certificates/' . $cert->template));
+        }
+        $cert->delete();
+        return response()->json([
+            'status' => '200',
+            'message' => 'Certificate successfully deleted',
+            'data' => []
+        ], 201);
+    }
+
+    public function certificateApplicants($id)
+    {
+        $certId = decrypt($id);
+        $cert = Certificate::findOrFail($certId);
+        $applicants = EventRegistration::where('form_id', $cert->form_id)->with('user')->get();
+        
+        $data = [];
+        foreach($applicants as $app) {
+            $regStatus = $cert->registrations()->where('event_registration_id', $app->id)->first();
+            $data[] = [
+                'id' => encrypt($app->id),
+                'name' => $app->user->name,
+                'email' => $app->user->email,
+                'is_collected' => $regStatus ? (bool)$regStatus->pivot->is_collected : false,
+                'is_sent' => $regStatus ? (bool)$regStatus->pivot->is_sent : false,
+            ];
+        }
+
+        return response()->json([
+            'status' => '200',
+            'message' => 'Record listed',
+            'data' => [
+                'certificate' => $cert,
+                'applicants' => $data
+            ]
+        ], 201);
+    }
+
+    public function certificateCollect(Request $request)
+    {
+        $certId = decrypt($request->cert_id);
+        $regId = decrypt($request->reg_id);
+        $status = $request->status;
+
+        $cert = Certificate::findOrFail($certId);
+        $cert->registrations()->updateExistingPivot($regId, ['is_collected' => $status]);
+
+        if (!$cert->registrations()->where('event_registration_id', $regId)->exists()) {
+             $cert->registrations()->attach($regId, ['is_collected' => $status]);
+        }
+
+        return response()->json([
+            'status' => '200',
+            'message' => 'Status successfully updated',
+            'data' => []
+        ], 201);
+    }
+
+    public function certificateMail(Request $request)
+    {
+        $certId = decrypt($request->cert_id);
+        $registrations = json_decode($request->registrations, true);
+        if (!$registrations) {
+            $registrations = $request->registrations; // Fallback for direct array
+        }
+        
+        $cert = Certificate::findOrFail($certId);
+        $messageBody = $request->message;
+
+        $manager = new ImageManager(new Driver());
+        $tempDir = storage_path('app/temp_certs');
+        if (!file_exists($tempDir)) {
+            mkdir($tempDir, 0777, true);
+        }
+
+        foreach ($registrations as $regEncId) {
+            $regId = decrypt($regEncId);
+            $registration = EventRegistration::findOrFail($regId);
+            $userName = $registration->user->name;
+
+            $img = $manager->read(public_path('certificates/' . $cert->template));
+            $img->text($userName, $img->width() / 2, $img->height() / 2, function($font) {
+                $font->file('C:\Windows\Fonts\arial.ttf'); 
+                $font->size(60);
+                $font->color('#000');
+                $font->align('center');
+                $font->valign('middle');
+            });
+
+            $tempPath = $tempDir . '/' . uniqid() . '.png';
+            $img->save($tempPath);
+
+            Mail::to($registration->user->email)->send(new CertificateMail($userName, $messageBody, $tempPath));
+
+            $cert->registrations()->updateExistingPivot($regId, ['is_sent' => true]);
+            if (!$cert->registrations()->where('event_registration_id', $regId)->exists()) {
+                $cert->registrations()->attach($regId, ['is_sent' => true]);
+            }
+        }
+
+        return response()->json([
+            'status' => '200',
+            'message' => 'Certificates successfully sent',
+            'data' => []
+        ], 201);
+    }
+
+    // Souvenir Management
+    public function souvenirList($id)
+    {
+        $formId = decrypt($id);
+        $dt = Souvenir::where('form_id', $formId)->get();
+        $data = [];
+        foreach($dt as $d){
+            $data[] =  [
+                'form_id' => $id,
+                "form_name"=> $d->form->name,
+                "id"=> encrypt($d->id),
+                "form_id"=> encrypt($d->form_id),
+                "name"=> $d->name,
+                "image"=> url('souvenirs/' . $d->image),
+                "status"=> $d->status,
+                "created_at"=> $d->created_at,
+
+            ];
+        }
+        return response()->json([
+            'status' => '200',
+            'message' => 'Record listed',
+            'data' => $data
+        ], 201);
+    }
+
+    public function souvenirCreate(Request $request)
+    {
+        $formId = decrypt($request->form_id);
+        $file_name = null;
+        if($request->hasFile('image')) {
+            $file = $request->file('image');
+            $file_name = time() . "_souvenir." . $file->getClientOriginalExtension();
+            $file->move(public_path('souvenirs'), $file_name);
+        }
+
+        Souvenir::create([
+            'form_id' => $formId,
+            'name' => $request->name,
+            'image' => $file_name,
+            'status' => $request->status ?? 'active',
+        ]);
+
+        return response()->json([
+            'status' => '200',
+            'message' => 'Souvenir successfully created',
+            'data' => []
+        ], 201);
+    }
+
+    public function souvenirUpdate(Request $request)
+    {
+        $id = decrypt($request->id);
+        $souvenir = Souvenir::findOrFail($id);
+        
+        if($request->hasFile('image')) {
+            $file = $request->file('image');
+            $file_name = time() . "_souvenir." . $file->getClientOriginalExtension();
+            $file->move(public_path('souvenirs'), $file_name);
+            
+            if ($souvenir->image && file_exists(public_path('souvenirs/' . $souvenir->image))) {
+                unlink(public_path('souvenirs/' . $souvenir->image));
+            }
+            $souvenir->image = $file_name;
+        }
+
+        $souvenir->update([
+            'name' => $request->name,
+            'status' => $request->status,
+        ]);
+
+        return response()->json([
+            'status' => '200',
+            'message' => 'Souvenir successfully updated',
+            'data' => []
+        ], 201);
+    }
+
+    public function souvenirDelete($id)
+    {
+        $souvenir = Souvenir::findOrFail(decrypt($id));
+        if ($souvenir->image && file_exists(public_path('souvenirs/' . $souvenir->image))) {
+            unlink(public_path('souvenirs/' . $souvenir->image));
+        }
+        $souvenir->delete();
+        return response()->json([
+            'status' => '200',
+            'message' => 'Souvenir successfully deleted',
+            'data' => []
+        ], 201);
+    }
+
+    public function souvenirApplicants($id)
+    {
+        $souvenirId = decrypt($id);
+        $souvenir = Souvenir::findOrFail($souvenirId);
+        $applicants = EventRegistration::where('form_id', $souvenir->form_id)->with('user')->get();
+
+        $dataSouvenir =  [
+            'form_id' => $id,
+            "form_name" => $souvenir->form->name,
+            "id" => encrypt($souvenir->id),
+            "form_id" => encrypt($souvenir->form_id),
+            "name" => $souvenir->name,
+            "image" => url('souvenirs/' . $souvenir->image),
+            "status" => $souvenir->status,
+            "created_at" => $souvenir->created_at,
+
+        ];
+        
+        $data = [];
+        foreach($applicants as $app) {
+            $regStatus = $souvenir->registrations()->where('event_registration_id', $app->id)->first();
+            $data[] = [
+                'id' => encrypt($app->id),
+                'name' => $app->user->name,
+                'email' => $app->user->email,
+                'is_collected' => $regStatus ? (bool)$regStatus->pivot->is_collected : false,
+            ];
+        }
+
+        return response()->json([
+            'status' => '200',
+            'message' => 'Record listed',
+            'data' => [
+                'souvenir' => $dataSouvenir,
+                'applicants' => $data
+            ]
+        ], 201);
+    }
+
+    public function souvenirCollect(Request $request)
+    {
+        $souvenirId = decrypt($request->souvenir_id);
+        $regId = decrypt($request->reg_id);
+        $status = $request->status;
+
+        $souvenir = Souvenir::findOrFail($souvenirId);
+        $souvenir->registrations()->updateExistingPivot($regId, ['is_collected' => $status]);
+
+        if (!$souvenir->registrations()->where('event_registration_id', $regId)->exists()) {
+             $souvenir->registrations()->attach($regId, ['is_collected' => $status]);
+        }
+
+        return response()->json([
+            'status' => '200',
+            'message' => 'Status successfully updated',
+            'data' => []
+        ], 201);
     }
 }

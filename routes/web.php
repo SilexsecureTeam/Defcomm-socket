@@ -159,6 +159,21 @@ Route::middleware(['auth', 'user-role:admin'])->group(function () {
     Route::get('/admin/form/attendance/{id}/{userId}', [AdminController::class, 'attendanceUser'])->name('admin.attendanceUser');
     Route::post('/admin/form/mail', [AdminController::class, 'formMail'])->name('admin.form.mail');
 
+    Route::get('/admin/form/certificate/{id}', [AdminController::class, 'certificateList'])->name('admin.form.certificate');
+    Route::post('/admin/form/certificate/create', [AdminController::class, 'certificateCreate'])->name('admin.form.certificate.create');
+    Route::post('/admin/form/certificate/update', [AdminController::class, 'certificateUpdate'])->name('admin.form.certificate.update');
+    Route::get('/admin/form/certificate/delete/{id}', [AdminController::class, 'certificateDelete'])->name('admin.form.certificate.delete');
+    Route::get('/admin/form/certificate/applicants/{id}', [AdminController::class, 'certificateApplicants'])->name('admin.form.certificate.applicants');
+    Route::post('/admin/form/certificate/applicants/collect', [AdminController::class, 'certificateCollect'])->name('admin.form.certificate.collect');
+    Route::post('/admin/form/certificate/applicants/mail', [AdminController::class, 'certificateMail'])->name('admin.form.certificate.mail');
+
+    Route::get('/admin/form/souvenir/{id}', [AdminController::class, 'souvenirList'])->name('admin.form.souvenir');
+    Route::post('/admin/form/souvenir/create', [AdminController::class, 'souvenirCreate'])->name('admin.form.souvenir.create');
+    Route::post('/admin/form/souvenir/update', [AdminController::class, 'souvenirUpdate'])->name('admin.form.souvenir.update');
+    Route::get('/admin/form/souvenir/delete/{id}', [AdminController::class, 'souvenirDelete'])->name('admin.form.souvenir.delete');
+    Route::get('/admin/form/souvenir/applicants/{id}', [AdminController::class, 'souvenirApplicants'])->name('admin.form.souvenir.applicants');
+    Route::post('/admin/form/souvenir/applicants/collect', [AdminController::class, 'souvenirCollect'])->name('admin.form.souvenir.collect');
+
     Route::get('/admin/file', [AdminController::class, 'file'])->name('admin.file');
     Route::get('/admin/file/user', [AdminController::class, 'fileUser'])->name('admin.file.user');
     Route::get('/admin/file/request', [AdminController::class, 'fileRequest'])->name('admin.file.request');

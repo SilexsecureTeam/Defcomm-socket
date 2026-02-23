@@ -167,7 +167,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/trans/speech-to-speech', [GoogleAiTransController::class, 'speechToSpeech']);
 
     Route::get('/user/event/register', [UserController::class, 'eventRegister']);
-    Route::get('/user/event/clock/{id}/{state}', [UserController::class, 'eventClock']);
+    Route::post('/user/event/clock', [UserController::class, 'eventClock']);
 
     Route::get('program/attendance', [UserController::class, 'programAttendance']);
 
@@ -294,6 +294,23 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/admin/form/update', [AdminController::class, 'formUpdate'])->name('api.admin.form.update');
     Route::get('/admin/form/attendance/{id}/{userId}', [AdminController::class, 'attendanceUser'])->name('api.admin.attendanceUser');
     Route::post('/admin/form/mail', [AdminController::class, 'formMail'])->name('api.admin.form.mail');
+
+    // Certificate Management
+    Route::get('/admin/form/certificate/{id}', [AdminController::class, 'certificateList'])->name('api.admin.form.certificate');
+    Route::post('/admin/form/certificate/create', [AdminController::class, 'certificateCreate'])->name('api.admin.form.certificate.create');
+    Route::post('/admin/form/certificate/update', [AdminController::class, 'certificateUpdate'])->name('api.admin.form.certificate.update');
+    Route::get('/admin/form/certificate/delete/{id}', [AdminController::class, 'certificateDelete'])->name('api.admin.form.certificate.delete');
+    Route::get('/admin/form/certificate/applicants/{id}', [AdminController::class, 'certificateApplicants'])->name('api.admin.form.certificate.applicants');
+    Route::post('/admin/form/certificate/applicants/collect', [AdminController::class, 'certificateCollect'])->name('api.admin.form.certificate.collect');
+    Route::post('/admin/form/certificate/mail', [AdminController::class, 'certificateMail'])->name('api.admin.form.certificate.mail');
+
+    // Souvenir Management
+    Route::get('/admin/form/souvenir/{id}', [AdminController::class, 'souvenirList'])->name('api.admin.form.souvenir');
+    Route::post('/admin/form/souvenir/create', [AdminController::class, 'souvenirCreate'])->name('api.admin.form.souvenir.create');
+    Route::post('/admin/form/souvenir/update', [AdminController::class, 'souvenirUpdate'])->name('api.admin.form.souvenir.update');
+    Route::get('/admin/form/souvenir/delete/{id}', [AdminController::class, 'souvenirDelete'])->name('api.admin.form.souvenir.delete');
+    Route::get('/admin/form/souvenir/applicants/{id}', [AdminController::class, 'souvenirApplicants'])->name('api.admin.form.souvenir.applicants');
+    Route::post('/admin/form/souvenir/applicants/collect', [AdminController::class, 'souvenirCollect'])->name('api.admin.form.souvenir.collect');
 
     Route::get('/admin/file', [AdminController::class, 'file'])->name('api.admin.file');
     Route::get('/admin/file/user', [AdminController::class, 'fileUser'])->name('api.admin.file.user');

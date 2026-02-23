@@ -30,4 +30,14 @@ class EventForm extends Model
     {
         return $this->hasMany(EventRegistration::class, 'form_id');
     }
+
+    public function certificates()
+    {
+        return $this->hasMany(Certificate::class, 'form_id');
+    }
+
+    public function souvenirs()
+    {
+        return $this->hasMany(Souvenir::class, 'form_id');
+    }
 }

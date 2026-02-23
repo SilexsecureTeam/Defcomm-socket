@@ -2141,9 +2141,10 @@ class UserController extends Controller
         );
     }
 
-    public function eventClock(Request $request, $id, $state)
+    public function eventClock(Request $request)
     {
-        $registrationId = decrypt($id);
+        $registrationId = decrypt($request->id);
+        $state = $request->state;
         $registration = EventRegistration::find($registrationId);
 
         if (!$registration) {
@@ -2169,16 +2170,16 @@ class UserController extends Controller
             $userLat = $request->latitude;
             $userLon = $request->longitude;
 
-            if (!$userLat || !$userLon) {
-                $locationData = Location::get($request->ip());
-                // return response()->json(['status' => '400', 'message' => $request->ip()], 400);
-                if ($locationData) {
-                    $userLat = $locationData->latitude;
-                    $userLon = $locationData->longitude;
+            // if (!$userLat || !$userLon) {
+            //     $locationData = Location::get($request->ip());
+            //     // return response()->json(['status' => '400', 'message' => $request->ip()], 400);
+            //     if ($locationData) {
+            //         $userLat = $locationData->latitude;
+            //         $userLon = $locationData->longitude;
 
-                    return response()->json(['status' => '400', 'message' => ['latitude' => $userLat, 'longitude' => $userLon]], 400);
-                }
-            }
+            //         return response()->json(['status' => '400', 'message' => ['latitude' => $userLat, 'longitude' => $userLon]], 400);
+            //     }
+            // }
 
             if (!$userLat || !$userLon) {
                 return response()->json(['status' => '400', 'message' => 'Location data required'], 400);

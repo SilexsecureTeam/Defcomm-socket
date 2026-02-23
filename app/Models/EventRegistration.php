@@ -20,4 +20,18 @@ class EventRegistration extends Model
     {
         return $this->belongsTo(EventForm::class, 'form_id')->withDefault();
     }
+
+    public function certificates()
+    {
+        return $this->belongsToMany(Certificate::class, 'certificate_registrations')
+            ->withPivot('is_collected', 'is_sent')
+            ->withTimestamps();
+    }
+
+    public function souvenirs()
+    {
+        return $this->belongsToMany(Souvenir::class, 'souvenir_registrations')
+            ->withPivot('is_collected')
+            ->withTimestamps();
+    }
 }
