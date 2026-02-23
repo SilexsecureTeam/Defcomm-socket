@@ -43,6 +43,14 @@ class AdminController extends Controller
         $file = Files::where('company_id', auth()->user()->CompanyUser->id)->get();
         $fileArchive = Files::where('company_id', auth()->user()->CompanyUser->id)->where('status', "archive")->get();
         $fileActive = Files::where('company_id', auth()->user()->CompanyUser->id)->where('status', "active")->get();
+        $events = EventForm::where('user_id', auth()->user()->id)->get();
+        $eventIds = $events->pluck('id');
+
+        $certificateCount = Certificate::whereIn('form_id', $eventIds)->count();
+        $certificateActiveCount = Certificate::whereIn('form_id', $eventIds)->where('status', 'active')->count();
+
+        $souvenirCount = Souvenir::whereIn('form_id', $eventIds)->count();
+        $souvenirActiveCount = Souvenir::whereIn('form_id', $eventIds)->where('status', 'active')->count();
 
         $file_size = $file->sum('fileSize_num');
         if ($file_size >= 1073741824) {
@@ -67,6 +75,11 @@ class AdminController extends Controller
                     'fileSizeSum' => $file_size,
                     'fileArchiveCount' => $fileArchive->count(),
                     'fileActiveCount' => $fileActive->count(),
+                    'eventCount' => $events->count(),
+                    'certificateCount' => $certificateCount,
+                    'certificateActiveCount' => $certificateActiveCount,
+                    'souvenirCount' => $souvenirCount,
+                    'souvenirActiveCount' => $souvenirActiveCount,
                 ]
             ],
             201
@@ -1259,7 +1272,7 @@ class AdminController extends Controller
                 "id" => encrypt($cert->id),
                 "form_id" => encrypt($cert->form_id),
                 "name" => $cert->name,
-                "image" => url('certificates/' . $cert->image),
+                "template" => url('certificates/' . $cert->template),
                 "status" => $cert->status,
                 "created_at" => $cert->created_at,
             ];
@@ -1274,7 +1287,7 @@ class AdminController extends Controller
 
     public function certificateCreate(Request $request)
     {
-        $formId = decrypt($request->id);
+        $formId = decrypt($request->form_id);
         $file_name = null;
         if($request->hasFile('template')) {
             $file = $request->file('template');
@@ -1343,6 +1356,16 @@ class AdminController extends Controller
         $certId = decrypt($id);
         $cert = Certificate::findOrFail($certId);
         $applicants = EventRegistration::where('form_id', $cert->form_id)->with('user')->get();
+
+        $dataCert = [
+            'id' => encrypt($cert->id),
+            'form_id' => encrypt($cert->form_id),
+            'form_name' => $cert->form->name,
+            'name' => $cert->name,
+            'template' => url('certificates/' . $cert->template),
+            'status' => $cert->status,
+            'created_at' => $cert->created_at,
+        ];
         
         $data = [];
         foreach($applicants as $app) {
@@ -1360,7 +1383,7 @@ class AdminController extends Controller
             'status' => '200',
             'message' => 'Record listed',
             'data' => [
-                'certificate' => $cert,
+                'certificate' => $dataCert,
                 'applicants' => $data
             ]
         ], 201);
