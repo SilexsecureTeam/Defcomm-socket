@@ -1412,7 +1412,8 @@ class AdminController extends Controller
     public function certificateMail(Request $request)
     {
         $certId = decrypt($request->cert_id);
-        $registrations = json_decode($request->registrations, true);
+        $json = str_replace("'", '"', $request->registrations);
+        $registrations = json_decode($json, true);
         if (!$registrations) {
             $registrations = $request->registrations; // Fallback for direct array
         }
