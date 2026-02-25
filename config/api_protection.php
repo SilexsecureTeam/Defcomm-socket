@@ -10,8 +10,8 @@ return [
 
     */
     'allowed_ips' => [
-        '192.168.0.14', // mylocal development machine
-        '10.135.68.64',
+        '105.112.116.25', // mylocal development machine
+        '102.89.46.233',
         '127.0.0.1',
         '::1',               // localhost IPv6
         '10.0.0.1',          // internal load balancer
