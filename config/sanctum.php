@@ -43,9 +43,10 @@ return [
     | considered expired. If this value is null, personal access tokens do
     | not expire. This won't tweak the lifetime of first-party sessions.
     |
+    | Here we set tokens to expire after 120 minutes (2 hours).
     */
 
-    'expiration' => 10800,
+    'expiration' => 120,
 
     /*
     |--------------------------------------------------------------------------

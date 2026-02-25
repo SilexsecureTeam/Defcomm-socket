@@ -12,9 +12,14 @@ class AuthService
 
     public function authLogin($user, $request)
     {
-        if ($user->first()->status !== "active") {
+        // Ensure the account is active before issuing a token
+        if ($user->status !== "active") {
             return response()->json(['status' => 400, 'error' => "Your account is not active. Contact support"], 401);
         }
+
+        // Enforce a single active session per user by revoking all existing tokens
+        $user->tokens()->delete();
+
         $logDevice = $this->loginLog($user, $request);
         if ($logDevice[0] == 'block') {
             return "block";
