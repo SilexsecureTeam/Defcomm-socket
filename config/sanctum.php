@@ -46,6 +46,7 @@ return [
     | Here we set tokens to expire after 120 minutes (2 hours).
     */
 
+    // 'expiration' => 5,
     'expiration' => 120,
 
     /*
