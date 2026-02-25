@@ -1611,42 +1611,118 @@ class UserController extends Controller
         );
     }
 
+    // public function groupMember($id)
+    // {
+    //     try{
+    //     $idUser = decryptHelper($id);
+    //     $record = CompanyGroupUser::where('group_id', $idUser)->where('user_id', '!=', auth()->user()->id)->where('status', 'joined')->get();
+    //     $group = CompanyGroup::find($idUser);
+
+    //     $data = [];
+    //     foreach ($record as $key => $dt) {
+    //         $data[$key] = [
+    //             'id' => encryptHelper($dt->id),
+    //             'join_date' => $dt->join_date,
+    //             'hide_member_detail' => $dt->hide,
+    //             'member_id_encrpt' => encryptHelper($dt->user_id),
+    //             'member_id' => $dt->user_id,
+    //             'member_name' => $dt->user->name,
+    //         ];
+    //     }
+
+    //     return response()->json(
+    //         [
+    //             'status' => '200',
+    //             'message' => 'Record listed',
+    //             'group_meta' => [
+    //                 "id" => encryptHelper($group->id),
+    //                 "company_id" => encryptHelper($group->company_id),
+    //                 "name" => $group->name,
+    //                 "decription" => $group->decription,
+    //                 "created_at" => $group->created_at,
+    //                 "updated_at" => $group->updated_at,
+    //                 "avatar" => $group->avatar
+    //             ],
+    //             'data' => $data
+    //         ],
+    //         201
+    //     );
+    //     }catch(\Exception $e){
+    //         return response()->json(
+    //             [
+    //                 'status' => '400',
+    //                 'message' => 'Invalid group ID',
+    //                 'data' => null
+    //             ],
+    //             400
+    //         );
+    //     }
+    // }
+
+
     public function groupMember($id)
-    {
+{
+    try {
         $idUser = decryptHelper($id);
-        $record = CompanyGroupUser::where('group_id', $idUser)->where('user_id', '!=', auth()->user()->id)->where('status', 'joined')->get();
+        $authUserId = auth()->user()->id;
+
+        // ── Verify auth user belongs to this group ──────────────────────────
+        $isMember = CompanyGroupUser::where('group_id', $idUser)
+            ->where('user_id', $authUserId)
+            ->where('status', 'joined')
+            ->exists();
+
+        if (!$isMember) {
+            return response()->json([
+                'status'  => '403',
+                'message' => 'You are not a member of this group',
+                'data'    => null,
+            ], 403);
+        }
+
+        // ── Fetch all members (excluding self) ──────────────────────────────
+        $record = CompanyGroupUser::where('group_id', $idUser)
+            ->where('user_id', '!=', $authUserId)
+            ->where('status', 'joined')
+            ->get();
+
         $group = CompanyGroup::find($idUser);
 
         $data = [];
         foreach ($record as $key => $dt) {
             $data[$key] = [
-                'id' => encryptHelper($dt->id),
-                'join_date' => $dt->join_date,
+                'id'                 => encryptHelper($dt->id),
+                'join_date'          => $dt->join_date,
                 'hide_member_detail' => $dt->hide,
-                'member_id_encrpt' => encryptHelper($dt->user_id),
-                'member_id' => $dt->user_id,
-                'member_name' => $dt->user->name,
+                'member_id_encrpt'   => encryptHelper($dt->user_id),
+                'member_id'          => $dt->user_id,
+                'member_name'        => $dt->user->name,
             ];
         }
 
-        return response()->json(
-            [
-                'status' => '200',
-                'message' => 'Record listed',
-                'group_meta' => [
-                    "id" => encryptHelper($group->id),
-                    "company_id" => encryptHelper($group->company_id),
-                    "name" => $group->name,
-                    "decription" => $group->decription,
-                    "created_at" => $group->created_at,
-                    "updated_at" => $group->updated_at,
-                    "avatar" => $group->avatar
-                ],
-                'data' => $data
+        return response()->json([
+            'status'     => '200',
+            'message'    => 'Record listed',
+            'group_meta' => [
+                'id'         => encryptHelper($group->id),
+                'company_id' => encryptHelper($group->company_id),
+                'name'       => $group->name,
+                'decription' => $group->decription,
+                'created_at' => $group->created_at,
+                'updated_at' => $group->updated_at,
+                'avatar'     => $group->avatar,
             ],
-            201
-        );
+            'data' => $data,
+        ], 200);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'status'  => '400',
+            'message' => 'Invalid group ID',
+            'data'    => null,
+        ], 400);
     }
+}
 
     public function notification()
     {
