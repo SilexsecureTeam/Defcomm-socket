@@ -1,18 +1,17 @@
 <?php
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\AdminController;
-use Illuminate\Support\Facades\Broadcast;
-use App\Http\Controllers\BountyController;
-use App\Http\Controllers\API\WebController;
 use App\Http\Controllers\API\AuthController;
-use App\Http\Controllers\API\UserController;
-use App\Http\Controllers\TranslateController;
 use App\Http\Controllers\API\QrLoginController;
-use App\Http\Controllers\GoogleAiTransController;
 use App\Http\Controllers\API\SuperAdminController;
+use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\WalkieTalkieController;
+use App\Http\Controllers\API\WebController;
+use App\Http\Controllers\BountyController;
+use App\Http\Controllers\GoogleAiTransController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Broadcast;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -58,7 +57,6 @@ Route::prefix('web')->group(function () {
     Route::post('/contact', [WebController::class, 'contact']); // submit form
     Route::post('/booking', [WebController::class, 'booking']); // submit form
     Route::post('/eventform', [WebController::class, 'eventform']); // submit form
-
 
     // Route::get('/', [WebController::class, 'index']); // list all
     // Route::get('/{id}', [WebController::class, 'show']); // single
@@ -172,7 +170,6 @@ Route::middleware(['api.client.protection', 'auth:sanctum'])->group(function () 
     Route::post('/user/event/clock', [UserController::class, 'eventClock']);
 
     Route::get('program/attendance', [UserController::class, 'programAttendance']);
-
 });
 
 Route::post('/bounty/register', [BountyController::class, 'register']);
@@ -332,4 +329,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/admin/file/{id}/decline', [AdminController::class, 'fileDecline'])->name('api.admin.file.decline');
     Route::get('/admin/profile', [AdminController::class, 'profile'])->name('api.admin.profile');
     Route::post('/admin/profile/upload', [AdminController::class, 'profileUpload'])->name('api.admin.profile.upload');
+});
+
+Route::get('ip-checker', function () {
+    return response()->json([
+        'ip' => request()->ip(),
+        'server_ip' => $_SERVER['SERVER_ADDR'] ?? null,
+    ]);
 });
