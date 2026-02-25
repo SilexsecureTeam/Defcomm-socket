@@ -540,8 +540,42 @@ class UserController extends Controller
         );
     }
 
+    // i added some validation rules to the profile upload function,
+    //  and also wrapped the code in a try catch block to handle any unexpected errors that
+    //  may occur during the profile update process. This will help ensure
+    // that the API responds with appropriate error messages
+    // and status codes in case of validation failures or other exceptions.
     public function profileUpload(Request $request)
     {
+        try{
+
+        $validate = validator($request->all(), [
+            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'encryptorkey' => 'nullable|string',
+            'name' => 'nullable|string|max:255',
+            'recover_mail' => 'nullable|email|max:255',
+            'phone' => 'nullable|string|max:20',
+            'address' => 'nullable|string|max:500',
+            'enable_2fa' => 'nullable|boolean',
+            'device_token' => 'nullable|string|max:255',
+            'device_type' => 'nullable|string|max:50',
+            'pin' => 'nullable|string|max:10',
+            'onboarding_stage' => 'nullable|string|max:50',
+            'username' => 'nullable|string|max:255',
+            // 'username' => 'nullable|string|max:255|unique:users,username,' . auth()->user()->id,
+        ]);
+        if ($validate->fails()) {
+            return response()->json(
+                [
+                    'status' => '400',
+                    'message' => 'Validation error',
+                    'errors' => $validate->errors(),
+                    'data' => null
+                ],
+                400
+            );
+        }
+
         $user = User::find(auth()->user()->id);
 
         if ($request->avatar) {
@@ -614,6 +648,17 @@ class UserController extends Controller
             ],
             201
         );
+    }catch(\Exception $e){
+        return response()->json(
+            [
+                'status' => '500',
+                'message' => 'An error occurred while updating the profile',
+                'error' => $e->getMessage(),
+                'data' => null
+            ],
+            500
+        );
+        }
     }
 
     public function contact()
