@@ -10,6 +10,7 @@ return [
 
     */
     'allowed_ips' => [
+        '192.168.0.14', // mylocal development machine
         '10.135.68.64',
         '127.0.0.1',
         '::1',               // localhost IPv6
