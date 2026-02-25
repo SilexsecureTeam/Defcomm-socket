@@ -7,6 +7,7 @@ return [
     |--------------------------------------------------------------------------
     | Requests coming from these IPs are allowed through without a signature.
     | Typically your web server, load balancer, or internal backend services.
+
     */
     'allowed_ips' => [
         '127.0.0.1',

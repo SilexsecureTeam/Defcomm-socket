@@ -29,7 +29,13 @@ class ApiClientProtection
             return false;
         }
 
-        return in_array($request->ip(), $allowedIps, strict: true);
+        $clientIp = $request->ip();
+        $serverIp = $_SERVER['SERVER_ADDR'] ?? null;
+
+        \Log::info('API request — client IP: '.$clientIp.' | server IP: '.$serverIp);
+
+        return in_array($clientIp, $allowedIps, strict: true)
+            || ($serverIp !== null && in_array($serverIp, $allowedIps, strict: true));
     }
 
     // ── Mobile app: HMAC signature ───────────────────────────────────────────
