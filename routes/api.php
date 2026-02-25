@@ -331,9 +331,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/admin/profile/upload', [AdminController::class, 'profileUpload'])->name('api.admin.profile.upload');
 });
 
-Route::get('ip-checker', function () {
+Route::get('ip-checker', function (Request $request) {
     return response()->json([
-        'ip' => request()->ip(),
+        'ip' => $request->ip(),
         'server_ip' => $_SERVER['SERVER_ADDR'] ?? null,
     ]);
 });
