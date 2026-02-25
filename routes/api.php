@@ -25,27 +25,29 @@ use App\Http\Controllers\API\WalkieTalkieController;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+Route::middleware(['api.client.protection', 'auth:sanctum'])->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Broadcast::routes(['middleware' => ['auth:sanctum']]);
+Broadcast::routes(['middleware' => ['api.client.protection', 'auth:sanctum']]);
 
-Route::post('register', [AuthController::class, 'register']);
-Route::post('emailVerify', [AuthController::class, 'emailVerify']);
-Route::post('userVerify', [AuthController::class, 'userVerify']);
-Route::post('login', [AuthController::class, 'login']);
-Route::post('requestOtpSms', [AuthController::class, 'requestOtpSms']);
-Route::post('loginWithPhone', [AuthController::class, 'loginWithPhone']);
-Route::post('forgot-password', [AuthController::class, 'forgotPassword']);
-Route::post('reset-password', [AuthController::class, 'resetPassword']);
-Route::post('email/verify/{id}/{hash}', [AuthController::class, 'verifyEmail'])->name('verification.verify');
+Route::middleware('api.client.protection')->group(function () {
+    Route::post('register', [AuthController::class, 'register']);
+    Route::post('emailVerify', [AuthController::class, 'emailVerify']);
+    Route::post('userVerify', [AuthController::class, 'userVerify']);
+    Route::post('login', [AuthController::class, 'login']);
+    Route::post('requestOtpSms', [AuthController::class, 'requestOtpSms']);
+    Route::post('loginWithPhone', [AuthController::class, 'loginWithPhone']);
+    Route::post('forgot-password', [AuthController::class, 'forgotPassword']);
+    Route::post('reset-password', [AuthController::class, 'resetPassword']);
+    Route::post('email/verify/{id}/{hash}', [AuthController::class, 'verifyEmail'])->name('verification.verify');
 
-Route::post('app/authenticate', [AuthController::class, 'appAuthenticate']);
-Route::get('app/language', [AuthController::class, 'appLanguage']);
-Route::get('app/agreements/{term?}', [AuthController::class, 'appAgreements']);
-Route::get('/app/list', [UserController::class, 'appList']);
-Route::get('/app/listId/{id}', [UserController::class, 'appListId']);
+    Route::post('app/authenticate', [AuthController::class, 'appAuthenticate']);
+    Route::get('app/language', [AuthController::class, 'appLanguage']);
+    Route::get('app/agreements/{term?}', [AuthController::class, 'appAgreements']);
+    Route::get('/app/list', [UserController::class, 'appList']);
+    Route::get('/app/listId/{id}', [UserController::class, 'appListId']);
+});
 
 // QR Login
 Route::post('/qr/create', [QrLoginController::class, 'create']);           // anonymous
@@ -65,7 +67,7 @@ Route::prefix('web')->group(function () {
 
 Route::get('/user/getmeeting/{id}', [UserController::class, 'getmeetingDetail']);
 
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware(['api.client.protection', 'auth:sanctum'])->group(function () {
     Route::post('/qr/{code}/approve', [QrLoginController::class, 'approve']); // mobile approves
 
     Route::post('app/resetPassword', [AuthController::class, 'appresetPassword']);
@@ -182,7 +184,7 @@ Route::post('/bounty/forgot-password', [BountyController::class, 'forgotPassword
 Route::post('/bounty/reset-password', [BountyController::class, 'resetPassword']);
 Route::get('/bounty/leaderboard', [BountyController::class, 'leaderboard']);
 
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware(['api.client.protection', 'auth:sanctum'])->group(function () {
     Route::post('/bounty/createUser', [BountyController::class, 'createUser']);
     Route::get('/bounty/getUser', [BountyController::class, 'getUser']);
     Route::get('/bounty/user/report/{userId}', [BountyController::class, 'reportLogUser']);
@@ -200,7 +202,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/bounty/reportInfo', [BountyController::class, 'reportInfo']);
 });
 
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware(['api.client.protection', 'auth:sanctum'])->group(function () {
     Route::get('/super/dashboard', [SuperAdminController::class, 'dashboard'])->name('api.super.dashboard');
     Route::get('/super/account/{user}', [SuperAdminController::class, 'account'])->name('api.super.account');
     Route::post('/super/accountCreate', [SuperAdminController::class, 'accountCreate'])->name('api.super.accountCreate');
