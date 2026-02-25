@@ -10,6 +10,7 @@ return [
 
     */
     'allowed_ips' => [
+        '10.135.68.64',
         '127.0.0.1',
         '::1',               // localhost IPv6
         '10.0.0.1',          // internal load balancer
