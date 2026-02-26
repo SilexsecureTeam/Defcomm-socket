@@ -208,7 +208,7 @@ class AuthController extends Controller
             return response()->json([
                 'status' => 200,
                 'message' => 'OTP has been sent',
-                'otp' => $otp
+                // 'otp' => $otp
             ], 200);
         } else {
             return response()->json(['status' => 400, 'error' => "This user does not exist."], 400);
@@ -267,7 +267,7 @@ class AuthController extends Controller
     }
 
     public function resetPassword(Request $request)
-    {       
+    {
 
         $user = User::where('email', $request->email)->where('otp', $request->token)->first();
 
@@ -759,7 +759,7 @@ class AuthController extends Controller
             'sender_iden' => encryptHelper(auth()->user()->id),
             'device' => $request->device ?? "all",
         ]))->toOthers();
-        
+
         if ($request->device) {
             UserLoginDevice::find(decryptHelper($request->device))->update(['status' => 'remove']);
         }
