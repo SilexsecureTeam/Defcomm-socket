@@ -2,45 +2,48 @@
 
 namespace App\Http\Controllers\API;
 
-use Carbon\Carbon;
-use App\Models\User;
-use App\Models\Files;
-use Firebase\JWT\JWT;
-use App\Models\Folders;
-use App\Models\Meeting;
-use App\Models\Program;
-use App\Models\AppStore;
+use App\Events\PrivateGroupMessageSent;
+use App\Events\PrivateMessageSent;
+use App\Http\Controllers\Controller;
+use App\Http\Services\ChatService;
+use App\Http\Services\FileEncryptorService;
+use App\Http\Services\FileUploadService;
+use App\Mail\MeetingInvitation;
 use App\Mail\MissCallMail;
-use App\Models\FileFolder;
-use App\Models\FolderFile;
-use App\Models\MeetingLog;
+use App\Models\AppStore;
+use App\Models\Certificate;
+use App\Models\CertificateRegistrations;
 use App\Models\ChatCallLog;
 use App\Models\ChatLastLog;
 use App\Models\ChatMessage;
-use App\Models\ContactList;
-use App\Models\FilesShares;
 use App\Models\ChatSettings;
 use App\Models\CompanyGroup;
-use App\Models\FileShareLog;
-use App\Models\LanguageCode;
-use App\Models\Notification;
-use Illuminate\Http\Request;
-use App\Mail\MeetingInvitation;
 use App\Models\CompanyGroupUser;
+use App\Models\ContactList;
 use App\Models\EventForm;
 use App\Models\EventRegistration;
 use App\Models\EventRegistrationsAttendances;
-use Stevebauman\Location\Facades\Location;
-use App\Events\PrivateMessageSent;
-use App\Http\Services\ChatService;
+use App\Models\FileFolder;
+use App\Models\Files;
+use App\Models\FileShareLog;
+use App\Models\FilesShares;
+use App\Models\FolderFile;
+use App\Models\Folders;
+use App\Models\LanguageCode;
+use App\Models\Meeting;
+use App\Models\MeetingLog;
+use App\Models\Notification;
+use App\Models\Program;
+use App\Models\SouvenirRegistrations;
+use App\Models\User;
+use Carbon\Carbon;
+use Firebase\JWT\JWT;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Mail;
-use App\Events\PrivateGroupMessageSent;
 use Illuminate\Support\Facades\Storage;
-use App\Http\Services\FileUploadService;
-use App\Http\Services\FileEncryptorService;
+use Stevebauman\Location\Facades\Location;
 
 class UserController extends Controller
 {
@@ -2139,6 +2142,92 @@ class UserController extends Controller
             ],
             201
         );
+    }
+
+    public function eventCertificate($eventId = "")
+    {
+        // fetch registrations for the authenticated user
+        $query = EventRegistration::where('user_id', auth()->user()->id);
+
+        // if an encrypted registration id was provided, apply filter
+        if ($eventId) {
+            $query->where('id', decrypt($eventId));
+        }
+
+        $registrations = $query->get();
+        $data = [];
+
+        foreach ($registrations as $dt) {
+            // load any certificates tied to this registration
+            $certs = CertificateRegistrations::where('event_registration_id', $dt->id)->get();
+
+            $certData = [];
+            foreach ($certs as $cert) {
+                $certData[] = [
+                    'id'         => encrypt($cert->id),
+                    'name'       => $cert->certificate->name,
+                    'is_collected'     => $cert->is_collected,
+                    'is_sent'     => $cert->is_sent,
+                    'created_at' => $cert->created_at,
+                ];
+            }
+
+            $data[] = [
+                'registration_id' => encrypt($dt->id),
+                'event_id'        => encrypt($dt->form->id),
+                'event_name'      => $dt->form->name,
+                'certificates'    => $certData,
+            ];
+        }
+
+        return response()->json([
+            'status'  => '200',
+            'message' => 'Record listed',
+            'data'    => $data
+        ], 201);
+    }
+
+    public function eventSouvenir($eventId = "") 
+    {
+        // fetch registrations for the authenticated user
+        $query = EventRegistration::where('user_id', auth()->user()->id);
+
+        // if an encrypted registration id was provided, apply filter
+        if ($eventId) {
+            $query->where('id', decrypt($eventId));
+        }
+
+        $registrations = $query->get();
+        $data = [];
+
+        foreach ($registrations as $dt) {
+            // load any certificates tied to this registration
+            $souvenir = SouvenirRegistrations::where('event_registration_id', $dt->id)->get();
+
+            $souvData = [];
+            foreach ($souvenir as $souv) {
+                $souvData[] = [
+                    'id'         => encrypt($souv->id),
+                    'name'       => $souv->souvenir->name,
+                    'image'     => $souv->souvenir->image ? url('/') . '/' . $souv->souvenir->image : null,
+                    'is_collected'     => $souv->is_collected,
+                    'created_at' => $souv->created_at,
+                ];
+            }
+
+            $data[] = [
+                'registration_id' => encrypt($dt->id),
+                'event_id'        => encrypt($dt->form->id),
+                'event_name'      => $dt->form->name,
+                'souvenir'    => $souvData,
+            ];
+        }
+
+        return response()->json([
+            'status'  => '200',
+            'message' => 'Record listed',
+            'data'    => $data
+        ], 201);
     }
 
     public function eventClock(Request $request)

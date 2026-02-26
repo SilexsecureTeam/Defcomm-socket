@@ -185,7 +185,7 @@ class AdminController extends Controller
                 'body_message' => $nt->body_message,
                 'expire' => $nt->expire,
                 'status' => $nt->status,
-                'icon' => url("/icon/".$nt->icon),
+                'icon' => url("/icon/" . $nt->icon),
                 'created_at' => $nt->created_at,
             ];
         }
@@ -380,9 +380,26 @@ class AdminController extends Controller
         );
     }
 
-    public function form()
+    public function form($status = null)
     {
-        $event = EventForm::where('user_id', auth()->user()->id)->get();
+        $query = EventForm::where('user_id', auth()->user()->id);
+
+        if ($status !== null) {
+            $query = $query->where('status', "active");
+            if ($status === 'active') {
+                // Current date is between started_at and ended_at
+                $query->where('started_at', '<=', now())
+                    ->where('ended_at', '>=', now());
+            } elseif ($status === 'upcoming') {
+                // started_at is greater than current time
+                $query->where('started_at', '>', now());
+            } elseif ($status === 'event') {
+                // Current date is greater than ended_at
+                $query->where('ended_at', '<', now());
+            }
+        }
+
+        $event = $query->get();
         $data = [];
         foreach ($event as $ev) {
             $data[] = [
@@ -394,7 +411,12 @@ class AdminController extends Controller
                 'signup' => $ev->signup,
                 'attendance' => $ev->attendance,
                 'status' => $ev->status,
+                'started_at' => $ev->started_at,
+                'ended_at' => $ev->ended_at,
                 'created_at' => $ev->created_at,
+                'location' => $ev->location,
+                'latitude' => $ev->latitude,
+                'longitude' => $ev->longitude
             ];
         }
 
@@ -687,76 +709,76 @@ class AdminController extends Controller
             $data[] = [
                 'id' => encrypt($mem->id),
                 'user' => [
-                'id' => encrypt($mem->user->id),
-                'en_id' => encryptHelper($mem->user->id),
+                    'id' => encrypt($mem->user->id),
+                    'en_id' => encryptHelper($mem->user->id),
 
-                'name' => $mem->user->name,
-                'username' => $mem->user->username,
-                'email' => $mem->user->email,
-                'email_verified_at' => $mem->user->email_verified_at,
+                    'name' => $mem->user->name,
+                    'username' => $mem->user->username,
+                    'email' => $mem->user->email,
+                    'email_verified_at' => $mem->user->email_verified_at,
 
-                'phone' => $mem->user->phone,
-                'address' => $mem->user->address,
-                'country' => $mem->user->country,
-                'dob' => $mem->user->dob,
-                'gender' => $mem->user->gender,
+                    'phone' => $mem->user->phone,
+                    'address' => $mem->user->address,
+                    'country' => $mem->user->country,
+                    'dob' => $mem->user->dob,
+                    'gender' => $mem->user->gender,
 
-                'role' => $mem->user->role,
-                'app_role' => $mem->user->app_role,
-                'company_id' => $mem->user->company_id,
+                    'role' => $mem->user->role,
+                    'app_role' => $mem->user->app_role,
+                    'company_id' => $mem->user->company_id,
 
-                'status' => $mem->user->status,
-                'status_ndpc' => $mem->user->statusNdpc,
-                'status_app' => $mem->user->statusApp,
-                'access' => $mem->user->access,
+                    'status' => $mem->user->status,
+                    'status_ndpc' => $mem->user->statusNdpc,
+                    'status_app' => $mem->user->statusApp,
+                    'access' => $mem->user->access,
 
-                'is_online' => $mem->user->is_online,
-                'device' => $mem->user->device,
-                'device_type' => $mem->user->device_type,
-                'device_token' => $mem->user->device_token,
+                    'is_online' => $mem->user->is_online,
+                    'device' => $mem->user->device,
+                    'device_type' => $mem->user->device_type,
+                    'device_token' => $mem->user->device_token,
 
-                'enable_2fa' => (bool) $mem->user->enable_2fa,
-                'signal_blocking' => $mem->user->signal_blocking,
-                'remote_management' => $mem->user->remote_management,
-                'encrypted_storage' => $mem->user->encrypted_storage,
-                'self_wipe' => $mem->user->self_wipe,
+                    'enable_2fa' => (bool) $mem->user->enable_2fa,
+                    'signal_blocking' => $mem->user->signal_blocking,
+                    'remote_management' => $mem->user->remote_management,
+                    'encrypted_storage' => $mem->user->encrypted_storage,
+                    'self_wipe' => $mem->user->self_wipe,
 
-                'onboarding_stage' => $mem->user->onboarding_stage,
+                    'onboarding_stage' => $mem->user->onboarding_stage,
 
-                'developer_display_name' => $mem->user->developer_display_name,
-                'website' => $mem->user->website,
-                'rc_number' => $mem->user->rc_number,
-                'tin' => $mem->user->tin,
+                    'developer_display_name' => $mem->user->developer_display_name,
+                    'website' => $mem->user->website,
+                    'rc_number' => $mem->user->rc_number,
+                    'tin' => $mem->user->tin,
 
-                'avatar' => $mem->user->avatar
-                    ? url('/avatar/' . $mem->user->avatar)
-                    : null,
+                    'avatar' => $mem->user->avatar
+                        ? url('/avatar/' . $mem->user->avatar)
+                        : null,
 
-                'selfie' => $mem->user->selfie
-                    ? url('/' . $mem->user->selfie)
-                    : null,
+                    'selfie' => $mem->user->selfie
+                        ? url('/' . $mem->user->selfie)
+                        : null,
 
-                'rc_doc' => $mem->user->rc_doc
-                    ? url('/' . $mem->user->rc_doc)
-                    : null,
+                    'rc_doc' => $mem->user->rc_doc
+                        ? url('/' . $mem->user->rc_doc)
+                        : null,
 
-                'tin_doc' => $mem->user->tin_doc
-                    ? url('/' . $mem->user->tin_doc)
-                    : null,
+                    'tin_doc' => $mem->user->tin_doc
+                        ? url('/' . $mem->user->tin_doc)
+                        : null,
 
-                'id_card_front' => $mem->user->id_card_front
-                    ? url('/' . $mem->user->id_card_front)
-                    : null,
+                    'id_card_front' => $mem->user->id_card_front
+                        ? url('/' . $mem->user->id_card_front)
+                        : null,
 
-                'id_card_back' => $mem->user->id_card_back
-                    ? url('/' . $mem->user->id_card_back)
-                    : null,
+                    'id_card_back' => $mem->user->id_card_back
+                        ? url('/' . $mem->user->id_card_back)
+                        : null,
 
-                'comment_app' => $mem->user->commentApp,
+                    'comment_app' => $mem->user->commentApp,
 
-                'created_at' => $mem->user->created_at,
-                'updated_at' => $mem->user->updated_at,
-            ],
+                    'created_at' => $mem->user->created_at,
+                    'updated_at' => $mem->user->updated_at,
+                ],
                 'group_id' => $mem->group_id,
                 'company_id' => $mem->company_id,
                 'created_at' => $mem->created_at,
@@ -1265,7 +1287,7 @@ class AdminController extends Controller
         $certs = Certificate::where('form_id', $formId)->get();
 
         $data = [];
-        foreach($certs as $cert) {
+        foreach ($certs as $cert) {
             $data[] =  [
                 'form_id' => $id,
                 "form_name" => $cert->form->name,
@@ -1289,7 +1311,7 @@ class AdminController extends Controller
     {
         $formId = decrypt($request->form_id);
         $file_name = null;
-        if($request->hasFile('template')) {
+        if ($request->hasFile('template')) {
             $file = $request->file('template');
             $file_name = time() . "_cert." . $file->getClientOriginalExtension();
             $file->move(public_path('certificates'), $file_name);
@@ -1313,12 +1335,12 @@ class AdminController extends Controller
     {
         $id = decrypt($request->id);
         $cert = Certificate::findOrFail($id);
-        
-        if($request->hasFile('template')) {
+
+        if ($request->hasFile('template')) {
             $file = $request->file('template');
             $file_name = time() . "_cert." . $file->getClientOriginalExtension();
             $file->move(public_path('certificates'), $file_name);
-            
+
             if ($cert->template && file_exists(public_path('certificates/' . $cert->template))) {
                 unlink(public_path('certificates/' . $cert->template));
             }
@@ -1366,9 +1388,9 @@ class AdminController extends Controller
             'status' => $cert->status,
             'created_at' => $cert->created_at,
         ];
-        
+
         $data = [];
-        foreach($applicants as $app) {
+        foreach ($applicants as $app) {
             $regStatus = $cert->registrations()->where('event_registration_id', $app->id)->first();
             $data[] = [
                 'id' => encrypt($app->id),
@@ -1399,7 +1421,7 @@ class AdminController extends Controller
         $cert->registrations()->updateExistingPivot($regId, ['is_collected' => $status]);
 
         if (!$cert->registrations()->where('event_registration_id', $regId)->exists()) {
-             $cert->registrations()->attach($regId, ['is_collected' => $status]);
+            $cert->registrations()->attach($regId, ['is_collected' => $status]);
         }
 
         return response()->json([
@@ -1417,7 +1439,7 @@ class AdminController extends Controller
         if (!$registrations) {
             $registrations = $request->registrations; // Fallback for direct array
         }
-        
+
         $cert = Certificate::findOrFail($certId);
         $messageBody = $request->message;
 
@@ -1433,8 +1455,8 @@ class AdminController extends Controller
             $userName = $registration->user->name;
 
             $img = $manager->read(public_path('certificates/' . $cert->template));
-            $img->text($userName, $img->width() / 2, $img->height() / 2, function($font) {
-                $font->file('C:\Windows\Fonts\arial.ttf'); 
+            $img->text($userName, $img->width() / 2, $img->height() / 2, function ($font) {
+                $font->file('C:\Windows\Fonts\arial.ttf');
                 $font->size(60);
                 $font->color('#000');
                 $font->align('center');
@@ -1465,16 +1487,16 @@ class AdminController extends Controller
         $formId = decrypt($id);
         $dt = Souvenir::where('form_id', $formId)->get();
         $data = [];
-        foreach($dt as $d){
+        foreach ($dt as $d) {
             $data[] =  [
                 'form_id' => $id,
-                "form_name"=> $d->form->name,
-                "id"=> encrypt($d->id),
-                "form_id"=> encrypt($d->form_id),
-                "name"=> $d->name,
-                "image"=> url('souvenirs/' . $d->image),
-                "status"=> $d->status,
-                "created_at"=> $d->created_at,
+                "form_name" => $d->form->name,
+                "id" => encrypt($d->id),
+                "form_id" => encrypt($d->form_id),
+                "name" => $d->name,
+                "image" => url('souvenirs/' . $d->image),
+                "status" => $d->status,
+                "created_at" => $d->created_at,
 
             ];
         }
@@ -1489,7 +1511,7 @@ class AdminController extends Controller
     {
         $formId = decrypt($request->form_id);
         $file_name = null;
-        if($request->hasFile('image')) {
+        if ($request->hasFile('image')) {
             $file = $request->file('image');
             $file_name = time() . "_souvenir." . $file->getClientOriginalExtension();
             $file->move(public_path('souvenirs'), $file_name);
@@ -1513,12 +1535,12 @@ class AdminController extends Controller
     {
         $id = decrypt($request->id);
         $souvenir = Souvenir::findOrFail($id);
-        
-        if($request->hasFile('image')) {
+
+        if ($request->hasFile('image')) {
             $file = $request->file('image');
             $file_name = time() . "_souvenir." . $file->getClientOriginalExtension();
             $file->move(public_path('souvenirs'), $file_name);
-            
+
             if ($souvenir->image && file_exists(public_path('souvenirs/' . $souvenir->image))) {
                 unlink(public_path('souvenirs/' . $souvenir->image));
             }
@@ -1568,9 +1590,9 @@ class AdminController extends Controller
             "created_at" => $souvenir->created_at,
 
         ];
-        
+
         $data = [];
-        foreach($applicants as $app) {
+        foreach ($applicants as $app) {
             $regStatus = $souvenir->registrations()->where('event_registration_id', $app->id)->first();
             $data[] = [
                 'id' => encrypt($app->id),
@@ -1600,7 +1622,7 @@ class AdminController extends Controller
         $souvenir->registrations()->updateExistingPivot($regId, ['is_collected' => $status]);
 
         if (!$souvenir->registrations()->where('event_registration_id', $regId)->exists()) {
-             $souvenir->registrations()->attach($regId, ['is_collected' => $status]);
+            $souvenir->registrations()->attach($regId, ['is_collected' => $status]);
         }
 
         return response()->json([
