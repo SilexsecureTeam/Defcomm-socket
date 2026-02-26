@@ -550,7 +550,7 @@ class UserController extends Controller
         try{
 
         $validate = validator($request->all(), [
-            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif,pdf|max:2048',
             'encryptorkey' => 'nullable|string',
             'name' => 'nullable|string|max:255',
             'recover_mail' => 'nullable|email|max:255',
