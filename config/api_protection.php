@@ -10,13 +10,17 @@ return [
 
     */
     'allowed_ips' => [
-        '105.112.116.25', // mylocal development machine
-        '102.89.46.233',
-        '127.0.0.1',
-        '::1',               // localhost IPv6
-        '10.0.0.1',          // internal load balancer
-        '192.168.1.100',     // internal web server
-        '41.58.120.45',      // production server
+        '105.112.125.246', // server
+        // '89.117.60.171',  //server
+        // '64.29.17.1',
+        // '216.198.79.1',
+        // '105.112.116.25', // mylocal development machine
+        // '102.89.46.233',
+        // '127.0.0.1',
+        // '::1',               // localhost IPv6
+        // '10.0.0.1',          // internal load balancer
+        // '192.168.1.100',     // internal web server
+        // '41.58.120.45',      // production server
     ],
 
     /*

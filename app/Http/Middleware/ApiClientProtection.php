@@ -3,13 +3,14 @@
 namespace App\Http\Middleware;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
 
 class ApiClientProtection
 {
     public function handle(Request $request, \Closure $next): Response
     {
-        if ($this->hasValidServerIp($request) || $this->hasValidMobileSignature($request)) {
+        if ($this->hasValidMobileSignature($request) || $this->hasValidServerIp($request)) {
             return $next($request);
         }
 
@@ -20,7 +21,6 @@ class ApiClientProtection
     }
 
     // ── Web / backend server: IP whitelist ───────────────────────────────────
-
     private function hasValidServerIp(Request $request): bool
     {
         $allowedIps = config('api_protection.allowed_ips', []);
@@ -32,28 +32,27 @@ class ApiClientProtection
         $clientIp = $request->ip();
         $serverIp = $_SERVER['SERVER_ADDR'] ?? null;
 
-        \Log::info('API request — client IP: '.$clientIp.' | server IP: '.$serverIp);
+        Log::info('API request — client IP: '.$clientIp.' | server IP: '.$serverIp);
 
         return in_array($clientIp, $allowedIps, strict: true)
             || ($serverIp !== null && in_array($serverIp, $allowedIps, strict: true));
     }
 
     // ── Mobile app: HMAC signature ───────────────────────────────────────────
-
     private function hasValidMobileSignature(Request $request): bool
     {
         $signature = $request->header('X-Api-Signature');
-        $timestamp = $request->header('X-Api-Timestamp');
         $secret = config('api_protection.mobile_secret');
 
-        if (!$signature || !$timestamp || !$secret) {
+        if (!$signature || !$secret) {
+            Log::warning('Missing required API signature components', [
+                'has_signature' => !empty($signature),
+                'has_secret' => !empty($secret),
+            ]);
+
             return false;
         }
 
-        // Replay attack protection
-        $replayTtl = (int) config('api_protection.replay_ttl', 300);
-        if (abs(time() - (int) $timestamp) > $replayTtl) {
-            return hash_equals($expected, $signature);
-        }
+        return hash_equals($secret, $signature);
     }
 }
