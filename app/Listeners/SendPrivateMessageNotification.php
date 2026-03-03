@@ -21,6 +21,12 @@ class SendPrivateMessageNotification
      */
     public function handle(PrivateMessageSent $event): void
     {
+        // Skip if FCM is disabled - avoid unnecessary database queries
+        if (!$this->firebaseService->isEnabled()) {
+            Log::debug('FCM is disabled, skipping private message notification');
+            return;
+        }
+
         try {
             // Decrypt receiver ID to get the actual user ID
             $receiverId = decryptHelper($event->receiverId);

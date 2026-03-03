@@ -10,6 +10,8 @@ return [
     |
     */
 
+    'enabled' => env('FCM_ENABLED', true),
+
     'server_key' => env('FIREBASE_SERVER_KEY'),
 
     'project_id' => env('FIREBASE_PROJECT_ID'),
@@ -43,7 +45,7 @@ return [
     */
 
     'notifications' => [
-        'enabled' => env('FCM_NOTIFICATIONS_ENABLED', true),
+        'enabled' => env('FCM_ENABLED', true),
         'sound' => 'default',
         'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
         'max_retries' => 3,

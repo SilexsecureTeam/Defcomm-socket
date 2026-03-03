@@ -22,6 +22,12 @@ class SendPrivateWalkieMessageNotification
      */
     public function handle(PrivateWalkieMessageSent $event): void
     {
+        // Skip if FCM is disabled - avoid unnecessary database queries
+        if (!$this->firebaseService->isEnabled()) {
+            Log::debug('FCM is disabled, skipping walkie message notification');
+            return;
+        }
+
         try {
             // Decrypt walkie channel ID and sender ID
             $walkieId = decryptHelper($event->walkieId);

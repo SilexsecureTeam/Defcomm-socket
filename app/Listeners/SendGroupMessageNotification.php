@@ -22,6 +22,12 @@ class SendGroupMessageNotification
      */
     public function handle(GroupMessageSent $event): void
     {
+        // Skip if FCM is disabled - avoid unnecessary database queries
+        if (!$this->firebaseService->isEnabled()) {
+            Log::debug('FCM is disabled, skipping group message notification');
+            return;
+        }
+
         try {
             $groupId = $event->groupId;
             $senderId = $event->senderId;

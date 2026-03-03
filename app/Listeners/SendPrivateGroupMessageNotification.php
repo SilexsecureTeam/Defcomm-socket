@@ -22,6 +22,12 @@ class SendPrivateGroupMessageNotification
      */
     public function handle(PrivateGroupMessageSent $event): void
     {
+        // Skip if FCM is disabled - avoid unnecessary database queries
+        if (!$this->firebaseService->isEnabled()) {
+            Log::debug('FCM is disabled, skipping private group message notification');
+            return;
+        }
+
         try {
             // Decrypt group ID and sender ID
             $groupId = decryptHelper($event->groupId);

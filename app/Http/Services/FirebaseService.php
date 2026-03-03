@@ -15,8 +15,20 @@ class FirebaseService
 
     public function __construct()
     {
-        $this->serverKey = config('firebase.server_key') ?? env('FIREBASE_SERVER_KEY');
-        $this->projectId = config('firebase.project_id') ?? env('FIREBASE_PROJECT_ID');
+        // $this->serverKey = config('firebase.server_key') ?? env('FIREBASE_SERVER_KEY');
+        // $this->projectId = config('firebase.project_id') ?? env('FIREBASE_PROJECT_ID');
+        $this->serverKey = "";
+        $this->projectId = "";
+    }
+
+    /**
+     * Check if FCM is enabled
+     *
+     * @return bool
+     */
+    public function isEnabled(): bool
+    {
+        return config('firebase.enabled', true);
     }
 
     /**
@@ -30,6 +42,12 @@ class FirebaseService
      */
     public function sendToToken(string $fcmToken, string $title, string $body, array $data = []): bool
     {
+        // Check if FCM is enabled
+        if (!config('firebase.enabled', true)) {
+            Log::debug('FCM is disabled, skipping notification', ['token' => substr($fcmToken, 0, 20)]);
+            return false;
+        }
+
         try {
             if (empty($fcmToken)) {
                 Log::warning('FCM Token is empty, skipping notification send');
@@ -87,6 +105,14 @@ class FirebaseService
      */
     public function sendToMultipleTokens(array $fcmTokens, string $title, string $body, array $data = []): int
     {
+        // Check if FCM is enabled - early return before processing tokens
+        if (!$this->isEnabled()) {
+            Log::debug('FCM is disabled, skipping notifications for multiple tokens', [
+                'token_count' => count($fcmTokens),
+            ]);
+            return 0;
+        }
+
         $successCount = 0;
 
         foreach ($fcmTokens as $token) {
@@ -109,6 +135,12 @@ class FirebaseService
      */
     public function sendToTopic(string $topic, string $title, string $body, array $data = []): bool
     {
+        // Check if FCM is enabled
+        if (!config('firebase.enabled', true)) {
+            Log::debug('FCM is disabled, skipping topic notification', ['topic' => $topic]);
+            return false;
+        }
+
         try {
             $payload = [
                 'to' => '/topics/' . $topic,

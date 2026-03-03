@@ -21,6 +21,12 @@ class SendPublicMessageNotification
      */
     public function handle(MessageSent $event): void
     {
+        // Skip if FCM is disabled - avoid unnecessary database queries
+        if (!$this->firebaseService->isEnabled()) {
+            Log::debug('FCM is disabled, skipping public message notification');
+            return;
+        }
+
         try {
             // For public messages, send to all active users with device tokens
             // You may want to adjust this based on your application's requirements
