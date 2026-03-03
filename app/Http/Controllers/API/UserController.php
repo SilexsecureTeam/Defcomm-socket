@@ -2209,7 +2209,7 @@ class UserController extends Controller
                 $souvData[] = [
                     'id'         => encrypt($souv->id),
                     'name'       => $souv->souvenir->name,
-                    'image'     => $souv->souvenir->image ? url('/') . '/' . $souv->souvenir->image : null,
+                    'image'     => $souv->souvenir->image ? url('/') . '/souvenirs/' . $souv->souvenir->image : null,
                     'is_collected'     => $souv->is_collected,
                     'created_at' => $souv->created_at,
                 ];

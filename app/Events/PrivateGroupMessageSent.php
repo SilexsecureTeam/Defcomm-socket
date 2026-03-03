@@ -15,15 +15,21 @@ class PrivateGroupMessageSent implements ShouldBroadcast
     public $groupId;
     public $senderId;
     public $message;
+    public $senderName;
+    public $groupName;
+    public $senderAvatar;
 
     /**
      * Create a new event instance.
      */
-    public function __construct($senderId, $groupId, $message)
+    public function __construct($senderId, $groupId, $message, $senderName = null, $groupName = null, $senderAvatar = null)
     {
         $this->groupId = $groupId;
         $this->senderId = $senderId;
         $this->message = $message;
+        $this->senderName = $senderName;
+        $this->groupName = $groupName;
+        $this->senderAvatar = $senderAvatar;
     }
 
     /**
@@ -32,10 +38,6 @@ class PrivateGroupMessageSent implements ShouldBroadcast
     public function broadcastOn(): PrivateChannel
     {
         return new PrivateChannel("group.{$this->groupId}");
-        // return [
-        //     new PrivateChannel("group.{$this->groupId}"),
-        //     new PrivateChannel("group.{$this->senderId}"),
-        // ];
     }
 
     /**
