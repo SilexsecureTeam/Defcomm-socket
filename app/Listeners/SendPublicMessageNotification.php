@@ -44,13 +44,13 @@ class SendPublicMessageNotification
             $messageContent = $this->extractMessageContent($event->message);
 
             // Get FCM tokens for all active users (excluding sender if applicable)
-            $query = User::whereNotNull('device_token')->where('status', 'active');
+            $query = User::whereNotNull('fcm_token')->where('status', 'active');
 
             if ($senderId) {
                 $query->where('id', '!=', $senderId);
             }
 
-            $userTokens = $query->pluck('device_token')->toArray();
+            $userTokens = $query->pluck('fcm_token')->toArray();
 
             if (empty($userTokens)) {
                 Log::debug('No device tokens found for public message');

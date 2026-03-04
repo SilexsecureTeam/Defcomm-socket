@@ -92,20 +92,20 @@ class TestFirebaseNotification extends Command
                 return null;
             }
 
-            if (!$user->device_token) {
+            if (!$user->fcm_token) {
                 $this->warn("User {$userId} has no device token.");
                 return null;
             }
 
             $this->info("Using token from user {$userId} ({$user->name})");
-            return $user->device_token;
+            return $user->fcm_token;
         }
 
         // Try to find first user with device token
-        $user = User::whereNotNull('device_token')->first();
+        $user = User::whereNotNull('fcm_token')->first();
         if ($user) {
             $this->info("Using token from first available user: {$user->name} (ID: {$user->id})");
-            return $user->device_token;
+            return $user->fcm_token;
         }
 
         return null;

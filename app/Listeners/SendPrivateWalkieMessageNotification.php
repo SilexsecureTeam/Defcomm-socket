@@ -55,8 +55,8 @@ class SendPrivateWalkieMessageNotification
 
             // Get FCM tokens for subscribers
             $subscriberTokens = User::whereIn('id', $subscribers)
-                ->whereNotNull('device_token')
-                ->pluck('device_token')
+                ->whereNotNull('fcm_token')
+                ->pluck('fcm_token')
                 ->toArray();
 
             if (empty($subscriberTokens)) {

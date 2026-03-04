@@ -53,8 +53,8 @@ class SendGroupMessageNotification
 
             // Get FCM tokens for group members
             $memberTokens = User::whereIn('id', $groupMembers)
-                ->whereNotNull('device_token')
-                ->pluck('device_token')
+                ->whereNotNull('fcm_token')
+                ->pluck('fcm_token')
                 ->toArray();
 
             if (empty($memberTokens)) {

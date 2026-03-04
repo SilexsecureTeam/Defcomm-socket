@@ -130,6 +130,7 @@ class AuthController extends Controller
             'password' => 'required|string',
             'device_token' => 'nullable|string|max:500',
             'device_type' => 'nullable|string|in:android,ios,web',
+            'fcm_token' => 'nullable|string',
         ]);
 
         $credentials = $request->only('email', 'password');
@@ -160,6 +161,9 @@ class AuthController extends Controller
         }
         if ($request->filled('device_type')) {
             $updateData['device_type'] = $request->device_type;
+        }
+        if ($request->filled('fcm_token')) {
+            $updateData['fcm_token'] = $request->fcm_token;
         }
 
         if (!empty($updateData)) {
@@ -224,6 +228,7 @@ class AuthController extends Controller
         $request->validate([
             'phone' => 'required|string',
             'otp' => 'required|string|digits:4',
+            'fcm_token' => 'required|string',
             'device_token' => 'nullable|string|max:500',
             'device_type' => 'nullable|string|in:android,ios,web',
         ]);
@@ -253,6 +258,9 @@ class AuthController extends Controller
                 }
                 if ($request->filled('device_type')) {
                     $updateData['device_type'] = $request->device_type;
+                }
+                if ($request->filled('fcm_token')) {
+                    $updateData['fcm_token'] = $request->fcm_token;
                 }
 
                 if (!empty($updateData)) {

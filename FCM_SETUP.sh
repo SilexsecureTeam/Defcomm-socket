@@ -47,7 +47,7 @@ echo ""
 
 echo "7. Mobile App Integration"
 echo "   - Ensure app collects FCM token"
-echo "   - Send device_token in login requests"
+echo "   - Send fcm_token in login requests"
 echo "   - Set correct device_type (android/ios/web)"
 echo ""
 

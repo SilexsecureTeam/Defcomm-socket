@@ -82,13 +82,13 @@ class ExampleController
         $firebaseService = new FirebaseService();
 
         $user = auth()->user();
-        if (!$user->device_token) {
+        if (!$user->fcm_token) {
             return response()->json(['error' => 'No device token'], 400);
         }
 
         // Send with custom data structure
         $result = $firebaseService->sendToToken(
-            $user->device_token,
+            $user->fcm_token,
             'Custom Title',
             'Custom Body',
             [
@@ -110,8 +110,8 @@ class ExampleController
 
         // Get all active users with device tokens
         $users = User::where('status', 'active')
-            ->whereNotNull('device_token')
-            ->pluck('device_token')
+            ->whereNotNull('fcm_token')
+            ->pluck('fcm_token')
             ->toArray();
 
         if (empty($users)) {
@@ -163,12 +163,12 @@ class ExampleController
         $user = auth()->user();
         $firebaseService = new FirebaseService();
 
-        if (!$user->device_token) {
+        if (!$user->fcm_token) {
             return response()->json(['error' => 'No device token'], 400);
         }
 
         $success = $firebaseService->subscribeToTopic(
-            $user->device_token,
+            $user->fcm_token,
             'news'
         );
 
@@ -203,13 +203,13 @@ class NotificationService
      */
     public function notifyMention($mentionedUser, $mentioner, $context)
     {
-        if (!$mentionedUser->device_token) {
+        if (!$mentionedUser->fcm_token) {
             Log::debug('User has no device token', ['user_id' => $mentionedUser->id]);
             return false;
         }
 
         return $this->firebaseService->sendToToken(
-            $mentionedUser->device_token,
+            $mentionedUser->fcm_token,
             $mentioner->name . ' mentioned you',
             substr($context, 0, 100),
             [
@@ -226,7 +226,7 @@ class NotificationService
     public function notifyFriendRequest($receiver, $sender)
     {
         return $this->helper->sendCustomNotification(
-            $receiver->device_token,
+            $receiver->fcm_token,
             'Friend Request',
             $sender->name . ' sent you a friend request',
             [
@@ -269,7 +269,7 @@ class CustomEventListener
     {
         // Send notification based on event
         $this->firebaseService->sendToToken(
-            $event->user->device_token,
+            $event->user->fcm_token,
             $event->title,
             $event->message,
             $event->data ?? []

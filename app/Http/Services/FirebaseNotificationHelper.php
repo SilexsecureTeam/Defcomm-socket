@@ -24,7 +24,7 @@ class FirebaseNotificationHelper
      */
     public function sendPrivateMessageNotification($receiverUser, $senderUser, $messageContent, $messageId = null): bool
     {
-        if (!$receiverUser || empty($receiverUser->device_token)) {
+        if (!$receiverUser || empty($receiverUser->fcm_token)) {
             return false;
         }
 
@@ -32,7 +32,7 @@ class FirebaseNotificationHelper
         $body = substr($messageContent, 0, 150);
 
         return $this->firebaseService->sendToToken(
-            $receiverUser->device_token,
+            $receiverUser->fcm_token,
             $title,
             $body,
             [
@@ -59,8 +59,8 @@ class FirebaseNotificationHelper
         // Get device tokens for members
         $tokens = [];
         foreach ($groupMembers as $member) {
-            if (!empty($member->device_token)) {
-                $tokens[] = $member->device_token;
+            if (!empty($member->fcm_token)) {
+                $tokens[] = $member->fcm_token;
             }
         }
 
@@ -92,8 +92,8 @@ class FirebaseNotificationHelper
 
         $tokens = [];
         foreach ($users as $user) {
-            if (!empty($user->device_token)) {
-                $tokens[] = $user->device_token;
+            if (!empty($user->fcm_token)) {
+                $tokens[] = $user->fcm_token;
             }
         }
 

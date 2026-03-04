@@ -15,10 +15,10 @@ class FirebaseService
 
     public function __construct()
     {
-        // $this->serverKey = config('firebase.server_key') ?? env('FIREBASE_SERVER_KEY');
-        // $this->projectId = config('firebase.project_id') ?? env('FIREBASE_PROJECT_ID');
-        $this->serverKey = "";
-        $this->projectId = "";
+        $this->serverKey = config('firebase.server_key') ?? env('FIREBASE_SERVER_KEY');
+        $this->projectId = config('firebase.project_id') ?? env('FIREBASE_PROJECT_ID');
+        // $this->serverKey = "";
+        // $this->projectId = "";
     }
 
     /**

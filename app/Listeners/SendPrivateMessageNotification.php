@@ -39,7 +39,7 @@ class SendPrivateMessageNotification
 
             // Fetch receiver user to get FCM token
             $receiver = User::find($receiverId);
-            if (!$receiver || empty($receiver->device_token)) {
+            if (!$receiver || empty($receiver->fcm_token)) {
                 Log::debug('Receiver not found or no device token for private message', [
                     'receiver_id' => $receiverId,
                     'sender_id' => $senderId,
