@@ -35,6 +35,18 @@ use Intervention\Image\Drivers\Gd\Driver;
 
 class AdminController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware(function ($request, $next) {
+            if (auth()->check() && auth()->user()->role !== 'admin') {
+                return response()->json([
+                    'status' => '401',
+                    'message' => 'Unauthorized access. Admin role required.'
+                ], 401);
+            }
+            return $next($request);
+        });
+    }
 
     public function dashboard()
     {
