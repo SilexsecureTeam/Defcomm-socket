@@ -125,13 +125,13 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        $request->validate([
-            'email' => 'required|string',
-            'password' => 'required|string',
-            'device_token' => 'nullable|string|max:500',
-            'device_type' => 'nullable|string|in:android,ios,web',
-            'fcm_token' => 'nullable|string',
-        ]);
+        // $request->validate([
+        //     'email' => 'required|string',
+        //     'password' => 'required|string',
+        //     'device_token' => 'nullable|string|max:500',
+        //     'device_type' => 'nullable|string|in:android,ios,web',
+        //     'fcm_token' => 'nullable|string',
+        // ]);
 
         $credentials = $request->only('email', 'password');
 
@@ -168,10 +168,6 @@ class AuthController extends Controller
 
         if (!empty($updateData)) {
             $user->update($updateData);
-            \Illuminate\Support\Facades\Log::info('User device info updated on login', [
-                'user_id' => $user->id,
-                'device_type' => $updateData['device_type'] ?? null,
-            ]);
         }
 
         return response()->json(

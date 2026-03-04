@@ -10,8 +10,9 @@ class FirebaseService
 {
     private string $serverKey;
     private string $projectId;
-    private string $fcmUrl = 'https://fcm.googleapis.com/fcm/send';
     private string $fcmV1Url = 'https://fcm.googleapis.com/v1/projects';
+    private ?string $accessToken = null;
+    private ?int $tokenExpiresAt = null;
 
     public function __construct()
     {
@@ -31,19 +32,10 @@ class FirebaseService
         return config('firebase.enabled', true);
     }
 
-    /**
-     * Send notification to a single device by FCM token
-     *
-     * @param string $fcmToken
-     * @param string $title
-     * @param string $body
-     * @param array $data
-     * @return bool
-     */
     public function sendToToken(string $fcmToken, string $title, string $body, array $data = []): bool
     {
         // Check if FCM is enabled
-        if (!config('firebase.enabled', true)) {
+        if (!$this->isEnabled()) {
             Log::debug('FCM is disabled, skipping notification', ['token' => substr($fcmToken, 0, 20)]);
             return false;
         }
@@ -54,31 +46,56 @@ class FirebaseService
                 return false;
             }
 
+            $accessToken = $this->getAccessToken();
+            if (!$accessToken) {
+                Log::error('FCM: Failed to obtain access token');
+                return false;
+            }
+
+            $url = "{$this->fcmV1Url}/{$this->projectId}/messages:send";
+
+            // Map data values to strings for FCM v1 requirements
+            $formattedData = [];
+            foreach ($data as $key => $value) {
+                $formattedData[(string)$key] = (string)$value;
+            }
+
             $payload = [
-                'to' => $fcmToken,
-                'notification' => [
-                    'title' => $title,
-                    'body' => $body,
-                    'sound' => 'default',
-                    'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
+                'message' => [
+                    'token' => $fcmToken,
+                    'notification' => [
+                        'title' => $title,
+                        'body' => $body,
+                    ],
+                    'data' => $formattedData,
+                    'android' => [
+                        'priority' => 'high',
+                        'notification' => [
+                            'sound' => 'default',
+                            'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
+                        ],
+                    ],
+                    'apns' => [
+                        'payload' => [
+                            'aps' => [
+                                'sound' => 'default',
+                                'category' => 'FLUTTER_NOTIFICATION_CLICK',
+                            ],
+                        ],
+                    ],
                 ],
-                'data' => array_merge($data, [
-                    'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
-                ]),
-                'priority' => 'high',
             ];
 
-            $response = Http::withHeaders([
-                'Authorization' => 'key=' . $this->serverKey,
-                'Content-Type' => 'application/json',
-            ])->post($this->fcmUrl, $payload);
+            $response = Http::withToken($accessToken)
+                ->withHeaders(['Content-Type' => 'application/json'])
+                ->post($url, $payload);
 
             if ($response->successful()) {
-                Log::info('FCM notification sent successfully', ['token' => substr($fcmToken, 0, 20)]);
+                Log::info('FCM v1 notification sent successfully', ['token' => substr($fcmToken, 0, 20)]);
                 return true;
             }
 
-            Log::error('FCM notification failed', [
+            Log::error('FCM v1 notification failed', [
                 'status' => $response->status(),
                 'response' => $response->json(),
             ]);
@@ -124,50 +141,56 @@ class FirebaseService
         return $successCount;
     }
 
-    /**
-     * Send notification to a topic
-     *
-     * @param string $topic
-     * @param string $title
-     * @param string $body
-     * @param array $data
-     * @return bool
-     */
     public function sendToTopic(string $topic, string $title, string $body, array $data = []): bool
     {
         // Check if FCM is enabled
-        if (!config('firebase.enabled', true)) {
+        if (!$this->isEnabled()) {
             Log::debug('FCM is disabled, skipping topic notification', ['topic' => $topic]);
             return false;
         }
 
         try {
+            $accessToken = $this->getAccessToken();
+            if (!$accessToken) {
+                return false;
+            }
+
+            $url = "{$this->fcmV1Url}/{$this->projectId}/messages:send";
+
+            // Map data values to strings
+            $formattedData = [];
+            foreach ($data as $key => $value) {
+                $formattedData[(string)$key] = (string)$value;
+            }
+
             $payload = [
-                'to' => '/topics/' . $topic,
-                'notification' => [
-                    'title' => $title,
-                    'body' => $body,
-                    'sound' => 'default',
-                    'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
-                ],
-                'data' => array_merge($data, [
-                    'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
+                'message' => [
                     'topic' => $topic,
-                ]),
-                'priority' => 'high',
+                    'notification' => [
+                        'title' => $title,
+                        'body' => $body,
+                    ],
+                    'data' => $formattedData,
+                    'android' => [
+                        'priority' => 'high',
+                        'notification' => [
+                            'sound' => 'default',
+                            'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
+                        ],
+                    ],
+                ],
             ];
 
-            $response = Http::withHeaders([
-                'Authorization' => 'key=' . $this->serverKey,
-                'Content-Type' => 'application/json',
-            ])->post($this->fcmUrl, $payload);
+            $response = Http::withToken($accessToken)
+                ->withHeaders(['Content-Type' => 'application/json'])
+                ->post($url, $payload);
 
             if ($response->successful()) {
-                Log::info('FCM topic notification sent successfully', ['topic' => $topic]);
+                Log::info('FCM v1 topic notification sent successfully', ['topic' => $topic]);
                 return true;
             }
 
-            Log::error('FCM topic notification failed', [
+            Log::error('FCM v1 topic notification failed', [
                 'topic' => $topic,
                 'status' => $response->status(),
                 'response' => $response->json(),
@@ -361,6 +384,44 @@ class FirebaseService
             ]);
 
             return false;
+        }
+    }
+
+    /**
+     * Get OAuth2 access token for FCM v1
+     *
+     * @return string|null
+     */
+    private function getAccessToken(): ?string
+    {
+        // Check cache
+        if ($this->accessToken && $this->tokenExpiresAt > time()) {
+            return $this->accessToken;
+        }
+
+        try {
+            $path = config('firebase.credentials_json_path') ?? env('FIREBASE_CREDENTIALS_JSON_PATH');
+
+            if (!$path || !file_exists($path)) {
+                Log::error('FCM: Credentials JSON file not found at ' . ($path ?? 'unconfigured path'));
+                return null;
+            }
+
+            $scopes = ['https://www.googleapis.com/auth/cloud-platform'];
+            $credentials = new \Google\Auth\Credentials\ServiceAccountCredentials($scopes, $path);
+            $token = $credentials->fetchAuthToken();
+
+            if (isset($token['access_token'])) {
+                $this->accessToken = $token['access_token'];
+                $this->tokenExpiresAt = time() + ($token['expires_in'] ?? 3600) - 60; // 1 min buffer
+                return $this->accessToken;
+            }
+
+            Log::error('FCM: Failed to fetch auth token', ['response' => $token]);
+            return null;
+        } catch (Exception $e) {
+            Log::error('FCM: Access token exception', ['message' => $e->getMessage()]);
+            return null;
         }
     }
 }
