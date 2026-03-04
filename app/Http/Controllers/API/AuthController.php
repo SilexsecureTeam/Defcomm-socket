@@ -224,7 +224,7 @@ class AuthController extends Controller
         $request->validate([
             'phone' => 'required|string',
             'otp' => 'required|string|digits:4',
-            'fcm_token' => 'required|string',
+            'fcm_token' => 'nullable|string',
             'device_token' => 'nullable|string|max:500',
             'device_type' => 'nullable|string|in:android,ios,web',
         ]);
