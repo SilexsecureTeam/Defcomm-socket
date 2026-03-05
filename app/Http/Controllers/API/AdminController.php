@@ -2,47 +2,44 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Models\User;
-use App\Models\Files;
-use App\Mail\FileShare;
-use App\Models\Meeting;
-use App\Mail\Invitation;
-use App\Models\EventForm;
-use App\Mail\EventSentMail;
-use App\Models\CompanyUser;
-use App\Models\FilesShares;
-use App\Models\CompanyGroup;
-use App\Models\FileShareLog;
-use App\Models\Notification;
-use Illuminate\Http\Request;
-use App\Models\CompanyGroupUser;
-use App\Models\EventRegistration;
-use App\Mail\EventRegistrationMail;
 use App\Http\Controllers\Controller;
+use App\Http\Services\FileEncryptorService;
+use App\Mail\CertificateMail;
+use App\Mail\EventRegistrationMail;
+use App\Mail\FileShare;
+use App\Mail\Invitation;
+use App\Models\Certificate;
+use App\Models\CompanyGroup;
+use App\Models\CompanyGroupUser;
+use App\Models\CompanyUser;
+use App\Models\EventForm;
+use App\Models\EventRegistration;
+use App\Models\EventRegistrationsAttendances;
+use App\Models\Files;
+use App\Models\FileShareLog;
+use App\Models\FilesShares;
+use App\Models\Meeting;
+use App\Models\Notification;
+use App\Models\Souvenir;
+use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Validator;
-use App\Http\Services\FileEncryptorService;
-use SimpleSoftwareIO\QrCode\Facades\QrCode;
-use App\Models\EventRegistrationsAttendances;
-use App\Models\Certificate;
-use App\Models\Souvenir;
-use App\Mail\CertificateMail;
-use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
+use Intervention\Image\ImageManager;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class AdminController extends Controller
 {
-
     public function dashboard()
     {
         $users = User::where('company_id', auth()->user()->CompanyUser->id)->where('role', 'user')->orderBy('name', 'ASC')->get();
         $groups = CompanyGroup::where('company_id', auth()->user()->CompanyUser->id)->get();
         $file = Files::where('company_id', auth()->user()->CompanyUser->id)->get();
-        $fileArchive = Files::where('company_id', auth()->user()->CompanyUser->id)->where('status', "archive")->get();
-        $fileActive = Files::where('company_id', auth()->user()->CompanyUser->id)->where('status', "active")->get();
+        $fileArchive = Files::where('company_id', auth()->user()->CompanyUser->id)->where('status', 'archive')->get();
+        $fileActive = Files::where('company_id', auth()->user()->CompanyUser->id)->where('status', 'active')->get();
         $events = EventForm::where('user_id', auth()->user()->id)->get();
         $eventIds = $events->pluck('id');
 
@@ -54,13 +51,13 @@ class AdminController extends Controller
 
         $file_size = $file->sum('fileSize_num');
         if ($file_size >= 1073741824) {
-            $file_size = number_format($file_size / 1073741824, 2) . ' GB';
+            $file_size = number_format($file_size / 1073741824, 2).' GB';
         } elseif ($file_size >= 1048576) {
-            $file_size = number_format($file_size / 1048576, 2) . ' MB';
+            $file_size = number_format($file_size / 1048576, 2).' MB';
         } elseif ($file_size >= 1024) {
-            $file_size = number_format($file_size / 1024, 2) . ' KB';
+            $file_size = number_format($file_size / 1024, 2).' KB';
         } else {
-            $file_size = $file_size . ' byt';
+            $file_size = $file_size.' byt';
         }
 
         return response()->json(
@@ -80,7 +77,7 @@ class AdminController extends Controller
                     'certificateActiveCount' => $certificateActiveCount,
                     'souvenirCount' => $souvenirCount,
                     'souvenirActiveCount' => $souvenirActiveCount,
-                ]
+                ],
             ],
             201
         );
@@ -134,27 +131,27 @@ class AdminController extends Controller
                 'tin' => $usr->tin,
 
                 'avatar' => $usr->avatar
-                    ? url('/avatar/' . $usr->avatar)
+                    ? url('/avatar/'.$usr->avatar)
                     : null,
 
                 'selfie' => $usr->selfie
-                    ? url('/' . $usr->selfie)
+                    ? url('/'.$usr->selfie)
                     : null,
 
                 'rc_doc' => $usr->rc_doc
-                    ? url('/' . $usr->rc_doc)
+                    ? url('/'.$usr->rc_doc)
                     : null,
 
                 'tin_doc' => $usr->tin_doc
-                    ? url('/' . $usr->tin_doc)
+                    ? url('/'.$usr->tin_doc)
                     : null,
 
                 'id_card_front' => $usr->id_card_front
-                    ? url('/' . $usr->id_card_front)
+                    ? url('/'.$usr->id_card_front)
                     : null,
 
                 'id_card_back' => $usr->id_card_back
-                    ? url('/' . $usr->id_card_back)
+                    ? url('/'.$usr->id_card_back)
                     : null,
 
                 'comment_app' => $usr->commentApp,
@@ -163,11 +160,12 @@ class AdminController extends Controller
                 'updated_at' => $usr->updated_at,
             ];
         }
+
         return response()->json(
             [
                 'status' => '200',
                 'message' => 'Record listed',
-                'data' => $data
+                'data' => $data,
             ],
             201
         );
@@ -185,15 +183,16 @@ class AdminController extends Controller
                 'body_message' => $nt->body_message,
                 'expire' => $nt->expire,
                 'status' => $nt->status,
-                'icon' => url("/icon/".$nt->icon),
+                'icon' => url('/icon/'.$nt->icon),
                 'created_at' => $nt->created_at,
             ];
         }
+
         return response()->json(
             [
                 'status' => '200',
                 'message' => 'Record listed',
-                'data' => $data
+                'data' => $data,
             ],
             201
         );
@@ -204,7 +203,7 @@ class AdminController extends Controller
         $file_name = null;
         if ($request->hasFile('icon')) {
             $file = $request->file('icon');
-            $file_name = time() . "icon." . $file->getClientOriginalExtension();
+            $file_name = time().'icon.'.$file->getClientOriginalExtension();
             $file->move(public_path('icon'), $file_name);
         }
 
@@ -224,7 +223,7 @@ class AdminController extends Controller
             [
                 'status' => '200',
                 'message' => 'Notification successfully added',
-                'data' => []
+                'data' => [],
             ],
             201
         );
@@ -234,11 +233,12 @@ class AdminController extends Controller
     {
         $idUser = decrypt($id);
         Notification::find($idUser)->delete();
+
         return response()->json(
             [
                 'status' => '200',
                 'message' => 'Notification successfully removed',
-                'data' => []
+                'data' => [],
             ],
             201
         );
@@ -250,11 +250,11 @@ class AdminController extends Controller
         $file_name = null;
         if ($request->hasFile('icon')) {
             $file = $request->file('icon');
-            $file_name = time() . "icon." . $file->getClientOriginalExtension();
+            $file_name = time().'icon.'.$file->getClientOriginalExtension();
             $file->move(public_path('icon'), $file_name);
             $old_file = Notification::find($idUser)->icon;
             if ($old_file) {
-                unlink(public_path('icon') . '/' . $old_file);
+                unlink(public_path('icon').'/'.$old_file);
             }
         }
         Notification::find($idUser)->update([
@@ -265,11 +265,12 @@ class AdminController extends Controller
             'status' => $request->status,
             'icon' => $file_name,
         ]);
+
         return response()->json(
             [
                 'status' => '200',
                 'message' => 'Notification successfully updated',
-                'data' => []
+                'data' => [],
             ],
             201
         );
@@ -286,7 +287,7 @@ class AdminController extends Controller
             [
                 'status' => '200',
                 'message' => 'User status successfully updated',
-                'data' => []
+                'data' => [],
             ],
             201
         );
@@ -305,11 +306,12 @@ class AdminController extends Controller
             foreach ($validator->messages()->all() as $mess) {
                 $error[] = $mess;
             }
+
             return response()->json(
                 [
                     'status' => '400',
                     'message' => $error,
-                    'data' => []
+                    'data' => [],
                 ],
                 400
             );
@@ -324,7 +326,7 @@ class AdminController extends Controller
                 [
                     'status' => '400',
                     'message' => 'You do not have an active plan. Please subscribe',
-                    'data' => []
+                    'data' => [],
                 ],
                 400
             );
@@ -335,7 +337,7 @@ class AdminController extends Controller
                 [
                     'status' => '400',
                     'message' => 'You have reach you limit',
-                    'data' => []
+                    'data' => [],
                 ],
                 400
             );
@@ -350,7 +352,7 @@ class AdminController extends Controller
             'otp' => $otp,
             'company_id' => auth()->user()->CompanyUser->id,
             'password' => Hash::make(uniqid()),
-            'access_token' => uniqid()
+            'access_token' => uniqid(),
         ]);
 
         $encrypt = encrypt($request->email);
@@ -361,7 +363,7 @@ class AdminController extends Controller
             [
                 'status' => '200',
                 'message' => 'User successfully added',
-                'data' => []
+                'data' => [],
             ],
             201
         );
@@ -370,11 +372,12 @@ class AdminController extends Controller
     public function meeting()
     {
         $meet = Meeting::where('user_id', auth()->user()->id)->get();
+
         return response()->json(
             [
                 'status' => '200',
                 'message' => 'Record listed',
-                'data' => $meet
+                'data' => $meet,
             ],
             201
         );
@@ -402,7 +405,7 @@ class AdminController extends Controller
             [
                 'status' => '200',
                 'message' => 'Record listed',
-                'data' => $data
+                'data' => $data,
             ],
             201
         );
@@ -429,11 +432,12 @@ class AdminController extends Controller
                 'created_at' => $ev->created_at,
             ];
         }
+
         return response()->json(
             [
                 'status' => '200',
                 'message' => 'Record listed',
-                'data' => $data
+                'data' => $data,
             ],
             201
         );
@@ -458,11 +462,12 @@ class AdminController extends Controller
                 'created_at' => $ev->created_at,
             ];
         }
+
         return response()->json(
             [
                 'status' => '200',
                 'message' => 'Record listed',
-                'data' => $data
+                'data' => $data,
             ],
             201
         );
@@ -475,9 +480,9 @@ class AdminController extends Controller
             'message' => $request->message,
             'group_id' => $request->group_id ? decrypt($request->group_id) : null,
             'meeting_id' => $request->meeting_id ? decryptHelper($request->meeting_id) : null,
-            'signup' => $request->signup ?? "disabled",
-            'attendance' => $request->attendance ?? "disabled",
-            'status' => $request->status ?? "active",
+            'signup' => $request->signup ?? 'disabled',
+            'attendance' => $request->attendance ?? 'disabled',
+            'status' => $request->status ?? 'active',
             'user_id' => auth()->user()->id,
         ]);
 
@@ -485,7 +490,7 @@ class AdminController extends Controller
             [
                 'status' => '200',
                 'message' => 'Event form successfully created',
-                'data' => []
+                'data' => [],
             ],
             201
         );
@@ -508,7 +513,7 @@ class AdminController extends Controller
             [
                 'status' => '200',
                 'message' => 'Event form successfully updated',
-                'data' => []
+                'data' => [],
             ],
             201
         );
@@ -523,19 +528,19 @@ class AdminController extends Controller
         if (!empty($user)) {
             foreach ($user as $dt) {
                 $usr = EventRegistration::find($dt);
-                $qrData = url("/admin/form/attendance/" . encrypt($form->id) . "/" . encrypt($usr->user->id));
+                $qrData = url('/admin/form/attendance/'.encrypt($form->id).'/'.encrypt($usr->user->id));
                 $fileName = null;
-                if ($form->attendance == "enabled") {
+                if ($form->attendance == 'enabled') {
                     $path = public_path('qr');
                     if (!file_exists($path)) {
                         mkdir($path, 0777, true);
                     }
-                    $fileName = time() . '_qr.png';
+                    $fileName = time().'_qr.png';
                     QrCode::format('png')
                         ->size(200)
                         ->margin(1)
-                        ->generate($qrData, $path . '/' . $fileName);
-                    $fullPath = $path . '/' . $fileName;
+                        ->generate($qrData, $path.'/'.$fileName);
+                    $fullPath = $path.'/'.$fileName;
                     // $qrCode = base64_encode(file_get_contents($fullPath));
                 }
                 Mail::to($usr->user->email)->send(new EventRegistrationMail($form, $usr->user, $meet, $fileName, $request->subject, htmlentities($request->message)));
@@ -546,7 +551,7 @@ class AdminController extends Controller
             [
                 'status' => '200',
                 'message' => 'Event form successfully sent',
-                'data' => []
+                'data' => [],
             ],
             201
         );
@@ -558,14 +563,14 @@ class AdminController extends Controller
             'form_id' => decrypt($id),
             'user_id' => decrypt($userId),
         ], [
-            'comment' => "Checked by " . auth()->user()->name,
+            'comment' => 'Checked by '.auth()->user()->name,
         ]);
 
         return response()->json(
             [
                 'status' => '200',
                 'message' => 'Attendance recorded successfully',
-                'data' => []
+                'data' => [],
             ],
             201
         );
@@ -581,18 +586,19 @@ class AdminController extends Controller
                 'name' => $grp->name,
                 'decription' => $grp->decription,
                 'avatar' => $grp->avatar
-                    ? url('/group/' . $grp->avatar)
+                    ? url('/group/'.$grp->avatar)
                     : null,
                 'company_id' => $grp->company_id,
                 'member_count' => CompanyGroupUser::where('group_id', $grp->id)->count(),
                 'created_at' => $grp->created_at,
             ];
         }
+
         return response()->json(
             [
                 'status' => '200',
                 'message' => 'Record listed',
-                'data' => $data
+                'data' => $data,
             ],
             201
         );
@@ -609,7 +615,7 @@ class AdminController extends Controller
                 [
                     'status' => '400',
                     'message' => 'You do not have an active plan. Please subscribe',
-                    'data' => []
+                    'data' => [],
                 ],
                 400
             );
@@ -620,7 +626,7 @@ class AdminController extends Controller
                 [
                     'status' => '400',
                     'message' => 'You have reach you limit',
-                    'data' => []
+                    'data' => [],
                 ],
                 400
             );
@@ -629,7 +635,7 @@ class AdminController extends Controller
         $file_name = null;
         if ($request->hasFile('avatar')) {
             $file = $request->file('avatar');
-            $file_name = time() . "avatar." . $file->getClientOriginalExtension();
+            $file_name = time().'avatar.'.$file->getClientOriginalExtension();
             $file->move(public_path('group'), $file_name);
         }
 
@@ -644,7 +650,7 @@ class AdminController extends Controller
             [
                 'status' => '200',
                 'message' => 'Group successfully created',
-                'data' => []
+                'data' => [],
             ],
             201
         );
@@ -656,11 +662,11 @@ class AdminController extends Controller
         $file_name = null;
         if ($request->hasFile('avatar')) {
             $file = $request->file('avatar');
-            $file_name = time() . "avatar." . $file->getClientOriginalExtension();
+            $file_name = time().'avatar.'.$file->getClientOriginalExtension();
             $file->move(public_path('group'), $file_name);
             $old_file = CompanyGroup::find($id)->avatar;
             if ($old_file) {
-                unlink(public_path('group') . '/' . $old_file);
+                unlink(public_path('group').'/'.$old_file);
             }
             CompanyGroup::find($id)->update(['avatar' => $file_name]);
         }
@@ -668,11 +674,12 @@ class AdminController extends Controller
             'name' => $request->name,
             'decription' => $request->decription,
         ]);
+
         return response()->json(
             [
                 'status' => '200',
                 'message' => 'Group successfully updated',
-                'data' => []
+                'data' => [],
             ],
             201
         );
@@ -687,86 +694,87 @@ class AdminController extends Controller
             $data[] = [
                 'id' => encrypt($mem->id),
                 'user' => [
-                'id' => encrypt($mem->user->id),
-                'en_id' => encryptHelper($mem->user->id),
+                    'id' => encrypt($mem->user->id),
+                    'en_id' => encryptHelper($mem->user->id),
 
-                'name' => $mem->user->name,
-                'username' => $mem->user->username,
-                'email' => $mem->user->email,
-                'email_verified_at' => $mem->user->email_verified_at,
+                    'name' => $mem->user->name,
+                    'username' => $mem->user->username,
+                    'email' => $mem->user->email,
+                    'email_verified_at' => $mem->user->email_verified_at,
 
-                'phone' => $mem->user->phone,
-                'address' => $mem->user->address,
-                'country' => $mem->user->country,
-                'dob' => $mem->user->dob,
-                'gender' => $mem->user->gender,
+                    'phone' => $mem->user->phone,
+                    'address' => $mem->user->address,
+                    'country' => $mem->user->country,
+                    'dob' => $mem->user->dob,
+                    'gender' => $mem->user->gender,
 
-                'role' => $mem->user->role,
-                'app_role' => $mem->user->app_role,
-                'company_id' => $mem->user->company_id,
+                    'role' => $mem->user->role,
+                    'app_role' => $mem->user->app_role,
+                    'company_id' => $mem->user->company_id,
 
-                'status' => $mem->user->status,
-                'status_ndpc' => $mem->user->statusNdpc,
-                'status_app' => $mem->user->statusApp,
-                'access' => $mem->user->access,
+                    'status' => $mem->user->status,
+                    'status_ndpc' => $mem->user->statusNdpc,
+                    'status_app' => $mem->user->statusApp,
+                    'access' => $mem->user->access,
 
-                'is_online' => $mem->user->is_online,
-                'device' => $mem->user->device,
-                'device_type' => $mem->user->device_type,
-                'device_token' => $mem->user->device_token,
+                    'is_online' => $mem->user->is_online,
+                    'device' => $mem->user->device,
+                    'device_type' => $mem->user->device_type,
+                    'device_token' => $mem->user->device_token,
 
-                'enable_2fa' => (bool) $mem->user->enable_2fa,
-                'signal_blocking' => $mem->user->signal_blocking,
-                'remote_management' => $mem->user->remote_management,
-                'encrypted_storage' => $mem->user->encrypted_storage,
-                'self_wipe' => $mem->user->self_wipe,
+                    'enable_2fa' => (bool) $mem->user->enable_2fa,
+                    'signal_blocking' => $mem->user->signal_blocking,
+                    'remote_management' => $mem->user->remote_management,
+                    'encrypted_storage' => $mem->user->encrypted_storage,
+                    'self_wipe' => $mem->user->self_wipe,
 
-                'onboarding_stage' => $mem->user->onboarding_stage,
+                    'onboarding_stage' => $mem->user->onboarding_stage,
 
-                'developer_display_name' => $mem->user->developer_display_name,
-                'website' => $mem->user->website,
-                'rc_number' => $mem->user->rc_number,
-                'tin' => $mem->user->tin,
+                    'developer_display_name' => $mem->user->developer_display_name,
+                    'website' => $mem->user->website,
+                    'rc_number' => $mem->user->rc_number,
+                    'tin' => $mem->user->tin,
 
-                'avatar' => $mem->user->avatar
-                    ? url('/avatar/' . $mem->user->avatar)
-                    : null,
+                    'avatar' => $mem->user->avatar
+                        ? url('/avatar/'.$mem->user->avatar)
+                        : null,
 
-                'selfie' => $mem->user->selfie
-                    ? url('/' . $mem->user->selfie)
-                    : null,
+                    'selfie' => $mem->user->selfie
+                        ? url('/'.$mem->user->selfie)
+                        : null,
 
-                'rc_doc' => $mem->user->rc_doc
-                    ? url('/' . $mem->user->rc_doc)
-                    : null,
+                    'rc_doc' => $mem->user->rc_doc
+                        ? url('/'.$mem->user->rc_doc)
+                        : null,
 
-                'tin_doc' => $mem->user->tin_doc
-                    ? url('/' . $mem->user->tin_doc)
-                    : null,
+                    'tin_doc' => $mem->user->tin_doc
+                        ? url('/'.$mem->user->tin_doc)
+                        : null,
 
-                'id_card_front' => $mem->user->id_card_front
-                    ? url('/' . $mem->user->id_card_front)
-                    : null,
+                    'id_card_front' => $mem->user->id_card_front
+                        ? url('/'.$mem->user->id_card_front)
+                        : null,
 
-                'id_card_back' => $mem->user->id_card_back
-                    ? url('/' . $mem->user->id_card_back)
-                    : null,
+                    'id_card_back' => $mem->user->id_card_back
+                        ? url('/'.$mem->user->id_card_back)
+                        : null,
 
-                'comment_app' => $mem->user->commentApp,
+                    'comment_app' => $mem->user->commentApp,
 
-                'created_at' => $mem->user->created_at,
-                'updated_at' => $mem->user->updated_at,
-            ],
+                    'created_at' => $mem->user->created_at,
+                    'updated_at' => $mem->user->updated_at,
+                ],
                 'group_id' => $mem->group_id,
                 'company_id' => $mem->company_id,
                 'created_at' => $mem->created_at,
             ];
         }
+
         return response()->json(
             [
                 'status' => '200',
                 'message' => 'Record listed',
-                'data' => $data
+                'data' => $data,
             ],
             201
         );
@@ -787,16 +795,17 @@ class AdminController extends Controller
                 [
                     'status' => '200',
                     'message' => 'Group member removed successfully',
-                    'data' => []
+                    'data' => [],
                 ],
                 201
             );
         }
+
         return response()->json(
             [
                 'status' => '200',
                 'message' => 'Group member not found',
-                'data' => []
+                'data' => [],
             ],
             201
         );
@@ -805,11 +814,12 @@ class AdminController extends Controller
     public function memberAdd($id)
     {
         $users = User::where('company_id', auth()->user()->CompanyUser->id)->where('role', 'user')->orderBy('name', 'ASC')->get();
+
         return response()->json(
             [
                 'status' => '200',
                 'message' => 'Record listed',
-                'data' => $users
+                'data' => $users,
             ],
             201
         );
@@ -824,9 +834,9 @@ class AdminController extends Controller
             foreach ($user as $dt) {
                 CompanyGroupUser::firstOrCreate([
                     'user_id' => decrypt($dt),
-                    'group_id' => $id
+                    'group_id' => $id,
                 ], [
-                    'company_id' => auth()->user()->CompanyUser->id
+                    'company_id' => auth()->user()->CompanyUser->id,
                 ]);
                 // Mail::to($request->email)->send(new GroupInvitation($request->name, $request->email, $encrypt, $otp));
             }
@@ -835,7 +845,7 @@ class AdminController extends Controller
                 [
                     'status' => '200',
                     'message' => 'Group member added successfully',
-                    'data' => []
+                    'data' => [],
                 ],
                 201
             );
@@ -845,7 +855,7 @@ class AdminController extends Controller
             [
                 'status' => '400',
                 'message' => 'Please ensure to select a user',
-                'data' => []
+                'data' => [],
             ],
             400
         );
@@ -857,7 +867,7 @@ class AdminController extends Controller
         if (!empty($user)) {
             foreach ($user as $dt) {
                 User::find($dt)->update([
-                    'status' => 'block'
+                    'status' => 'block',
                 ]);
             }
 
@@ -865,7 +875,7 @@ class AdminController extends Controller
                 [
                     'status' => '200',
                     'message' => 'User account deactivated successfully',
-                    'data' => []
+                    'data' => [],
                 ],
                 201
             );
@@ -875,7 +885,7 @@ class AdminController extends Controller
             [
                 'status' => '400',
                 'message' => 'Please ensure to select a user',
-                'data' => []
+                'data' => [],
             ],
             400
         );
@@ -884,11 +894,12 @@ class AdminController extends Controller
     public function file()
     {
         $file = Files::where('company_id', auth()->user()->CompanyUser->id)->where('user_type', 'admin')->orderBy('id', 'DESC')->get();
+
         return response()->json(
             [
                 'status' => '200',
                 'message' => 'Record listed',
-                'data' => $file
+                'data' => $file,
             ],
             201
         );
@@ -897,11 +908,12 @@ class AdminController extends Controller
     public function fileUser()
     {
         $file = Files::where('company_id', auth()->user()->CompanyUser->id)->where('user_type', 'user')->orderBy('id', 'DESC')->get();
+
         return response()->json(
             [
                 'status' => '200',
                 'message' => 'Record listed',
-                'data' => $file
+                'data' => $file,
             ],
             201
         );
@@ -910,11 +922,12 @@ class AdminController extends Controller
     public function fileRequest()
     {
         $file = FilesShares::where('company_id', auth()->user()->CompanyUser->id)->where('status', 'block')->orderBy('id', 'DESC')->get();
+
         return response()->json(
             [
                 'status' => '200',
                 'message' => 'Record listed',
-                'data' => $file
+                'data' => $file,
             ],
             201
         );
@@ -923,11 +936,12 @@ class AdminController extends Controller
     public function fileView($id)
     {
         $file = Files::find(decrypt($id));
+
         return response()->json(
             [
                 'status' => '200',
                 'message' => 'Record listed',
-                'data' => $file
+                'data' => $file,
             ],
             201
         );
@@ -940,8 +954,8 @@ class AdminController extends Controller
 
         $pathToEncrypted = storage_path(decrypt($file->file));
         $fileExtension = $file->file_ext;
-        $pathToDecryptedWatermarked = storage_path('app/decrypted_' . uniqid() . '.' . $fileExtension);
-        File::put($pathToDecryptedWatermarked, "");
+        $pathToDecryptedWatermarked = storage_path('app/decrypted_'.uniqid().'.'.$fileExtension);
+        File::put($pathToDecryptedWatermarked, '');
 
         $encryptor = new FileEncryptorService();
         $encryptor->decryptAndWatermark(
@@ -949,10 +963,10 @@ class AdminController extends Controller
             $pathToDecryptedWatermarked,
             $fileExtension,
             [
-                'watermark_text' => 'Downloaded by: ' . auth()->user()->name,
+                'watermark_text' => 'Downloaded by: '.auth()->user()->name,
                 // 'watermark_image' => public_path('logo.png')
-                "y" => 60,
-                "x" => 40
+                'y' => 60,
+                'x' => 40,
             ]
         );
 
@@ -972,35 +986,35 @@ class AdminController extends Controller
 
         $file_size = $fileSize = $file->getSize();
         $file_time = time();
-        $file_name = $file_time . $file->hashName() . '.enc';
+        $file_name = $file_time.$file->hashName().'.enc';
 
-        $originalPath = $file->storeAs('secure/uploads', $file_time . $file->getClientOriginalName());
-        $encryptedPath = $file->storeAs('secure/encrypted',  $file_name);
+        $originalPath = $file->storeAs('secure/uploads', $file_time.$file->getClientOriginalName());
+        $encryptedPath = $file->storeAs('secure/encrypted', $file_name);
 
         $encryptor = new FileEncryptorService();
         $encryptor->processAndEncrypt(
-            storage_path('app/' . $originalPath),
-            storage_path('app/' . $encryptedPath),
+            storage_path('app/'.$originalPath),
+            storage_path('app/'.$encryptedPath),
             [
-                'watermark_text' => 'Uploaded by ' . auth()->user()->name,
+                'watermark_text' => 'Uploaded by '.auth()->user()->name,
                 // 'watermark_image' => public_path('logo.png')
             ]
         );
 
         if ($file_size >= 1073741824) {
-            $file_size = number_format($file_size / 1073741824, 2) . ' GB';
+            $file_size = number_format($file_size / 1073741824, 2).' GB';
         } elseif ($file_size >= 1048576) {
-            $file_size = number_format($file_size / 1048576, 2) . ' MB';
+            $file_size = number_format($file_size / 1048576, 2).' MB';
         } elseif ($file_size >= 1024) {
-            $file_size = number_format($file_size / 1024, 2) . ' KB';
+            $file_size = number_format($file_size / 1024, 2).' KB';
         } else {
-            $file_size = $file_size . ' bytes';
+            $file_size = $file_size.' bytes';
         }
 
         Files::create([
             'name' => $request->name,
             'description' => $request->description,
-            'file' => encrypt("app/secure/encrypted/" . $file_name),
+            'file' => encrypt('app/secure/encrypted/'.$file_name),
             'file_size' => $file_size,
             'file_ext' => $file_ext,
             'fileSize_num' => $fileSize,
@@ -1012,7 +1026,7 @@ class AdminController extends Controller
             [
                 'status' => '200',
                 'message' => 'File securely uploaded',
-                'data' => []
+                'data' => [],
             ],
             201
         );
@@ -1021,11 +1035,12 @@ class AdminController extends Controller
     public function fileShareGroup($id)
     {
         $groups = CompanyGroup::where('company_id', auth()->user()->CompanyUser->id)->get();
+
         return response()->json(
             [
                 'status' => '200',
                 'message' => 'Record listed',
-                'data' => $groups
+                'data' => $groups,
             ],
             201
         );
@@ -1039,10 +1054,10 @@ class AdminController extends Controller
             foreach ($user as $dt) {
                 FilesShares::firstOrCreate([
                     'group_id' => $dt,
-                    'file_id' => $id
+                    'file_id' => $id,
                 ], [
                     'company_id' => auth()->user()->CompanyUser->id,
-                    'is_who' => 'group'
+                    'is_who' => 'group',
                 ]);
                 // $usr = User::find($dt);
                 // Mail::to($usr->email)->send(new FileShare($usr->name, $usr->email, auth()->user()->CompanyUser->name));
@@ -1052,7 +1067,7 @@ class AdminController extends Controller
                 [
                     'status' => '200',
                     'message' => 'File successfully shared',
-                    'data' => []
+                    'data' => [],
                 ],
                 201
             );
@@ -1062,7 +1077,7 @@ class AdminController extends Controller
             [
                 'status' => '400',
                 'message' => 'Please ensure to select a user',
-                'data' => []
+                'data' => [],
             ],
             400
         );
@@ -1071,11 +1086,12 @@ class AdminController extends Controller
     public function fileShareUser($id)
     {
         $users = User::where('company_id', auth()->user()->CompanyUser->id)->where('role', 'user')->get();
+
         return response()->json(
             [
                 'status' => '200',
                 'message' => 'Record listed',
-                'data' => $users
+                'data' => $users,
             ],
             201
         );
@@ -1089,12 +1105,12 @@ class AdminController extends Controller
             foreach ($user as $dt) {
                 FilesShares::firstOrCreate([
                     'user_id' => $dt,
-                    'file_id' => $id
+                    'file_id' => $id,
                 ], [
                     'company_id' => auth()->user()->CompanyUser->id,
                     'user_from' => auth()->user()->id,
                     'is_who' => 'user',
-                    'expire_date' => $request->expire_date
+                    'expire_date' => $request->expire_date,
                 ]);
                 $usr = User::find($dt);
                 Mail::to($usr->email)->send(new FileShare($usr->name, $usr->email, auth()->user()->CompanyUser->name));
@@ -1104,7 +1120,7 @@ class AdminController extends Controller
                 [
                     'status' => '200',
                     'message' => 'File successfully shared',
-                    'data' => []
+                    'data' => [],
                 ],
                 201
             );
@@ -1114,7 +1130,7 @@ class AdminController extends Controller
             [
                 'status' => '400',
                 'message' => 'Please ensure to select a user',
-                'data' => []
+                'data' => [],
             ],
             400
         );
@@ -1123,11 +1139,12 @@ class AdminController extends Controller
     public function fileAccessGroup($id)
     {
         $users = FilesShares::where('file_id', decrypt($id))->where('is_who', 'group')->get();
+
         return response()->json(
             [
                 'status' => '200',
                 'message' => 'Record listed',
-                'data' => $users
+                'data' => $users,
             ],
             201
         );
@@ -1136,11 +1153,12 @@ class AdminController extends Controller
     public function fileAccessUser($id)
     {
         $users = FilesShares::where('file_id', decrypt($id))->where('is_who', 'user')->get();
+
         return response()->json(
             [
                 'status' => '200',
                 'message' => 'Record listed',
-                'data' => $users
+                'data' => $users,
             ],
             201
         );
@@ -1149,11 +1167,12 @@ class AdminController extends Controller
     public function fileAccessLog($id)
     {
         $data = FileShareLog::where('file_id', decrypt($id))->get();
+
         return response()->json(
             [
                 'status' => '200',
                 'message' => 'Record listed',
-                'data' => $data
+                'data' => $data,
             ],
             201
         );
@@ -1163,11 +1182,12 @@ class AdminController extends Controller
     {
         $idUser = decrypt($id);
         FilesShares::find($idUser)->delete();
+
         return response()->json(
             [
                 'status' => '200',
                 'message' => 'Access revoke successfully',
-                'data' => []
+                'data' => [],
             ],
             201
         );
@@ -1177,11 +1197,12 @@ class AdminController extends Controller
     {
         $idUser = decrypt($id);
         FilesShares::find($idUser)->update(['status' => 'access']);
+
         return response()->json(
             [
                 'status' => '200',
                 'message' => 'File accepted successfully',
-                'data' => []
+                'data' => [],
             ],
             201
         );
@@ -1191,11 +1212,12 @@ class AdminController extends Controller
     {
         $idUser = decrypt($id);
         FilesShares::find($idUser)->delete();
+
         return response()->json(
             [
                 'status' => '200',
                 'message' => 'File decline successfully',
-                'data' => []
+                'data' => [],
             ],
             201
         );
@@ -1205,14 +1227,15 @@ class AdminController extends Controller
     {
         $user = User::find(auth()->user()->id);
         $companyUser = CompanyUser::find(auth()->user()->CompanyUser->id);
+
         return response()->json(
             [
                 'status' => '200',
                 'message' => 'Record listed',
                 'data' => [
                     'user' => $user,
-                    'companyUser' => $companyUser
-                ]
+                    'companyUser' => $companyUser,
+                ],
             ],
             201
         );
@@ -1220,42 +1243,65 @@ class AdminController extends Controller
 
     public function profileUpload(Request $request)
     {
-        $user = User::find(auth()->user()->id);
-        $companyUser = CompanyUser::find(auth()->user()->CompanyUser->id);
+        try {
+            $validator = Validator::make($request->all(), [
+                'name' => 'required',
+                'phone' => 'required',
+                'address' => 'required',
+                'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            ]);
 
-        if ($request->avatar) {
-            $file = $request->file('avatar');
-            $file_name = time() . "avatar." . $file->getClientOriginalExtension();
-            $file->move(public_path('avatar'), $file_name);
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => '400',
+                    'message' => 'Validation failed.',
+                    'data' => $validator->errors(),
+                ], 401);
+            }
 
-            if ($user->avatar) {
-                unlink(public_path($user->avatar));
+            $user = User::find(auth()->user()->id);
+            $companyUser = CompanyUser::find(auth()->user()->CompanyUser->id);
+
+            if ($request->avatar) {
+                $file = $request->file('avatar');
+                $file_name = time().'avatar.'.$file->getClientOriginalExtension();
+                $file->move(public_path('avatar'), $file_name);
+
+                if ($user->avatar) {
+                    unlink(public_path($user->avatar));
+                }
+
+                $user->update([
+                    'avatar' => 'avatar/'.$file_name,
+                ]);
             }
 
             $user->update([
-                'avatar' => 'avatar/' . $file_name,
+                'name' => $request->name,
+                'phone' => $request->phone,
+                'address' => $request->address,
+                'enable_2fa' => $request->enable_2fa ?? 0,
             ]);
+
+            $companyUser->update([
+                'name' => $request->name,
+            ]);
+
+            return response()->json(
+                [
+                    'status' => '200',
+                    'message' => 'Profile updated successfully',
+                    'data' => [],
+                ],
+                201
+            );
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => '500',
+                'message' => 'An error occurred while updating the profile.',
+                'data' => $e->getMessage(),
+            ], 500);
         }
-
-        $user->update([
-            'name' => $request->name,
-            'phone' => $request->phone,
-            'address' => $request->address,
-            'enable_2fa' => $request->enable_2fa ?? 0,
-        ]);
-
-        $companyUser->update([
-            'name' => $request->name,
-        ]);
-
-        return response()->json(
-            [
-                'status' => '200',
-                'message' => 'Profile updated successfully',
-                'data' => []
-            ],
-            201
-        );
     }
 
     // Certificate Management
@@ -1265,23 +1311,23 @@ class AdminController extends Controller
         $certs = Certificate::where('form_id', $formId)->get();
 
         $data = [];
-        foreach($certs as $cert) {
-            $data[] =  [
+        foreach ($certs as $cert) {
+            $data[] = [
                 'form_id' => $id,
-                "form_name" => $cert->form->name,
-                "id" => encrypt($cert->id),
-                "form_id" => encrypt($cert->form_id),
-                "name" => $cert->name,
-                "template" => url('certificates/' . $cert->template),
-                "status" => $cert->status,
-                "created_at" => $cert->created_at,
+                'form_name' => $cert->form->name,
+                'id' => encrypt($cert->id),
+                'form_id' => encrypt($cert->form_id),
+                'name' => $cert->name,
+                'template' => url('certificates/'.$cert->template),
+                'status' => $cert->status,
+                'created_at' => $cert->created_at,
             ];
         }
 
         return response()->json([
             'status' => '200',
             'message' => 'Record listed',
-            'data' => $data
+            'data' => $data,
         ], 201);
     }
 
@@ -1289,9 +1335,9 @@ class AdminController extends Controller
     {
         $formId = decrypt($request->form_id);
         $file_name = null;
-        if($request->hasFile('template')) {
+        if ($request->hasFile('template')) {
             $file = $request->file('template');
-            $file_name = time() . "_cert." . $file->getClientOriginalExtension();
+            $file_name = time().'_cert.'.$file->getClientOriginalExtension();
             $file->move(public_path('certificates'), $file_name);
         }
 
@@ -1305,7 +1351,7 @@ class AdminController extends Controller
         return response()->json([
             'status' => '200',
             'message' => 'Certificate successfully created',
-            'data' => []
+            'data' => [],
         ], 201);
     }
 
@@ -1313,14 +1359,14 @@ class AdminController extends Controller
     {
         $id = decrypt($request->id);
         $cert = Certificate::findOrFail($id);
-        
-        if($request->hasFile('template')) {
+
+        if ($request->hasFile('template')) {
             $file = $request->file('template');
-            $file_name = time() . "_cert." . $file->getClientOriginalExtension();
+            $file_name = time().'_cert.'.$file->getClientOriginalExtension();
             $file->move(public_path('certificates'), $file_name);
-            
-            if ($cert->template && file_exists(public_path('certificates/' . $cert->template))) {
-                unlink(public_path('certificates/' . $cert->template));
+
+            if ($cert->template && file_exists(public_path('certificates/'.$cert->template))) {
+                unlink(public_path('certificates/'.$cert->template));
             }
             $cert->template = $file_name;
         }
@@ -1333,21 +1379,22 @@ class AdminController extends Controller
         return response()->json([
             'status' => '200',
             'message' => 'Certificate successfully updated',
-            'data' => []
+            'data' => [],
         ], 201);
     }
 
     public function certificateDelete($id)
     {
         $cert = Certificate::findOrFail(decrypt($id));
-        if ($cert->template && file_exists(public_path('certificates/' . $cert->template))) {
-            unlink(public_path('certificates/' . $cert->template));
+        if ($cert->template && file_exists(public_path('certificates/'.$cert->template))) {
+            unlink(public_path('certificates/'.$cert->template));
         }
         $cert->delete();
+
         return response()->json([
             'status' => '200',
             'message' => 'Certificate successfully deleted',
-            'data' => []
+            'data' => [],
         ], 201);
     }
 
@@ -1362,20 +1409,20 @@ class AdminController extends Controller
             'form_id' => encrypt($cert->form_id),
             'form_name' => $cert->form->name,
             'name' => $cert->name,
-            'template' => url('certificates/' . $cert->template),
+            'template' => url('certificates/'.$cert->template),
             'status' => $cert->status,
             'created_at' => $cert->created_at,
         ];
-        
+
         $data = [];
-        foreach($applicants as $app) {
+        foreach ($applicants as $app) {
             $regStatus = $cert->registrations()->where('event_registration_id', $app->id)->first();
             $data[] = [
                 'id' => encrypt($app->id),
                 'name' => $app->user->name,
                 'email' => $app->user->email,
-                'is_collected' => $regStatus ? (bool)$regStatus->pivot->is_collected : false,
-                'is_sent' => $regStatus ? (bool)$regStatus->pivot->is_sent : false,
+                'is_collected' => $regStatus ? (bool) $regStatus->pivot->is_collected : false,
+                'is_sent' => $regStatus ? (bool) $regStatus->pivot->is_sent : false,
             ];
         }
 
@@ -1384,8 +1431,8 @@ class AdminController extends Controller
             'message' => 'Record listed',
             'data' => [
                 'certificate' => $dataCert,
-                'applicants' => $data
-            ]
+                'applicants' => $data,
+            ],
         ], 201);
     }
 
@@ -1399,13 +1446,13 @@ class AdminController extends Controller
         $cert->registrations()->updateExistingPivot($regId, ['is_collected' => $status]);
 
         if (!$cert->registrations()->where('event_registration_id', $regId)->exists()) {
-             $cert->registrations()->attach($regId, ['is_collected' => $status]);
+            $cert->registrations()->attach($regId, ['is_collected' => $status]);
         }
 
         return response()->json([
             'status' => '200',
             'message' => 'Status successfully updated',
-            'data' => []
+            'data' => [],
         ], 201);
     }
 
@@ -1417,7 +1464,7 @@ class AdminController extends Controller
         if (!$registrations) {
             $registrations = $request->registrations; // Fallback for direct array
         }
-        
+
         $cert = Certificate::findOrFail($certId);
         $messageBody = $request->message;
 
@@ -1432,16 +1479,16 @@ class AdminController extends Controller
             $registration = EventRegistration::findOrFail($regId);
             $userName = $registration->user->name;
 
-            $img = $manager->read(public_path('certificates/' . $cert->template));
-            $img->text($userName, $img->width() / 2, $img->height() / 2, function($font) {
-                $font->file('C:\Windows\Fonts\arial.ttf'); 
+            $img = $manager->read(public_path('certificates/'.$cert->template));
+            $img->text($userName, $img->width() / 2, $img->height() / 2, function ($font) {
+                $font->file('C:\Windows\Fonts\arial.ttf');
                 $font->size(60);
                 $font->color('#000');
                 $font->align('center');
                 $font->valign('middle');
             });
 
-            $tempPath = $tempDir . '/' . uniqid() . '.png';
+            $tempPath = $tempDir.'/'.uniqid().'.png';
             $img->save($tempPath);
 
             Mail::to($registration->user->email)->send(new CertificateMail($userName, $messageBody, $tempPath));
@@ -1455,7 +1502,7 @@ class AdminController extends Controller
         return response()->json([
             'status' => '200',
             'message' => 'Certificates successfully sent',
-            'data' => []
+            'data' => [],
         ], 201);
     }
 
@@ -1465,23 +1512,23 @@ class AdminController extends Controller
         $formId = decrypt($id);
         $dt = Souvenir::where('form_id', $formId)->get();
         $data = [];
-        foreach($dt as $d){
-            $data[] =  [
+        foreach ($dt as $d) {
+            $data[] = [
                 'form_id' => $id,
-                "form_name"=> $d->form->name,
-                "id"=> encrypt($d->id),
-                "form_id"=> encrypt($d->form_id),
-                "name"=> $d->name,
-                "image"=> url('souvenirs/' . $d->image),
-                "status"=> $d->status,
-                "created_at"=> $d->created_at,
-
+                'form_name' => $d->form->name,
+                'id' => encrypt($d->id),
+                'form_id' => encrypt($d->form_id),
+                'name' => $d->name,
+                'image' => url('souvenirs/'.$d->image),
+                'status' => $d->status,
+                'created_at' => $d->created_at,
             ];
         }
+
         return response()->json([
             'status' => '200',
             'message' => 'Record listed',
-            'data' => $data
+            'data' => $data,
         ], 201);
     }
 
@@ -1489,9 +1536,9 @@ class AdminController extends Controller
     {
         $formId = decrypt($request->form_id);
         $file_name = null;
-        if($request->hasFile('image')) {
+        if ($request->hasFile('image')) {
             $file = $request->file('image');
-            $file_name = time() . "_souvenir." . $file->getClientOriginalExtension();
+            $file_name = time().'_souvenir.'.$file->getClientOriginalExtension();
             $file->move(public_path('souvenirs'), $file_name);
         }
 
@@ -1505,7 +1552,7 @@ class AdminController extends Controller
         return response()->json([
             'status' => '200',
             'message' => 'Souvenir successfully created',
-            'data' => []
+            'data' => [],
         ], 201);
     }
 
@@ -1513,14 +1560,14 @@ class AdminController extends Controller
     {
         $id = decrypt($request->id);
         $souvenir = Souvenir::findOrFail($id);
-        
-        if($request->hasFile('image')) {
+
+        if ($request->hasFile('image')) {
             $file = $request->file('image');
-            $file_name = time() . "_souvenir." . $file->getClientOriginalExtension();
+            $file_name = time().'_souvenir.'.$file->getClientOriginalExtension();
             $file->move(public_path('souvenirs'), $file_name);
-            
-            if ($souvenir->image && file_exists(public_path('souvenirs/' . $souvenir->image))) {
-                unlink(public_path('souvenirs/' . $souvenir->image));
+
+            if ($souvenir->image && file_exists(public_path('souvenirs/'.$souvenir->image))) {
+                unlink(public_path('souvenirs/'.$souvenir->image));
             }
             $souvenir->image = $file_name;
         }
@@ -1533,21 +1580,22 @@ class AdminController extends Controller
         return response()->json([
             'status' => '200',
             'message' => 'Souvenir successfully updated',
-            'data' => []
+            'data' => [],
         ], 201);
     }
 
     public function souvenirDelete($id)
     {
         $souvenir = Souvenir::findOrFail(decrypt($id));
-        if ($souvenir->image && file_exists(public_path('souvenirs/' . $souvenir->image))) {
-            unlink(public_path('souvenirs/' . $souvenir->image));
+        if ($souvenir->image && file_exists(public_path('souvenirs/'.$souvenir->image))) {
+            unlink(public_path('souvenirs/'.$souvenir->image));
         }
         $souvenir->delete();
+
         return response()->json([
             'status' => '200',
             'message' => 'Souvenir successfully deleted',
-            'data' => []
+            'data' => [],
         ], 201);
     }
 
@@ -1557,26 +1605,25 @@ class AdminController extends Controller
         $souvenir = Souvenir::findOrFail($souvenirId);
         $applicants = EventRegistration::where('form_id', $souvenir->form_id)->with('user')->get();
 
-        $dataSouvenir =  [
+        $dataSouvenir = [
             'form_id' => $id,
-            "form_name" => $souvenir->form->name,
-            "id" => encrypt($souvenir->id),
-            "form_id" => encrypt($souvenir->form_id),
-            "name" => $souvenir->name,
-            "image" => url('souvenirs/' . $souvenir->image),
-            "status" => $souvenir->status,
-            "created_at" => $souvenir->created_at,
-
+            'form_name' => $souvenir->form->name,
+            'id' => encrypt($souvenir->id),
+            'form_id' => encrypt($souvenir->form_id),
+            'name' => $souvenir->name,
+            'image' => url('souvenirs/'.$souvenir->image),
+            'status' => $souvenir->status,
+            'created_at' => $souvenir->created_at,
         ];
-        
+
         $data = [];
-        foreach($applicants as $app) {
+        foreach ($applicants as $app) {
             $regStatus = $souvenir->registrations()->where('event_registration_id', $app->id)->first();
             $data[] = [
                 'id' => encrypt($app->id),
                 'name' => $app->user->name,
                 'email' => $app->user->email,
-                'is_collected' => $regStatus ? (bool)$regStatus->pivot->is_collected : false,
+                'is_collected' => $regStatus ? (bool) $regStatus->pivot->is_collected : false,
             ];
         }
 
@@ -1585,8 +1632,8 @@ class AdminController extends Controller
             'message' => 'Record listed',
             'data' => [
                 'souvenir' => $dataSouvenir,
-                'applicants' => $data
-            ]
+                'applicants' => $data,
+            ],
         ], 201);
     }
 
@@ -1600,13 +1647,13 @@ class AdminController extends Controller
         $souvenir->registrations()->updateExistingPivot($regId, ['is_collected' => $status]);
 
         if (!$souvenir->registrations()->where('event_registration_id', $regId)->exists()) {
-             $souvenir->registrations()->attach($regId, ['is_collected' => $status]);
+            $souvenir->registrations()->attach($regId, ['is_collected' => $status]);
         }
 
         return response()->json([
             'status' => '200',
             'message' => 'Status successfully updated',
-            'data' => []
+            'data' => [],
         ], 201);
     }
 }

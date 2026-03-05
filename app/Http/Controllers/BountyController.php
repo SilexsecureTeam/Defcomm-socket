@@ -2,18 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use Carbon\Carbon;
-use App\Models\BountyUser;
 use App\Mail\BountyUserOtp;
-use Illuminate\Http\Request;
 use App\Mail\BountyUserVerify;
 use App\Models\BountyCategory;
-use App\Models\BountyUserReport;
+use App\Models\BountyUser;
 use App\Models\BountyUserProgram;
+use App\Models\BountyUserReport;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
 class BountyController extends Controller
@@ -24,11 +22,11 @@ class BountyController extends Controller
         try {
             $request->validate([
                 'firstName' => 'required|string|max:100',
-                'lastName'  => 'required|string|max:100',
-                'username'  => 'required|string|max:100|unique:bounty_users,username',
-                'email'     => 'required|email|max:150|unique:bounty_users,email',
-                'phone'     => 'nullable|string|max:20|unique:bounty_users,phone',
-                'password'  => 'required|string|min:6',
+                'lastName' => 'required|string|max:100',
+                'username' => 'required|string|max:100|unique:bounty_users,username',
+                'email' => 'required|email|max:150|unique:bounty_users,email',
+                'phone' => 'nullable|string|max:20|unique:bounty_users,phone',
+                'password' => 'required|string|min:6',
             ]);
 
             $otp = rand(1000, 9999);
@@ -43,7 +41,7 @@ class BountyController extends Controller
                 'country' => $request->country,
                 'user_type' => $request->user_type,
                 'password' => Hash::make($request->password),
-                'otp' => $otp
+                'otp' => $otp,
             ]);
 
             if ($request->user_type == 'company' || $request->user_type == 'group') {
@@ -88,6 +86,7 @@ class BountyController extends Controller
 
         if ($user) {
             $user->update(['status' => 'active']);
+
             return response()->json([
                 'status' => '200',
                 'message' => 'Account successfully verified',
@@ -104,7 +103,7 @@ class BountyController extends Controller
 
     public function requestOtp(Request $request)
     {
-        $user = BountyUser::where('phone', '=', $request->input('userlogin'))->orWhere('phone', '=', '+234' . $request->input('userlogin'))->orWhere('phone', '=', '234' . $request->input('userlogin'))->orWhere('phone', '=', preg_replace('/^\+?234/', '', $request->input('userlogin')))->orWhere('phone', '=', preg_replace('/^\+?+234/', '', $request->input('userlogin')))->orWhere('email', '=', $request->input('userlogin'))->orWhere('username', '=', $request->input('userlogin'))->first();
+        $user = BountyUser::where('phone', '=', $request->input('userlogin'))->orWhere('phone', '=', '+234'.$request->input('userlogin'))->orWhere('phone', '=', '234'.$request->input('userlogin'))->orWhere('phone', '=', preg_replace('/^\+?234/', '', $request->input('userlogin')))->orWhere('phone', '=', preg_replace('/^\+?+234/', '', $request->input('userlogin')))->orWhere('email', '=', $request->input('userlogin'))->orWhere('username', '=', $request->input('userlogin'))->first();
 
         if ($user) {
             $otp = rand(1000, 9999);
@@ -113,12 +112,12 @@ class BountyController extends Controller
 
             Mail::to($user->email)->send(new BountyUserOtp($user, $otp));
 
-            $bodysms = 'Welcome to Defcomm!, Your OTP is ' . $otp . ' or use https://cloud.defcomm.ng/onboarding to join.';
+            $bodysms = 'Welcome to Defcomm!, Your OTP is '.$otp.' or use https://cloud.defcomm.ng/onboarding to join.';
 
             // $this->TermiiSms($request->phone, $bodysms);
             return response()->json(['status' => 200, 'message' => 'OTP has been sent', 'otp' => $otp], 200);
         } else {
-            return response()->json(['status' => 400, 'error' => "This user does not exist."], 400);
+            return response()->json(['status' => 400, 'error' => 'This user does not exist.'], 400);
         }
     }
 
@@ -136,7 +135,7 @@ class BountyController extends Controller
                 ], 401);
             }
 
-            if ($user->status == "pending") {
+            if ($user->status == 'pending') {
                 return response()->json([
                     'status' => '400',
                     'message' => 'Your account is not verify yet.',
@@ -144,7 +143,7 @@ class BountyController extends Controller
                 ], 401);
             }
 
-            if ($user->status == "block") {
+            if ($user->status == 'block') {
                 return response()->json([
                     'status' => '400',
                     'message' => 'Your account is block.',
@@ -156,6 +155,7 @@ class BountyController extends Controller
             $otp = rand(1000, 9999);
             $user->update(['otp' => $otp]);
             Mail::to($user->email)->send(new BountyUserOtp($user, $otp, $request->url));
+
             return response()->json([
                 'status' => '200',
                 'message' => 'Waiting for OTP verification',
@@ -193,8 +193,8 @@ class BountyController extends Controller
                 ], 401);
             }
 
-            if ($user->emailVerify == "false") {
-                $user->update(["emailVerify" => "true"]);
+            if ($user->emailVerify == 'false') {
+                $user->update(['emailVerify' => 'true']);
             }
 
             $token = $user->createToken('bounty_token')->plainTextToken;
@@ -213,7 +213,6 @@ class BountyController extends Controller
             ], 401);
         }
     }
-
 
     public function forgotPassword(Request $request)
     {
@@ -241,7 +240,6 @@ class BountyController extends Controller
 
     public function resetPassword(Request $request)
     {
-
         $user = BountyUser::where('email', $request->userlogin)->orWhere('username', $request->userlogin)->first();
 
         if (!$user) {
@@ -296,35 +294,55 @@ class BountyController extends Controller
     // Protected route example
     public function profile(Request $request)
     {
-        $user = BountyUser::find(auth()->user()->id);
-        $data = [
-            'id'          => encryptHelper($user->id),
-            'firstName'   => $user->firstName,
-            'lastName'    => $user->lastName,
-            'username'    => $user->username,
-            'email'       => $user->email,
-            'country'     => $user->country,
-            'phone'       => $user->phone,
-            'zipcode'     => $user->zipcode,
-            'timezone'    => $user->timezone,
-            'photo'       => $user->photo,
-            'bio'         => $user->bio,
-            'point'     => $user->report->sum('point'),
-            'balance'     => $user->report->sum('amount'),
-            'status'      => $user->status,
-            'created_at'  => $user->created_at,
-            'updated_at'  => $user->updated_at,
-            'emailVerify' => $user->emailVerify,
-        ];
+        try {
+            $validation = validator()->make($request->all(), [
+                'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            ]);
 
-        return response()->json(
-            [
-                'status' => '200',
-                'message' => 'Record listed',
-                'data' => $data
-            ],
-            201
-        );
+            if ($validation->fails()) {
+                return response()->json([
+                    'status' => '400',
+                    'message' => 'Validation failed.',
+                    'data' => $validation->errors(), // full list of field errors
+                ], 401);
+            }
+
+            $user = BountyUser::find(auth()->user()->id);
+            $data = [
+                'id' => encryptHelper($user->id),
+                'firstName' => $user->firstName,
+                'lastName' => $user->lastName,
+                'username' => $user->username,
+                'email' => $user->email,
+                'country' => $user->country,
+                'phone' => $user->phone,
+                'zipcode' => $user->zipcode,
+                'timezone' => $user->timezone,
+                'photo' => $user->photo,
+                'bio' => $user->bio,
+                'point' => $user->report->sum('point'),
+                'balance' => $user->report->sum('amount'),
+                'status' => $user->status,
+                'created_at' => $user->created_at,
+                'updated_at' => $user->updated_at,
+                'emailVerify' => $user->emailVerify,
+            ];
+
+            return response()->json(
+                [
+                    'status' => '200',
+                    'message' => 'Record listed',
+                    'data' => $data,
+                ],
+                201
+            );
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => '500',
+                'message' => 'An error occurred while fetching profile.',
+                'data' => null,
+            ], 500);
+        }
     }
 
     public function program()
@@ -335,7 +353,7 @@ class BountyController extends Controller
             $data[] = [
                 'id' => encrypt($dt->id),
                 'title' => $dt->title,
-                'detail' => $dt->detail
+                'detail' => $dt->detail,
             ];
         }
 
@@ -343,7 +361,7 @@ class BountyController extends Controller
             [
                 'status' => '200',
                 'message' => 'Record listed',
-                'data' => $data
+                'data' => $data,
             ],
             201
         );
@@ -358,7 +376,7 @@ class BountyController extends Controller
                 'id' => $dt->id,
                 'label' => $dt->label,
                 'description' => $dt->description,
-                'sub' => $dt->sub
+                'sub' => $dt->sub,
             ];
         }
 
@@ -366,7 +384,7 @@ class BountyController extends Controller
             [
                 'status' => '200',
                 'message' => 'Record listed',
-                'data' => $data
+                'data' => $data,
             ],
             201
         );
@@ -378,18 +396,16 @@ class BountyController extends Controller
 
         // Check if multiple files were uploaded
         if ($request->hasFile('attachment')) {
-
             foreach ($request->file('attachment') as $file) {
                 if ($file->isValid()) {
-
                     // Generate unique filename
-                    $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                    $filename = time().'_'.uniqid().'.'.$file->getClientOriginalExtension();
 
                     // Move file to public/bounty
                     $file->move(public_path('bounty'), $filename);
 
                     // Save path
-                    $paths[] = 'bounty/' . $filename;
+                    $paths[] = 'bounty/'.$filename;
                 }
             }
         }
@@ -398,25 +414,25 @@ class BountyController extends Controller
         $pathsJson = json_encode($paths);
 
         $data = BountyUserReport::create([
-            'ref'          => 'RBT' . strtoupper(uniqid()),
-            'user_id'      => auth()->user()->id,
-            'program_id'   => $request->program_id ? decrypt($request->program_id) : 1,
-            'title'        => $request->title,
-            'detail'       => $request->detail,
-            'attachment'   => $pathsJson,
-            'category'     => $request->category,
+            'ref' => 'RBT'.strtoupper(uniqid()),
+            'user_id' => auth()->user()->id,
+            'program_id' => $request->program_id ? decrypt($request->program_id) : 1,
+            'title' => $request->title,
+            'detail' => $request->detail,
+            'attachment' => $pathsJson,
+            'category' => $request->category,
             'category_sub' => $request->category_sub,
-            'severity'     => $request->severity,
-            'status'       => 'new',
+            'severity' => $request->severity,
+            'status' => 'new',
         ]);
 
         return response()->json([
-            'status'  => '200',
+            'status' => '200',
             'message' => 'Record created',
-            'data'    => [
-                'id'  => encrypt($data->id),
+            'data' => [
+                'id' => encrypt($data->id),
                 'ref' => $data->ref,
-            ]
+            ],
         ], 201);
     }
 
@@ -440,7 +456,6 @@ class BountyController extends Controller
 
         foreach ($fillable as $field) {
             if ($request->has($field) && $request->$field !== null) {
-
                 // decrypt program_id if sent
                 if ($field === 'program_id') {
                     $updateData[$field] = decrypt($request->$field);
@@ -455,7 +470,6 @@ class BountyController extends Controller
         // ----------------------------
 
         if ($request->hasFile('attachment')) {
-
             // 1️⃣ DELETE OLD FILES
             $oldAttachments = json_decode($report->attachment, true) ?? [];
 
@@ -471,12 +485,11 @@ class BountyController extends Controller
             $newPaths = [];
             foreach ($request->file('attachment') as $file) {
                 if ($file->isValid()) {
-
-                    $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                    $filename = time().'_'.uniqid().'.'.$file->getClientOriginalExtension();
 
                     $file->move(public_path('bounty'), $filename);
 
-                    $newPaths[] = 'bounty/' . $filename;
+                    $newPaths[] = 'bounty/'.$filename;
                 }
             }
 
@@ -492,16 +505,15 @@ class BountyController extends Controller
         }
 
         return response()->json([
-            'status'  => 200,
+            'status' => 200,
             'message' => 'Report updated successfully',
-            'data'    => $report,
+            'data' => $report,
         ]);
     }
 
-
     public function reportLog()
     {
-        $datas = BountyUserReport::where('user_id', auth()->user()->id)->orderBy('created_at', "DESC")->get();
+        $datas = BountyUserReport::where('user_id', auth()->user()->id)->orderBy('created_at', 'DESC')->get();
         $data = [];
 
         foreach ($datas as $dt) {
@@ -533,7 +545,7 @@ class BountyController extends Controller
             [
                 'status' => '200',
                 'message' => 'Record listed',
-                'data' => $data
+                'data' => $data,
             ],
             201
         );
@@ -541,24 +553,24 @@ class BountyController extends Controller
 
     public function reportInfo()
     {
-        $datas = BountyUserReport::where('user_id', auth()->user()->id)->orderBy('created_at', "DESC");
+        $datas = BountyUserReport::where('user_id', auth()->user()->id)->orderBy('created_at', 'DESC');
         $data = [
-            "report" => $datas->count(),
-            "reportnew" => $datas->where('status', 'new')->count(),
-            "reportreview" => $datas->where('status', 'review')->count(),
-            "reportaccept" => $datas->where('status', 'accept')->count(),
-            "reportreject" => $datas->where('status', 'reject')->count(),
-            "reportfix" => $datas->where('status', 'fix')->count(),
-            "reportclose" => $datas->where('status', 'close')->count(),
-            "reportamount" => $datas->sum('amount'),
-            "reportpoint" => $datas->sum('point'),
+            'report' => $datas->count(),
+            'reportnew' => $datas->where('status', 'new')->count(),
+            'reportreview' => $datas->where('status', 'review')->count(),
+            'reportaccept' => $datas->where('status', 'accept')->count(),
+            'reportreject' => $datas->where('status', 'reject')->count(),
+            'reportfix' => $datas->where('status', 'fix')->count(),
+            'reportclose' => $datas->where('status', 'close')->count(),
+            'reportamount' => $datas->sum('amount'),
+            'reportpoint' => $datas->sum('point'),
         ];
 
         return response()->json(
             [
                 'status' => '200',
                 'message' => 'Record listed',
-                'data' => $data
+                'data' => $data,
             ],
             201
         );
@@ -592,7 +604,7 @@ class BountyController extends Controller
             ->groupBy(DB::raw('COALESCE(rel_group, id)'))
             ->select(DB::raw('COALESCE(rel_group, id) as group_id'), DB::raw('count(*) as count'))
             ->pluck('count', 'group_id');
-            
+
         // Fetch group leader details
         $groupLeaders = BountyUser::whereIn('id', $group_ids)->get()->keyBy('id');
 
@@ -612,7 +624,7 @@ class BountyController extends Controller
 
             $members = $groupedMembers->get($dt->group_id, collect([]))->map(function ($m) {
                 return [
-                    'name' => $m->firstName . " " . $m->lastName,
+                    'name' => $m->firstName.' '.$m->lastName,
                     'username' => $m->username,
                     'photo' => $m->photo,
                     'points' => $m->individual_points ?? 0,
@@ -622,12 +634,12 @@ class BountyController extends Controller
 
             $data[] = [
                 'no' => $ky + 1,
-                "name" => ($leader && $leader->group_company) ? $leader->group_company : (($leader) ? $leader->firstName . " " . $leader->lastName : "Unknown"),
-                'username' => $leader->username ?? "N/A",
+                'name' => ($leader && $leader->group_company) ? $leader->group_company : (($leader) ? $leader->firstName.' '.$leader->lastName : 'Unknown'),
+                'username' => $leader->username ?? 'N/A',
                 'members' => $members,
                 'photo' => $leader->photo ?? null,
-                'group_company' => $leader->group_company ? "group_company" : "individual",
-                "total_user" => $groupReporterCounts[$dt->group_id] ?? 1,
+                'group_company' => $leader->group_company ? 'group_company' : 'individual',
+                'total_user' => $groupReporterCounts[$dt->group_id] ?? 1,
                 'total_points' => $dt->total_points,
                 'total_amount' => $dt->total_amount,
                 'total_reports' => $dt->total_reports,
@@ -638,7 +650,7 @@ class BountyController extends Controller
             [
                 'status' => '200',
                 'message' => 'Record listed',
-                'data' => $data
+                'data' => $data,
             ],
             201
         );
@@ -649,10 +661,10 @@ class BountyController extends Controller
         try {
             $request->validate([
                 'firstName' => 'required|string|max:100',
-                'lastName'  => 'required|string|max:100',
-                'username'  => 'required|string|max:100|unique:bounty_users,username',
-                'email'     => 'required|email|max:150|unique:bounty_users,email',
-                'phone'     => 'nullable|string|max:20|unique:bounty_users,phone',
+                'lastName' => 'required|string|max:100',
+                'username' => 'required|string|max:100|unique:bounty_users,username',
+                'email' => 'required|email|max:150|unique:bounty_users,email',
+                'phone' => 'nullable|string|max:20|unique:bounty_users,phone',
                 // 'password'  => 'required|string|min:6',
             ]);
 
@@ -668,7 +680,7 @@ class BountyController extends Controller
                 'user_type' => 'user',
                 'password' => Hash::make($request->password),
                 'rel_group' => auth()->user()->rel_group,
-                'otp' => $otp
+                'otp' => $otp,
             ]);
 
             Mail::to($request->email)->send(new BountyUserVerify($request, $otp, auth()->user()->group_company));
@@ -689,27 +701,27 @@ class BountyController extends Controller
 
     public function getUser(Request $request)
     {
-        $users = BountyUser::where("rel_group", auth()->user()->rel_group)->get();
+        $users = BountyUser::where('rel_group', auth()->user()->rel_group)->get();
         $data = [];
         foreach ($users as $user) {
             $data[] = [
-                'id'          => encrypt($user->id),
-                'id_en'          => encryptHelper($user->id),
-                'firstName'   => $user->firstName,
-                'lastName'    => $user->lastName,
-                'username'    => $user->username,
-                'email'       => $user->email,
-                'country'     => $user->country,
-                'phone'       => $user->phone,
-                'zipcode'     => $user->zipcode,
-                'timezone'    => $user->timezone,
-                'photo'       => $user->photo,
-                'bio'         => $user->bio,
-                'point'     => $user->report->sum('point'),
-                'balance'     => $user->report->sum('amount'),
-                'status'      => $user->status,
-                'created_at'  => $user->created_at,
-                'updated_at'  => $user->updated_at,
+                'id' => encrypt($user->id),
+                'id_en' => encryptHelper($user->id),
+                'firstName' => $user->firstName,
+                'lastName' => $user->lastName,
+                'username' => $user->username,
+                'email' => $user->email,
+                'country' => $user->country,
+                'phone' => $user->phone,
+                'zipcode' => $user->zipcode,
+                'timezone' => $user->timezone,
+                'photo' => $user->photo,
+                'bio' => $user->bio,
+                'point' => $user->report->sum('point'),
+                'balance' => $user->report->sum('amount'),
+                'status' => $user->status,
+                'created_at' => $user->created_at,
+                'updated_at' => $user->updated_at,
                 'emailVerify' => $user->emailVerify,
             ];
         }
@@ -723,7 +735,7 @@ class BountyController extends Controller
 
     public function reportLogUser($userId)
     {
-        $datas = BountyUserReport::where('user_id', decrypt($userId))->orderBy('created_at', "DESC")->get();
+        $datas = BountyUserReport::where('user_id', decrypt($userId))->orderBy('created_at', 'DESC')->get();
         $data = [];
 
         foreach ($datas as $dt) {
@@ -755,7 +767,7 @@ class BountyController extends Controller
             [
                 'status' => '200',
                 'message' => 'Record listed',
-                'data' => $data
+                'data' => $data,
             ],
             201
         );
