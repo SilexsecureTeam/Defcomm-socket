@@ -70,10 +70,10 @@ class SendPrivateGroupMessageNotification
                 $event->groupName ?? 'Group Message',
                 $senderName . ': ' . $messageContent,
                 [
-                    'group_id' => (string)$groupId,
-                    'sender_id' => (string)$senderId,
+                    'group_id'     => encryptHelper((string)$groupId),
+                    'sender_id'    => encryptHelper((string)$senderId),
                     'message_type' => 'private_group_message',
-                    'timestamp' => now()->toIso8601String(),
+                    'timestamp'    => now()->toIso8601String(),
                 ]
             );
 
