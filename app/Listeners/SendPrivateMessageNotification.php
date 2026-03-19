@@ -21,60 +21,85 @@ class SendPrivateMessageNotification
      */
     public function handle(PrivateMessageSent $event): void
     {
-        // Skip if FCM is disabled - avoid unnecessary database queries
         if (!$this->firebaseService->isEnabled()) {
             Log::debug('FCM is disabled, skipping private message notification');
             return;
         }
 
         try {
-            // Decrypt receiver ID to get the actual user ID
             $receiverId = decryptHelper($event->receiverId);
-            $senderId = decryptHelper($event->senderId);
+            $senderId   = decryptHelper($event->senderId);
 
-            // Skip if receiver is the same as sender (self-message)
             if ($receiverId === $senderId) {
                 return;
             }
 
-            // Fetch receiver user to get FCM token
             $receiver = User::find($receiverId);
             if (!$receiver || empty($receiver->fcm_token)) {
-                Log::debug('Receiver not found or no device token for private message', [
-                    'receiver_id' => $receiverId,
-                    'sender_id' => $senderId,
-                ]);
                 return;
             }
 
-            // Fetch sender for display name
-            $sender = User::find($senderId);
+            $sender     = User::find($senderId);
             $senderName = $sender?->name ?? 'Unknown User';
 
-            // Extract message content
-            $messageContent = $this->extractMessageContent($event->message);
+            // Use encrypted IDs so Flutter can navigate to the correct chat.
+            $senderIdEn   = encryptHelper((string)$senderId);
+            $receiverIdEn = encryptHelper((string)$receiverId);
 
-            // Send FCM notification
-            $this->firebaseService->sendToUser(
-                $receiver,
-                $senderName,
-                $messageContent,
-                [
-                    'sender_id' => (string)$senderId,
-                    'receiver_id' => (string)$receiverId,
-                    'message_type' => 'private_message',
-                    'timestamp' => now()->toIso8601String(),
-                ]
-            );
+            // Determine message state from the broadcast payload.
+            $messageArray = is_array($event->message) ? $event->message : [];
+            $state        = $messageArray['state'] ?? 'text';
 
-            Log::info('Private message FCM notification sent', [
-                'receiver_id' => $receiverId,
-                'sender_id' => $senderId,
-            ]);
+            if ($state === 'call') {
+                // ── Incoming call ──────────────────────────────────────────────
+                // Extract meeting ID from "__call_control__invite|{meetingId}"
+                $rawMessage = $messageArray['message'] ?? '';
+                $meetingId  = '';
+                if (str_contains($rawMessage, '|')) {
+                    $meetingId = trim(explode('|', $rawMessage, 2)[1]);
+                }
+
+                // Data-only (no notification block) so only CallKit ring UI shows.
+                $this->firebaseService->sendDataOnlyToToken(
+                    $receiver->fcm_token,
+                    [
+                        'message_type' => 'call',
+                        'caller_name'  => $senderName,
+                        'caller_id'    => $senderIdEn,
+                        'meeting_id'   => $meetingId,
+                        'timestamp'    => now()->toIso8601String(),
+                    ]
+                );
+
+                Log::info('Call FCM notification sent', [
+                    'receiver_id' => $receiverId,
+                    'meeting_id'  => $meetingId,
+                ]);
+            } else {
+                // ── Regular chat message ───────────────────────────────────────
+                $messageContent = $this->extractMessageContent($event->message);
+
+                $this->firebaseService->sendToUser(
+                    $receiver,
+                    $senderName,
+                    $messageContent,
+                    [
+                        'sender_id'    => $senderIdEn,
+                        'receiver_id'  => $receiverIdEn,
+                        'message_type' => 'private_message',
+                        'timestamp'    => now()->toIso8601String(),
+                    ]
+                );
+
+                Log::info('Private message FCM notification sent', [
+                    'receiver_id' => $receiverId,
+                    'sender_id'   => $senderId,
+                ]);
+            }
         } catch (\Exception $e) {
             Log::error('Error sending private message FCM notification', [
                 'exception' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
+                'trace'     => $e->getTraceAsString(),
             ]);
         }
     }

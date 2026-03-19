@@ -318,6 +318,74 @@ class FirebaseService
     }
 
     /**
+     * Send a data-only (silent) FCM message with priority=high.
+     * No notification block is included, so Android will NOT auto-show a
+     * notification banner. The Flutter background handler processes the data
+     * exclusively — used for calls so only the CallKit UI appears.
+     *
+     * @param string $fcmToken
+     * @param array  $data
+     * @return bool
+     */
+    public function sendDataOnlyToToken(string $fcmToken, array $data = []): bool
+    {
+        if (!$this->isEnabled()) {
+            return false;
+        }
+
+        try {
+            if (empty($fcmToken)) {
+                return false;
+            }
+
+            $accessToken = $this->getAccessToken();
+            if (!$accessToken) {
+                return false;
+            }
+
+            $formattedData = [];
+            foreach ($data as $key => $value) {
+                $formattedData[(string)$key] = (string)$value;
+            }
+
+            $payload = [
+                'message' => [
+                    'token'   => $fcmToken,
+                    'data'    => $formattedData,
+                    'android' => [
+                        'priority' => 'high',
+                    ],
+                    'apns' => [
+                        'headers' => [
+                            'apns-priority' => '10',
+                            'apns-push-type' => 'voip',
+                        ],
+                    ],
+                ],
+            ];
+
+            $url      = "{$this->fcmV1Url}/{$this->projectId}/messages:send";
+            $response = Http::withToken($accessToken)
+                ->withHeaders(['Content-Type' => 'application/json'])
+                ->post($url, $payload);
+
+            if ($response->successful()) {
+                Log::info('FCM data-only message sent', ['token' => substr($fcmToken, 0, 20)]);
+                return true;
+            }
+
+            Log::error('FCM data-only message failed', [
+                'status'   => $response->status(),
+                'response' => $response->json(),
+            ]);
+            return false;
+        } catch (Exception $e) {
+            Log::error('FCM data-only error', ['exception' => $e->getMessage()]);
+            return false;
+        }
+    }
+
+    /**
      * Send notification to user by user object
      *
      * @param object $user
