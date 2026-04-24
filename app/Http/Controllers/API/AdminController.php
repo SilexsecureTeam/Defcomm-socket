@@ -35,412 +35,533 @@ class AdminController extends Controller
 {
     public function dashboard()
     {
-        $users = User::where('company_id', auth()->user()->CompanyUser->id)->where('role', 'user')->orderBy('name', 'ASC')->get();
-        $groups = CompanyGroup::where('company_id', auth()->user()->CompanyUser->id)->get();
-        $file = Files::where('company_id', auth()->user()->CompanyUser->id)->get();
-        $fileArchive = Files::where('company_id', auth()->user()->CompanyUser->id)->where('status', 'archive')->get();
-        $fileActive = Files::where('company_id', auth()->user()->CompanyUser->id)->where('status', 'active')->get();
-        $events = EventForm::where('user_id', auth()->user()->id)->get();
-        $eventIds = $events->pluck('id');
+        try {
+            $users = User::where('company_id', auth()->user()->CompanyUser->id)->where('role', 'user')->orderBy('name', 'ASC')->get();
+            $groups = CompanyGroup::where('company_id', auth()->user()->CompanyUser->id)->get();
+            $file = Files::where('company_id', auth()->user()->CompanyUser->id)->get();
+            $fileArchive = Files::where('company_id', auth()->user()->CompanyUser->id)->where('status', 'archive')->get();
+            $fileActive = Files::where('company_id', auth()->user()->CompanyUser->id)->where('status', 'active')->get();
+            $events = EventForm::where('user_id', auth()->user()->id)->get();
+            $eventIds = $events->pluck('id');
 
-        $certificateCount = Certificate::whereIn('form_id', $eventIds)->count();
-        $certificateActiveCount = Certificate::whereIn('form_id', $eventIds)->where('status', 'active')->count();
+            $certificateCount = Certificate::whereIn('form_id', $eventIds)->count();
+            $certificateActiveCount = Certificate::whereIn('form_id', $eventIds)->where('status', 'active')->count();
 
-        $souvenirCount = Souvenir::whereIn('form_id', $eventIds)->count();
-        $souvenirActiveCount = Souvenir::whereIn('form_id', $eventIds)->where('status', 'active')->count();
+            $souvenirCount = Souvenir::whereIn('form_id', $eventIds)->count();
+            $souvenirActiveCount = Souvenir::whereIn('form_id', $eventIds)->where('status', 'active')->count();
 
-        $file_size = $file->sum('fileSize_num');
-        if ($file_size >= 1073741824) {
-            $file_size = number_format($file_size / 1073741824, 2).' GB';
-        } elseif ($file_size >= 1048576) {
-            $file_size = number_format($file_size / 1048576, 2).' MB';
-        } elseif ($file_size >= 1024) {
-            $file_size = number_format($file_size / 1024, 2).' KB';
-        } else {
-            $file_size = $file_size.' byt';
-        }
+            $file_size = $file->sum('fileSize_num');
+            if ($file_size >= 1073741824) {
+                $file_size = number_format($file_size / 1073741824, 2) . ' GB';
+            } elseif ($file_size >= 1048576) {
+                $file_size = number_format($file_size / 1048576, 2) . ' MB';
+            } elseif ($file_size >= 1024) {
+                $file_size = number_format($file_size / 1024, 2) . ' KB';
+            } else {
+                $file_size = $file_size . ' byt';
+            }
 
-        return response()->json(
-            [
-                'status' => '200',
-                'message' => 'Record listed',
-                'data' => [
-                    'users' => $users,
-                    'usersCount' => $users->count(),
-                    'groupCount' => $groups->count(),
-                    'fileCount' => $file->count(),
-                    'fileSizeSum' => $file_size,
-                    'fileArchiveCount' => $fileArchive->count(),
-                    'fileActiveCount' => $fileActive->count(),
-                    'eventCount' => $events->count(),
-                    'certificateCount' => $certificateCount,
-                    'certificateActiveCount' => $certificateActiveCount,
-                    'souvenirCount' => $souvenirCount,
-                    'souvenirActiveCount' => $souvenirActiveCount,
+            return response()->json(
+                [
+                    'status' => '200',
+                    'message' => 'Record listed',
+                    'data' => [
+                        'users' => $users,
+                        'usersCount' => $users->count(),
+                        'groupCount' => $groups->count(),
+                        'fileCount' => $file->count(),
+                        'fileSizeSum' => $file_size,
+                        'fileArchiveCount' => $fileArchive->count(),
+                        'fileActiveCount' => $fileActive->count(),
+                        'eventCount' => $events->count(),
+                        'certificateCount' => $certificateCount,
+                        'certificateActiveCount' => $certificateActiveCount,
+                        'souvenirCount' => $souvenirCount,
+                        'souvenirActiveCount' => $souvenirActiveCount,
+                    ],
                 ],
-            ],
-            201
-        );
+                201
+            );
+        } catch (\Exception $e) {
+            return response()->json(
+                [
+                    'status' => '500',
+                    'message' => 'An error occurred: ' . $e->getMessage(),
+                    'data' => [],
+                ],
+                500
+            );
+        }
     }
 
     public function account()
     {
-        $users = User::where('company_id', auth()->user()->CompanyUser->id)->where('role', 'user')->orderBy('name', 'ASC')->get();
-        $data = [];
-        foreach ($users as $usr) {
-            $data[] = [
-                'id' => encrypt($usr->id),
-                'en_id' => encryptHelper($usr->id),
+        try {
+            $users = User::where('company_id', auth()->user()->CompanyUser->id)->where('role', 'user')->orderBy('name', 'ASC')->get();
+            $data = [];
+            foreach ($users as $usr) {
+                $data[] = [
+                    'id' => encrypt($usr->id),
+                    'en_id' => encryptHelper($usr->id),
 
-                'name' => $usr->name,
-                'username' => $usr->username,
-                'email' => $usr->email,
-                'email_verified_at' => $usr->email_verified_at,
+                    'name' => $usr->name,
+                    'username' => $usr->username,
+                    'email' => $usr->email,
+                    'email_verified_at' => $usr->email_verified_at,
 
-                'phone' => $usr->phone,
-                'address' => $usr->address,
-                'country' => $usr->country,
-                'dob' => $usr->dob,
-                'gender' => $usr->gender,
+                    'phone' => $usr->phone,
+                    'address' => $usr->address,
+                    'country' => $usr->country,
+                    'dob' => $usr->dob,
+                    'gender' => $usr->gender,
 
-                'role' => $usr->role,
-                'app_role' => $usr->app_role,
-                'company_id' => $usr->company_id,
+                    'role' => $usr->role,
+                    'app_role' => $usr->app_role,
+                    'company_id' => $usr->company_id,
 
-                'status' => $usr->status,
-                'status_ndpc' => $usr->statusNdpc,
-                'status_app' => $usr->statusApp,
-                'access' => $usr->access,
+                    'status' => $usr->status,
+                    'status_ndpc' => $usr->statusNdpc,
+                    'status_app' => $usr->statusApp,
+                    'access' => $usr->access,
 
-                'is_online' => $usr->is_online,
-                'device' => $usr->device,
-                'device_type' => $usr->device_type,
-                'device_token' => $usr->device_token,
+                    'is_online' => $usr->is_online,
+                    'device' => $usr->device,
+                    'device_type' => $usr->device_type,
+                    'device_token' => $usr->device_token,
 
-                'enable_2fa' => (bool) $usr->enable_2fa,
-                'signal_blocking' => $usr->signal_blocking,
-                'remote_management' => $usr->remote_management,
-                'encrypted_storage' => $usr->encrypted_storage,
-                'self_wipe' => $usr->self_wipe,
+                    'enable_2fa' => (bool) $usr->enable_2fa,
+                    'signal_blocking' => $usr->signal_blocking,
+                    'remote_management' => $usr->remote_management,
+                    'encrypted_storage' => $usr->encrypted_storage,
+                    'self_wipe' => $usr->self_wipe,
 
-                'onboarding_stage' => $usr->onboarding_stage,
+                    'onboarding_stage' => $usr->onboarding_stage,
 
-                'developer_display_name' => $usr->developer_display_name,
-                'website' => $usr->website,
-                'rc_number' => $usr->rc_number,
-                'tin' => $usr->tin,
+                    'developer_display_name' => $usr->developer_display_name,
+                    'website' => $usr->website,
+                    'rc_number' => $usr->rc_number,
+                    'tin' => $usr->tin,
 
-                'avatar' => $usr->avatar
-                    ? url('/avatar/'.$usr->avatar)
-                    : null,
+                    'avatar' => $usr->avatar
+                        ? url('/avatar/' . $usr->avatar)
+                        : null,
 
-                'selfie' => $usr->selfie
-                    ? url('/'.$usr->selfie)
-                    : null,
+                    'selfie' => $usr->selfie
+                        ? url('/' . $usr->selfie)
+                        : null,
 
-                'rc_doc' => $usr->rc_doc
-                    ? url('/'.$usr->rc_doc)
-                    : null,
+                    'rc_doc' => $usr->rc_doc
+                        ? url('/' . $usr->rc_doc)
+                        : null,
 
-                'tin_doc' => $usr->tin_doc
-                    ? url('/'.$usr->tin_doc)
-                    : null,
+                    'tin_doc' => $usr->tin_doc
+                        ? url('/' . $usr->tin_doc)
+                        : null,
 
-                'id_card_front' => $usr->id_card_front
-                    ? url('/'.$usr->id_card_front)
-                    : null,
+                    'id_card_front' => $usr->id_card_front
+                        ? url('/' . $usr->id_card_front)
+                        : null,
 
-                'id_card_back' => $usr->id_card_back
-                    ? url('/'.$usr->id_card_back)
-                    : null,
+                    'id_card_back' => $usr->id_card_back
+                        ? url('/' . $usr->id_card_back)
+                        : null,
 
-                'comment_app' => $usr->commentApp,
+                    'comment_app' => $usr->commentApp,
 
-                'created_at' => $usr->created_at,
-                'updated_at' => $usr->updated_at,
-            ];
+                    'created_at' => $usr->created_at,
+                    'updated_at' => $usr->updated_at,
+                ];
+            }
+
+            return response()->json(
+                [
+                    'status' => '200',
+                    'message' => 'Record listed',
+                    'data' => $data,
+                ],
+                201
+            );
+        } catch (\Exception $e) {
+            return response()->json(
+                [
+                    'status' => '500',
+                    'message' => 'An error occurred: ' . $e->getMessage(),
+                    'data' => [],
+                ],
+                500
+            );
         }
-
-        return response()->json(
-            [
-                'status' => '200',
-                'message' => 'Record listed',
-                'data' => $data,
-            ],
-            201
-        );
     }
 
     public function notification()
     {
-        $notify = Notification::where('company_id', auth()->user()->company_id)->get();
-        $data = [];
-        foreach ($notify as $nt) {
-            $data[] = [
-                'id' => encrypt($nt->id),
-                'label' => $nt->label,
-                'short_message' => $nt->short_message,
-                'body_message' => $nt->body_message,
-                'expire' => $nt->expire,
-                'status' => $nt->status,
-                'icon' => url('/icon/'.$nt->icon),
-                'created_at' => $nt->created_at,
-            ];
-        }
+        try {
+            $notify = Notification::where('company_id', auth()->user()->company_id)->get();
+            $data = [];
+            foreach ($notify as $nt) {
+                $data[] = [
+                    'id' => encrypt($nt->id),
+                    'label' => $nt->label,
+                    'short_message' => $nt->short_message,
+                    'body_message' => $nt->body_message,
+                    'expire' => $nt->expire,
+                    'status' => $nt->status,
+                    'icon' => url('/icon/' . $nt->icon),
+                    'created_at' => $nt->created_at,
+                ];
+            }
 
-        return response()->json(
-            [
-                'status' => '200',
-                'message' => 'Record listed',
-                'data' => $data,
-            ],
-            201
-        );
+            return response()->json(
+                [
+                    'status' => '200',
+                    'message' => 'Record listed',
+                    'data' => $data,
+                ],
+                201
+            );
+        } catch (\Exception $e) {
+            return response()->json(
+                [
+                    'status' => '500',
+                    'message' => 'An error occurred: ' . $e->getMessage(),
+                    'data' => [],
+                ],
+                500
+            );
+        }
     }
 
     public function notificationCreate(Request $request)
     {
-        $file_name = null;
-        if ($request->hasFile('icon')) {
-            $file = $request->file('icon');
-            $file_name = time().'icon.'.$file->getClientOriginalExtension();
-            $file->move(public_path('icon'), $file_name);
+        try {
+            $file_name = null;
+            if ($request->hasFile('icon')) {
+                $file = $request->file('icon');
+                $file_name = time() . 'icon.' . $file->getClientOriginalExtension();
+                $file->move(public_path('icon'), $file_name);
+            }
+
+            Notification::create([
+                'label' => $request->label,
+                'short_message' => $request->short_message,
+                'body_message' => $request->body_message,
+                'expire' => $request->expire,
+                'status' => $request->status,
+                'icon' => $file_name,
+                'company_id' => auth()->user()->company_id,
+            ]);
+
+            // Mail::to($request->email)->send(new Invitation($request->name, $request->email, $encrypt));
+
+            return response()->json(
+                [
+                    'status' => '200',
+                    'message' => 'Notification successfully added',
+                    'data' => [],
+                ],
+                201
+            );
+        } catch (\Exception $e) {
+            return response()->json(
+                [
+                    'status' => '500',
+                    'message' => 'An error occurred: ' . $e->getMessage(),
+                    'data' => [],
+                ],
+                500
+            );
         }
-
-        Notification::create([
-            'label' => $request->label,
-            'short_message' => $request->short_message,
-            'body_message' => $request->body_message,
-            'expire' => $request->expire,
-            'status' => $request->status,
-            'icon' => $file_name,
-            'company_id' => auth()->user()->company_id,
-        ]);
-
-        // Mail::to($request->email)->send(new Invitation($request->name, $request->email, $encrypt));
-
-        return response()->json(
-            [
-                'status' => '200',
-                'message' => 'Notification successfully added',
-                'data' => [],
-            ],
-            201
-        );
     }
 
     public function notificationDelete($id)
     {
-        $idUser = decrypt($id);
-        Notification::find($idUser)->delete();
+        try {
+            $idUser = decrypt($id);
+            Notification::find($idUser)->delete();
 
-        return response()->json(
-            [
-                'status' => '200',
-                'message' => 'Notification successfully removed',
-                'data' => [],
-            ],
-            201
-        );
+            return response()->json(
+                [
+                    'status' => '200',
+                    'message' => 'Notification successfully removed',
+                    'data' => [],
+                ],
+                201
+            );
+        } catch (\Exception $e) {
+            return response()->json(
+                [
+                    'status' => '500',
+                    'message' => 'An error occurred: ' . $e->getMessage(),
+                    'data' => [],
+                ],
+                500
+            );
+        }
     }
 
     public function notificationEdit(Request $request)
     {
-        $idUser = decrypt($request->id);
-        $file_name = null;
-        if ($request->hasFile('icon')) {
-            $file = $request->file('icon');
-            $file_name = time().'icon.'.$file->getClientOriginalExtension();
-            $file->move(public_path('icon'), $file_name);
-            $old_file = Notification::find($idUser)->icon;
-            if ($old_file) {
-                unlink(public_path('icon').'/'.$old_file);
+        try {
+            $idUser = decrypt($request->id);
+            $file_name = null;
+            if ($request->hasFile('icon')) {
+                $file = $request->file('icon');
+                $file_name = time() . 'icon.' . $file->getClientOriginalExtension();
+                $file->move(public_path('icon'), $file_name);
+                $old_file = Notification::find($idUser)->icon;
+                if ($old_file) {
+                    unlink(public_path('icon') . '/' . $old_file);
+                }
             }
-        }
-        Notification::find($idUser)->update([
-            'label' => $request->label,
-            'short_message' => $request->short_message,
-            'body_message' => $request->body_message,
-            'expire' => $request->expire,
-            'status' => $request->status,
-            'icon' => $file_name,
-        ]);
+            Notification::find($idUser)->update([
+                'label' => $request->label,
+                'short_message' => $request->short_message,
+                'body_message' => $request->body_message,
+                'expire' => $request->expire,
+                'status' => $request->status,
+                'icon' => $file_name,
+            ]);
 
-        return response()->json(
-            [
-                'status' => '200',
-                'message' => 'Notification successfully updated',
-                'data' => [],
-            ],
-            201
-        );
+            return response()->json(
+                [
+                    'status' => '200',
+                    'message' => 'Notification successfully updated',
+                    'data' => [],
+                ],
+                201
+            );
+        } catch (\Exception $e) {
+            return response()->json(
+                [
+                    'status' => '500',
+                    'message' => 'An error occurred: ' . $e->getMessage(),
+                    'data' => [],
+                ],
+                500
+            );
+        }
     }
 
     public function accountStatus($id, $status)
     {
-        $idUser = decrypt($id);
+        try {
+            $idUser = decrypt($id);
 
-        $user = User::find($idUser);
-        $user->update(['status' => $status]);
+            $user = User::find($idUser);
+            $user->update(['status' => $status]);
 
-        return response()->json(
-            [
-                'status' => '200',
-                'message' => 'User status successfully updated',
-                'data' => [],
-            ],
-            201
-        );
+            return response()->json(
+                [
+                    'status' => '200',
+                    'message' => 'User status successfully updated',
+                    'data' => [],
+                ],
+                201
+            );
+        } catch (\Exception $e) {
+            return response()->json(
+                [
+                    'status' => '500',
+                    'message' => 'An error occurred: ' . $e->getMessage(),
+                    'data' => [],
+                ],
+                500
+            );
+        }
     }
 
     public function accountCreate(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'phone' => 'required|string|unique:users',
-        ]);
+        try {
+            $validator = Validator::make($request->all(), [
+                'name' => 'required|string|max:255',
+                'email' => 'required|string|email|max:255|unique:users',
+                'phone' => 'required|string|unique:users',
+            ]);
 
-        $error = [];
-        if ($validator->fails()) {
-            foreach ($validator->messages()->all() as $mess) {
-                $error[] = $mess;
+            $error = [];
+            if ($validator->fails()) {
+                foreach ($validator->messages()->all() as $mess) {
+                    $error[] = $mess;
+                }
+
+                return response()->json(
+                    [
+                        'status' => '400',
+                        'message' => $error,
+                        'data' => [],
+                    ],
+                    400
+                );
             }
 
+            $userCount = User::where('company_id', auth()->user()->CompanyUser->id)->count();
+
+            $user = User::find(auth()->user()->id);
+
+            if ($user->plan_id === null) {
+                return response()->json(
+                    [
+                        'status' => '400',
+                        'message' => 'You do not have an active plan. Please subscribe',
+                        'data' => [],
+                    ],
+                    400
+                );
+            }
+
+            if ($userCount >= $user->plan->no_user) {
+                return response()->json(
+                    [
+                        'status' => '400',
+                        'message' => 'You have reach you limit',
+                        'data' => [],
+                    ],
+                    400
+                );
+            }
+
+            $otp = rand(1000, 9999);
+
+            $usr = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'phone' => $request->phone,
+                'otp' => $otp,
+                'company_id' => auth()->user()->CompanyUser->id,
+                'password' => Hash::make(uniqid()),
+                'access_token' => uniqid(),
+            ]);
+
+            $encrypt = encrypt($request->email);
+
+            Mail::to($request->email)->send(new Invitation($request->name, $request->email, $encrypt, $otp));
+
             return response()->json(
                 [
-                    'status' => '400',
-                    'message' => $error,
+                    'status' => '200',
+                    'message' => 'User successfully added',
                     'data' => [],
                 ],
-                400
+                201
             );
-        }
-
-        $userCount = User::where('company_id', auth()->user()->CompanyUser->id)->count();
-
-        $user = User::find(auth()->user()->id);
-
-        if ($user->plan_id === null) {
+        } catch (\Exception $e) {
             return response()->json(
                 [
-                    'status' => '400',
-                    'message' => 'You do not have an active plan. Please subscribe',
+                    'status' => '500',
+                    'message' => 'An error occurred: ' . $e->getMessage(),
                     'data' => [],
                 ],
-                400
+                500
             );
         }
-
-        if ($userCount >= $user->plan->no_user) {
-            return response()->json(
-                [
-                    'status' => '400',
-                    'message' => 'You have reach you limit',
-                    'data' => [],
-                ],
-                400
-            );
-        }
-
-        $otp = rand(1000, 9999);
-
-        $usr = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'phone' => $request->phone,
-            'otp' => $otp,
-            'company_id' => auth()->user()->CompanyUser->id,
-            'password' => Hash::make(uniqid()),
-            'access_token' => uniqid(),
-        ]);
-
-        $encrypt = encrypt($request->email);
-
-        Mail::to($request->email)->send(new Invitation($request->name, $request->email, $encrypt, $otp));
-
-        return response()->json(
-            [
-                'status' => '200',
-                'message' => 'User successfully added',
-                'data' => [],
-            ],
-            201
-        );
     }
 
     public function meeting()
     {
-        $meet = Meeting::where('user_id', auth()->user()->id)->get();
+        try {
+            $meet = Meeting::where('user_id', auth()->user()->id)->get();
 
-        return response()->json(
-            [
-                'status' => '200',
-                'message' => 'Record listed',
-                'data' => $meet,
-            ],
-            201
-        );
+            return response()->json(
+                [
+                    'status' => '200',
+                    'message' => 'Record listed',
+                    'data' => $meet,
+                ],
+                201
+            );
+        } catch (\Exception $e) {
+            return response()->json(
+                [
+                    'status' => '500',
+                    'message' => 'An error occurred: ' . $e->getMessage(),
+                    'data' => [],
+                ],
+                500
+            );
+        }
     }
 
     public function form()
     {
-        $event = EventForm::where('user_id', auth()->user()->id)->get();
-        $data = [];
-        foreach ($event as $ev) {
-            $data[] = [
-                'id' => encrypt($ev->id),
-                'name' => $ev->name,
-                'message' => $ev->message,
-                'group_id' => $ev->group->name,
-                'meeting_id' => $ev->meeting->subject,
-                'signup' => $ev->signup,
-                'attendance' => $ev->attendance,
-                'status' => $ev->status,
-                'created_at' => $ev->created_at,
-            ];
-        }
+        try {
+            $event = EventForm::where('user_id', auth()->user()->id)->get();
+            $data = [];
+            foreach ($event as $ev) {
+                $data[] = [
+                    'id' => encrypt($ev->id),
+                    'name' => $ev->name,
+                    'message' => $ev->message,
+                    'group_id' => $ev->group->name,
+                    'meeting_id' => $ev->meeting->subject,
+                    'signup' => $ev->signup,
+                    'attendance' => $ev->attendance,
+                    'status' => $ev->status,
+                    'created_at' => $ev->created_at,
+                ];
+            }
 
-        return response()->json(
-            [
-                'status' => '200',
-                'message' => 'Record listed',
-                'data' => $data,
-            ],
-            201
-        );
+            return response()->json(
+                [
+                    'status' => '200',
+                    'message' => 'Record listed',
+                    'data' => $data,
+                ],
+                201
+            );
+        } catch (\Exception $e) {
+            return response()->json(
+                [
+                    'status' => '500',
+                    'message' => 'An error occurred: ' . $e->getMessage(),
+                    'data' => [],
+                ],
+                500
+            );
+        }
     }
 
     public function formApplication($id)
     {
-        $event = EventRegistration::where('form_id', decrypt($id))->get();
-        $data = [];
-        foreach ($event as $ev) {
-            $data[] = [
-                'id' => encrypt($ev->id),
-                'user' => [
-                    'id' => encrypt($ev->user->id),
-                    'name' => $ev->user->name,
-                    'email' => $ev->user->email,
-                    'phone' => $ev->user->phone,
-                ],
-                'form_id' => encrypt($ev->form_id),
-                'name' => $ev->name,
-                'email' => $ev->email,
-                'phone' => $ev->phone,
-                'data' => $ev->data,
-                'created_at' => $ev->created_at,
-            ];
-        }
+        try {
+            $event = EventRegistration::where('form_id', decrypt($id))->get();
+            $data = [];
+            foreach ($event as $ev) {
+                $data[] = [
+                    'id' => encrypt($ev->id),
+                    'user' => [
+                        'id' => encrypt($ev->user->id),
+                        'name' => $ev->user->name,
+                        'email' => $ev->user->email,
+                        'phone' => $ev->user->phone,
+                    ],
+                    'form_id' => encrypt($ev->form_id),
+                    'name' => $ev->name,
+                    'email' => $ev->email,
+                    'phone' => $ev->phone,
+                    'data' => $ev->data,
+                    'created_at' => $ev->created_at,
+                ];
+            }
 
-        return response()->json(
-            [
-                'status' => '200',
-                'message' => 'Record listed',
-                'data' => $data,
-            ],
-            201
-        );
+            return response()->json(
+                [
+                    'status' => '200',
+                    'message' => 'Record listed',
+                    'data' => $data,
+                ],
+                201
+            );
+        } catch (\Exception $e) {
+            return response()->json(
+                [
+                    'status' => '500',
+                    'message' => 'An error occurred: ' . $e->getMessage(),
+                    'data' => [],
+                ],
+                500
+            );
+        }
     }
 
     public function formAttendance($id)
@@ -528,19 +649,19 @@ class AdminController extends Controller
         if (!empty($user)) {
             foreach ($user as $dt) {
                 $usr = EventRegistration::find($dt);
-                $qrData = url('/admin/form/attendance/'.encrypt($form->id).'/'.encrypt($usr->user->id));
+                $qrData = url('/admin/form/attendance/' . encrypt($form->id) . '/' . encrypt($usr->user->id));
                 $fileName = null;
                 if ($form->attendance == 'enabled') {
                     $path = public_path('qr');
                     if (!file_exists($path)) {
                         mkdir($path, 0777, true);
                     }
-                    $fileName = time().'_qr.png';
+                    $fileName = time() . '_qr.png';
                     QrCode::format('png')
                         ->size(200)
                         ->margin(1)
-                        ->generate($qrData, $path.'/'.$fileName);
-                    $fullPath = $path.'/'.$fileName;
+                        ->generate($qrData, $path . '/' . $fileName);
+                    $fullPath = $path . '/' . $fileName;
                     // $qrCode = base64_encode(file_get_contents($fullPath));
                 }
                 Mail::to($usr->user->email)->send(new EventRegistrationMail($form, $usr->user, $meet, $fileName, $request->subject, htmlentities($request->message)));
@@ -563,7 +684,7 @@ class AdminController extends Controller
             'form_id' => decrypt($id),
             'user_id' => decrypt($userId),
         ], [
-            'comment' => 'Checked by '.auth()->user()->name,
+            'comment' => 'Checked by ' . auth()->user()->name,
         ]);
 
         return response()->json(
@@ -586,7 +707,7 @@ class AdminController extends Controller
                 'name' => $grp->name,
                 'decription' => $grp->decription,
                 'avatar' => $grp->avatar
-                    ? url('/group/'.$grp->avatar)
+                    ? url('/group/' . $grp->avatar)
                     : null,
                 'company_id' => $grp->company_id,
                 'member_count' => CompanyGroupUser::where('group_id', $grp->id)->count(),
@@ -635,7 +756,7 @@ class AdminController extends Controller
         $file_name = null;
         if ($request->hasFile('avatar')) {
             $file = $request->file('avatar');
-            $file_name = time().'avatar.'.$file->getClientOriginalExtension();
+            $file_name = time() . 'avatar.' . $file->getClientOriginalExtension();
             $file->move(public_path('group'), $file_name);
         }
 
@@ -662,11 +783,11 @@ class AdminController extends Controller
         $file_name = null;
         if ($request->hasFile('avatar')) {
             $file = $request->file('avatar');
-            $file_name = time().'avatar.'.$file->getClientOriginalExtension();
+            $file_name = time() . 'avatar.' . $file->getClientOriginalExtension();
             $file->move(public_path('group'), $file_name);
             $old_file = CompanyGroup::find($id)->avatar;
             if ($old_file) {
-                unlink(public_path('group').'/'.$old_file);
+                unlink(public_path('group') . '/' . $old_file);
             }
             CompanyGroup::find($id)->update(['avatar' => $file_name]);
         }
@@ -736,27 +857,27 @@ class AdminController extends Controller
                     'tin' => $mem->user->tin,
 
                     'avatar' => $mem->user->avatar
-                        ? url('/avatar/'.$mem->user->avatar)
+                        ? url('/avatar/' . $mem->user->avatar)
                         : null,
 
                     'selfie' => $mem->user->selfie
-                        ? url('/'.$mem->user->selfie)
+                        ? url('/' . $mem->user->selfie)
                         : null,
 
                     'rc_doc' => $mem->user->rc_doc
-                        ? url('/'.$mem->user->rc_doc)
+                        ? url('/' . $mem->user->rc_doc)
                         : null,
 
                     'tin_doc' => $mem->user->tin_doc
-                        ? url('/'.$mem->user->tin_doc)
+                        ? url('/' . $mem->user->tin_doc)
                         : null,
 
                     'id_card_front' => $mem->user->id_card_front
-                        ? url('/'.$mem->user->id_card_front)
+                        ? url('/' . $mem->user->id_card_front)
                         : null,
 
                     'id_card_back' => $mem->user->id_card_back
-                        ? url('/'.$mem->user->id_card_back)
+                        ? url('/' . $mem->user->id_card_back)
                         : null,
 
                     'comment_app' => $mem->user->commentApp,
@@ -954,7 +1075,7 @@ class AdminController extends Controller
 
         $pathToEncrypted = storage_path(decrypt($file->file));
         $fileExtension = $file->file_ext;
-        $pathToDecryptedWatermarked = storage_path('app/decrypted_'.uniqid().'.'.$fileExtension);
+        $pathToDecryptedWatermarked = storage_path('app/decrypted_' . uniqid() . '.' . $fileExtension);
         File::put($pathToDecryptedWatermarked, '');
 
         $encryptor = new FileEncryptorService();
@@ -963,7 +1084,7 @@ class AdminController extends Controller
             $pathToDecryptedWatermarked,
             $fileExtension,
             [
-                'watermark_text' => 'Downloaded by: '.auth()->user()->name,
+                'watermark_text' => 'Downloaded by: ' . auth()->user()->name,
                 // 'watermark_image' => public_path('logo.png')
                 'y' => 60,
                 'x' => 40,
@@ -986,35 +1107,35 @@ class AdminController extends Controller
 
         $file_size = $fileSize = $file->getSize();
         $file_time = time();
-        $file_name = $file_time.$file->hashName().'.enc';
+        $file_name = $file_time . $file->hashName() . '.enc';
 
-        $originalPath = $file->storeAs('secure/uploads', $file_time.$file->getClientOriginalName());
+        $originalPath = $file->storeAs('secure/uploads', $file_time . $file->getClientOriginalName());
         $encryptedPath = $file->storeAs('secure/encrypted', $file_name);
 
         $encryptor = new FileEncryptorService();
         $encryptor->processAndEncrypt(
-            storage_path('app/'.$originalPath),
-            storage_path('app/'.$encryptedPath),
+            storage_path('app/' . $originalPath),
+            storage_path('app/' . $encryptedPath),
             [
-                'watermark_text' => 'Uploaded by '.auth()->user()->name,
+                'watermark_text' => 'Uploaded by ' . auth()->user()->name,
                 // 'watermark_image' => public_path('logo.png')
             ]
         );
 
         if ($file_size >= 1073741824) {
-            $file_size = number_format($file_size / 1073741824, 2).' GB';
+            $file_size = number_format($file_size / 1073741824, 2) . ' GB';
         } elseif ($file_size >= 1048576) {
-            $file_size = number_format($file_size / 1048576, 2).' MB';
+            $file_size = number_format($file_size / 1048576, 2) . ' MB';
         } elseif ($file_size >= 1024) {
-            $file_size = number_format($file_size / 1024, 2).' KB';
+            $file_size = number_format($file_size / 1024, 2) . ' KB';
         } else {
-            $file_size = $file_size.' bytes';
+            $file_size = $file_size . ' bytes';
         }
 
         Files::create([
             'name' => $request->name,
             'description' => $request->description,
-            'file' => encrypt('app/secure/encrypted/'.$file_name),
+            'file' => encrypt('app/secure/encrypted/' . $file_name),
             'file_size' => $file_size,
             'file_ext' => $file_ext,
             'fileSize_num' => $fileSize,
@@ -1264,7 +1385,7 @@ class AdminController extends Controller
 
             if ($request->avatar) {
                 $file = $request->file('avatar');
-                $file_name = time().'avatar.'.$file->getClientOriginalExtension();
+                $file_name = time() . 'avatar.' . $file->getClientOriginalExtension();
                 $file->move(public_path('avatar'), $file_name);
 
                 if ($user->avatar) {
@@ -1272,7 +1393,7 @@ class AdminController extends Controller
                 }
 
                 $user->update([
-                    'avatar' => 'avatar/'.$file_name,
+                    'avatar' => 'avatar/' . $file_name,
                 ]);
             }
 
@@ -1318,7 +1439,7 @@ class AdminController extends Controller
                 'id' => encrypt($cert->id),
                 'form_id' => encrypt($cert->form_id),
                 'name' => $cert->name,
-                'template' => url('certificates/'.$cert->template),
+                'template' => url('certificates/' . $cert->template),
                 'status' => $cert->status,
                 'created_at' => $cert->created_at,
             ];
@@ -1337,7 +1458,7 @@ class AdminController extends Controller
         $file_name = null;
         if ($request->hasFile('template')) {
             $file = $request->file('template');
-            $file_name = time().'_cert.'.$file->getClientOriginalExtension();
+            $file_name = time() . '_cert.' . $file->getClientOriginalExtension();
             $file->move(public_path('certificates'), $file_name);
         }
 
@@ -1362,11 +1483,11 @@ class AdminController extends Controller
 
         if ($request->hasFile('template')) {
             $file = $request->file('template');
-            $file_name = time().'_cert.'.$file->getClientOriginalExtension();
+            $file_name = time() . '_cert.' . $file->getClientOriginalExtension();
             $file->move(public_path('certificates'), $file_name);
 
-            if ($cert->template && file_exists(public_path('certificates/'.$cert->template))) {
-                unlink(public_path('certificates/'.$cert->template));
+            if ($cert->template && file_exists(public_path('certificates/' . $cert->template))) {
+                unlink(public_path('certificates/' . $cert->template));
             }
             $cert->template = $file_name;
         }
@@ -1386,8 +1507,8 @@ class AdminController extends Controller
     public function certificateDelete($id)
     {
         $cert = Certificate::findOrFail(decrypt($id));
-        if ($cert->template && file_exists(public_path('certificates/'.$cert->template))) {
-            unlink(public_path('certificates/'.$cert->template));
+        if ($cert->template && file_exists(public_path('certificates/' . $cert->template))) {
+            unlink(public_path('certificates/' . $cert->template));
         }
         $cert->delete();
 
@@ -1409,7 +1530,7 @@ class AdminController extends Controller
             'form_id' => encrypt($cert->form_id),
             'form_name' => $cert->form->name,
             'name' => $cert->name,
-            'template' => url('certificates/'.$cert->template),
+            'template' => url('certificates/' . $cert->template),
             'status' => $cert->status,
             'created_at' => $cert->created_at,
         ];
@@ -1479,7 +1600,7 @@ class AdminController extends Controller
             $registration = EventRegistration::findOrFail($regId);
             $userName = $registration->user->name;
 
-            $img = $manager->read(public_path('certificates/'.$cert->template));
+            $img = $manager->read(public_path('certificates/' . $cert->template));
             $img->text($userName, $img->width() / 2, $img->height() / 2, function ($font) {
                 $font->file('C:\Windows\Fonts\arial.ttf');
                 $font->size(60);
@@ -1488,7 +1609,7 @@ class AdminController extends Controller
                 $font->valign('middle');
             });
 
-            $tempPath = $tempDir.'/'.uniqid().'.png';
+            $tempPath = $tempDir . '/' . uniqid() . '.png';
             $img->save($tempPath);
 
             Mail::to($registration->user->email)->send(new CertificateMail($userName, $messageBody, $tempPath));
@@ -1519,7 +1640,7 @@ class AdminController extends Controller
                 'id' => encrypt($d->id),
                 'form_id' => encrypt($d->form_id),
                 'name' => $d->name,
-                'image' => url('souvenirs/'.$d->image),
+                'image' => url('souvenirs/' . $d->image),
                 'status' => $d->status,
                 'created_at' => $d->created_at,
             ];
@@ -1538,7 +1659,7 @@ class AdminController extends Controller
         $file_name = null;
         if ($request->hasFile('image')) {
             $file = $request->file('image');
-            $file_name = time().'_souvenir.'.$file->getClientOriginalExtension();
+            $file_name = time() . '_souvenir.' . $file->getClientOriginalExtension();
             $file->move(public_path('souvenirs'), $file_name);
         }
 
@@ -1563,11 +1684,11 @@ class AdminController extends Controller
 
         if ($request->hasFile('image')) {
             $file = $request->file('image');
-            $file_name = time().'_souvenir.'.$file->getClientOriginalExtension();
+            $file_name = time() . '_souvenir.' . $file->getClientOriginalExtension();
             $file->move(public_path('souvenirs'), $file_name);
 
-            if ($souvenir->image && file_exists(public_path('souvenirs/'.$souvenir->image))) {
-                unlink(public_path('souvenirs/'.$souvenir->image));
+            if ($souvenir->image && file_exists(public_path('souvenirs/' . $souvenir->image))) {
+                unlink(public_path('souvenirs/' . $souvenir->image));
             }
             $souvenir->image = $file_name;
         }
@@ -1587,8 +1708,8 @@ class AdminController extends Controller
     public function souvenirDelete($id)
     {
         $souvenir = Souvenir::findOrFail(decrypt($id));
-        if ($souvenir->image && file_exists(public_path('souvenirs/'.$souvenir->image))) {
-            unlink(public_path('souvenirs/'.$souvenir->image));
+        if ($souvenir->image && file_exists(public_path('souvenirs/' . $souvenir->image))) {
+            unlink(public_path('souvenirs/' . $souvenir->image));
         }
         $souvenir->delete();
 
@@ -1611,7 +1732,7 @@ class AdminController extends Controller
             'id' => encrypt($souvenir->id),
             'form_id' => encrypt($souvenir->form_id),
             'name' => $souvenir->name,
-            'image' => url('souvenirs/'.$souvenir->image),
+            'image' => url('souvenirs/' . $souvenir->image),
             'status' => $souvenir->status,
             'created_at' => $souvenir->created_at,
         ];
