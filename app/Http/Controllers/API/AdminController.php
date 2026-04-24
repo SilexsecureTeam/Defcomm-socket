@@ -33,6 +33,19 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class AdminController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware(function ($request, $next) {
+            if (auth()->check() && auth()->user()->role !== 'admin') {
+                return response()->json([
+                    'status' => '401',
+                    'message' => 'Unauthorized access. Admin role required.'
+                ], 401);
+            }
+            return $next($request);
+        });
+    }
+
     public function dashboard()
     {
         try {
@@ -482,8 +495,45 @@ class AdminController extends Controller
         }
     }
 
-    public function form()
+    public function form($status = null)
     {
+        $query = EventForm::where('user_id', auth()->user()->id);
+
+        if ($status !== null) {
+            $query = $query->where('status', "active");
+            if ($status === 'active') {
+                // Current date is between started_at and ended_at
+                $query->where('started_at', '<=', now())
+                    ->where('ended_at', '>=', now());
+            } elseif ($status === 'upcoming') {
+                // started_at is greater than current time
+                $query->where('started_at', '>', now());
+            } elseif ($status === 'event') {
+                // Current date is greater than ended_at
+                $query->where('ended_at', '<', now());
+            }
+        }
+
+        $event = $query->get();
+        $data = [];
+        foreach ($event as $ev) {
+            $data[] = [
+                'id' => encrypt($ev->id),
+                'name' => $ev->name,
+                'message' => $ev->message,
+                'group_id' => $ev->group->name,
+                'meeting_id' => $ev->meeting->subject,
+                'signup' => $ev->signup,
+                'attendance' => $ev->attendance,
+                'status' => $ev->status,
+                'started_at' => $ev->started_at,
+                'ended_at' => $ev->ended_at,
+                'created_at' => $ev->created_at,
+                'location' => $ev->location,
+                'latitude' => $ev->latitude,
+                'longitude' => $ev->longitude
+            ];
+        }
         try {
             $event = EventForm::where('user_id', auth()->user()->id)->get();
             $data = [];
@@ -1636,13 +1686,14 @@ class AdminController extends Controller
         foreach ($dt as $d) {
             $data[] = [
                 'form_id' => $id,
-                'form_name' => $d->form->name,
-                'id' => encrypt($d->id),
-                'form_id' => encrypt($d->form_id),
-                'name' => $d->name,
-                'image' => url('souvenirs/' . $d->image),
-                'status' => $d->status,
-                'created_at' => $d->created_at,
+                "form_name" => $d->form->name,
+                "id" => encrypt($d->id),
+                "form_id" => encrypt($d->form_id),
+                "name" => $d->name,
+                "image" => url('souvenirs/' . $d->image),
+                "status" => $d->status,
+                "created_at" => $d->created_at,
+
             ];
         }
 

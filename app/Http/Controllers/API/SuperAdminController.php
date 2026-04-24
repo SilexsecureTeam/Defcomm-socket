@@ -34,23 +34,15 @@ class SuperAdminController extends Controller
 {
     public function __construct()
     {
-        // $this->middleware(function ($request, $next) {
-        //     $user = Auth::user();
-
-        //     if (!$user || $user->role !== 'super') {
-        //         // Auth::logout();
-        //         return response()->json(
-        //             [
-        //                 'status' => '400',
-        //                 'message' => 'Unauthorized access',
-        //                 'data' => null
-        //             ],
-        //             401
-        //         );
-        //     }
-
-        //     // return $next($request);
-        // });
+        $this->middleware(function ($request, $next) {
+            if (auth()->check() && auth()->user()->role !== 'super') {
+                return response()->json([
+                    'status' => '401',
+                    'message' => 'Unauthorized access. Super Admin role required.'
+                ], 401);
+            }
+            return $next($request);
+        });
     }
 
     public function dashboard()

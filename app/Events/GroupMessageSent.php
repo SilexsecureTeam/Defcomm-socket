@@ -17,12 +17,18 @@ class GroupMessageSent implements ShouldBroadcast
     public $groupId;
     public $senderId;
     public $message;
+    public $senderName;
+    public $groupName;
+    public $senderAvatar;
 
-    public function __construct($groupId, $senderId, $message)
+    public function __construct($groupId, $senderId, $message, $senderName = null, $groupName = null, $senderAvatar = null)
     {
         $this->groupId = $groupId;
         $this->senderId = $senderId;
         $this->message = $message;
+        $this->senderName = $senderName;
+        $this->groupName = $groupName;
+        $this->senderAvatar = $senderAvatar;
     }
 
     public function broadcastOn()
@@ -33,5 +39,10 @@ class GroupMessageSent implements ShouldBroadcast
     public function broadcastAs()
     {
         return 'group.message.sent';
+    }
+
+    public function broadcastWith()
+    {
+        return ['data' => $this->message];
     }
 }

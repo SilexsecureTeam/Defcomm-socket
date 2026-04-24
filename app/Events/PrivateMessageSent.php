@@ -17,21 +17,23 @@ class PrivateMessageSent implements ShouldBroadcast
     public $message;
     public $senderId;
     public $receiverId;
+    public $senderName;
+    public $senderAvatar;
 
-    public function __construct($senderId, $receiverId, $message)
+    public function __construct($senderId, $receiverId, $message, $senderName = null, $senderAvatar = null)
     {
         $this->senderId = $senderId;
         $this->receiverId = $receiverId;
         $this->message = $message;
+        $this->senderName = $senderName;
+        $this->senderAvatar = $senderAvatar;
     }
 
     public function broadcastOn()
     {
-        // return new PrivateChannel("chat.{$this->receiverId}");
-        // return new Channel("chat.{$this->receiverId}");
-        if($this->senderId === $this->receiverId){
+        if ($this->senderId === $this->receiverId) {
             return [new PrivateChannel("chat.{$this->senderId}"),];
-        }else{
+        } else {
             return [
                 new PrivateChannel("chat.{$this->receiverId}"),
                 new PrivateChannel("chat.{$this->senderId}"),

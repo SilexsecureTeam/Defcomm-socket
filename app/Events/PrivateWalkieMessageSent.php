@@ -15,15 +15,21 @@ class PrivateWalkieMessageSent implements ShouldBroadcast
     public $walkieId;
     public $senderId;
     public $message;
+    public $senderName;
+    public $walkieName;
+    public $senderAvatar;
 
     /**
      * Create a new event instance.
      */
-    public function __construct($senderId, $walkieId, $message)
+    public function __construct($senderId, $walkieId, $message, $senderName = null, $walkieName = null, $senderAvatar = null)
     {
         $this->walkieId = $walkieId;
         $this->senderId = $senderId;
         $this->message = $message;
+        $this->senderName = $senderName;
+        $this->walkieName = $walkieName;
+        $this->senderAvatar = $senderAvatar;
     }
 
     /**

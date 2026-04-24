@@ -167,6 +167,8 @@ Route::middleware(['api.client.protection', 'auth:sanctum'])->group(function () 
     Route::post('/trans/speech-to-speech', [GoogleAiTransController::class, 'speechToSpeech']);
 
     Route::get('/user/event/register', [UserController::class, 'eventRegister']);
+    Route::get('/user/event/certificate', [UserController::class, 'eventCertificate']);
+    Route::get('/user/event/souvenir', [UserController::class, 'eventSouvenir']);
     Route::post('/user/event/clock', [UserController::class, 'eventClock']);
 
     Route::get('program/attendance', [UserController::class, 'programAttendance']);
@@ -286,7 +288,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/admin/meeting', [AdminController::class, 'meeting'])->name('api.admin.meeting');
     Route::post('/admin/meeting/create', [AdminController::class, 'meetingCreate'])->name('api.admin.meeting.create');
 
-    Route::get('/admin/form', [AdminController::class, 'form'])->name('api.admin.form');
+    Route::get('/admin/form/{status?}', [AdminController::class, 'form'])->name('api.admin.form');
     Route::get('/admin/form/application/{id}', [AdminController::class, 'formApplication'])->name('api.admin.form.application');
     Route::get('/admin/form/attendance/{id}', [AdminController::class, 'formAttendance'])->name('api.admin.form.attendance');
     Route::post('/admin/form/create', [AdminController::class, 'formCreate'])->name('api.admin.form.create');

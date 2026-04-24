@@ -125,19 +125,17 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        $request->validate([
-            'email' => 'required|string',
-            'password' => 'required|string',
-        ]);
-
-        // $user = User::where('phone', '=', $request->input('emailOrPhone'))->orWhere('email', $request->input('emailOrPhone'));
+        // $request->validate([
+        //     'email' => 'required|string',
+        //     'password' => 'required|string',
+        //     'device_token' => 'nullable|string|max:500',
+        //     'device_type' => 'nullable|string|in:android,ios,web',
+        //     'fcm_token' => 'nullable|string',
+        // ]);
 
         $credentials = $request->only('email', 'password');
 
         if (!Auth::attempt($credentials)) {
-            // throw ValidationException::withMessages([
-            //     'email' => ['The provided credentials are incorrect.'],
-            // ]);
             return response()->json([
                 'message' => 'Wrong login detail',
                 'data' => [],
@@ -156,14 +154,20 @@ class AuthController extends Controller
             return response()->json(['status' => 400, 'error' => "This device does not have access to this account"], 401);
         }
 
-        // $token = $user->createToken('auth_token')->plainTextToken;
-
-        if ($request->device_token) {
-            $user->update(['device_token' => $request->device_token]);
+        // Update device token and type if provided
+        $updateData = [];
+        if ($request->filled('device_token')) {
+            $updateData['device_token'] = $request->device_token;
+        }
+        if ($request->filled('device_type')) {
+            $updateData['device_type'] = $request->device_type;
+        }
+        if ($request->filled('fcm_token')) {
+            $updateData['fcm_token'] = $request->fcm_token;
         }
 
-        if ($request->device_type) {
-            $user->update(['device_type' => $request->device_type]);
+        if (!empty($updateData)) {
+            $user->update($updateData);
         }
 
         return response()->json(
@@ -217,20 +221,52 @@ class AuthController extends Controller
 
     public function loginWithPhone(Request $request)
     {
-        // $user = User::where('phone', '=', $request->input('phone'))->where('otp', $request->otp);
+        $request->validate([
+            'phone' => 'required|string',
+            'otp' => 'required|string|digits:4',
+            'fcm_token' => 'nullable|string',
+            'device_token' => 'nullable|string|max:500',
+            'device_type' => 'nullable|string|in:android,ios,web',
+        ]);
+
         $user = User::where(function ($query) use ($request) {
             $query->where('phone', $request->input('phone'))
                 ->orWhere('email', $request->input('phone'));
         })
             ->where('otp', $request->otp);
+
         if ($user->get()->isNotEmpty()) {
+            $userInstance = $user->first();
             $cur = Carbon::now()->subMinute(2)->format('Y-m-d H:i:s');
-            if (strtotime($user->first()->updated_at->format('Y-m-d H:i:s')) >= strtotime($cur)) {
-                $logDevice = (new AuthService())->authLogin($user->first(), $request);
+
+            if (strtotime($userInstance->updated_at->format('Y-m-d H:i:s')) >= strtotime($cur)) {
+                $logDevice = (new AuthService())->authLogin($userInstance, $request);
+
                 if ($logDevice == 'block') {
                     Auth::logout();
                     return response()->json(['status' => 400, 'error' => "This device does not have access to this account"], 401);
                 }
+
+                // Update device token and type if provided
+                $updateData = [];
+                if ($request->filled('device_token')) {
+                    $updateData['device_token'] = $request->device_token;
+                }
+                if ($request->filled('device_type')) {
+                    $updateData['device_type'] = $request->device_type;
+                }
+                if ($request->filled('fcm_token')) {
+                    $updateData['fcm_token'] = $request->fcm_token;
+                }
+
+                if (!empty($updateData)) {
+                    $userInstance->update($updateData);
+                    \Illuminate\Support\Facades\Log::info('User device info updated on phone login', [
+                        'user_id' => $userInstance->id,
+                        'device_type' => $updateData['device_type'] ?? null,
+                    ]);
+                }
+
                 return response()->json(
                     [
                         'status' => 200,
@@ -282,10 +318,10 @@ class AuthController extends Controller
                 // event(new PasswordReset($user));
 
                 return response()->json(['status' => 200, 'message' => 'Password has been successfully reset'], 201);
-            }else{
+            } else {
                 return response()->json(['message' => 'Token has expired'], 401);
             }
-        }else{
+        } else {
             return response()->json(['message' => 'Invalid token or email'], 401);
         }
     }
@@ -754,7 +790,7 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
-        broadcast(new PrivateMessageSent(encryptHelper(auth()->user()->id), "device-".$request->device, [
+        broadcast(new PrivateMessageSent(encryptHelper(auth()->user()->id), "device-" . $request->device, [
             'state' => "logout",
             'sender_iden' => encryptHelper(auth()->user()->id),
             'device' => $request->device ?? "all",
