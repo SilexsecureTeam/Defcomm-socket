@@ -322,6 +322,8 @@ class ChatService
                 'unread' => $unreadCount,
                 'last_message' => $dt->chat->message ? decrypt($dt->chat->message) : null,
                 'chat_user_type' => $dt->user_group,
+                'created_at' => $dt->created_at,
+                'updated_at' => $dt->updated_at,
             ];
         })->filter()->values(); // Reset array indexes
 
