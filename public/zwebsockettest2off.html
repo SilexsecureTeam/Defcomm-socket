@@ -23,13 +23,13 @@
             authEndpoint: "http://127.0.0.1:3302/api/broadcasting/auth",
             auth: {
                 headers: {
-                    Authorization: "Bearer 87|0uRw9nmsqNSrD60xuV1pXds3oLrPmwRGj14GdXmyf669d7f6"
+                    Authorization: "Bearer 118|YvYA1eckZjopLcGIbhTaklUisiR9hLzeluNr0eQk5da74a1e"
                 }
             }
         });
 
         // Private chat
-        const privateChannel = pusher.subscribe("private-chat.4ulYBwWn9S9c5wZYOsR9Xs");
+        const privateChannel = pusher.subscribe("private-chat.34nAfj76yb7QAfHHTfHOAZ");
         privateChannel.bind("private.message.sent", function (data) {
             console.log("Private:", data.message);
             document.getElementById('log').textContent +=

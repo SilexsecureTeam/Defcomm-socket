@@ -279,9 +279,13 @@ class ChatService
             if ($authId === $dt->user_to) {
                 $userTo = $dt->user->id ?? null;
                 $userToName = $dt->user->name ?? null;
+                $userFrom = $dt->userTo->id ?? null;
+                $userFromName = $dt->userTo->name ?? null;
             } else {
                 $userTo = $dt->userTo->id ?? null;
                 $userToName = $dt->userTo->name ?? null;
+                $userFrom = $dt->user->id ?? null;
+                $userFromName = $dt->user->name ?? null;
             }
 
             // Skip this record if no valid other user found
@@ -312,6 +316,8 @@ class ChatService
                 'chat_id' => encryptHelper($dt->group_to),
                 'chat_user_to_id' => encryptHelper($userTo),
                 'chat_user_to_name' => $userToName,
+                'chat_user_from_id' => encryptHelper($userFrom),
+                'chat_user_from_name' => $userFromName,
                 'is_file' => $dt->is_file,
                 'unread' => $unreadCount,
                 'last_message' => $dt->chat->message ? decrypt($dt->chat->message) : null,
