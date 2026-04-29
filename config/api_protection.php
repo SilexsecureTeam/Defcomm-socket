@@ -9,6 +9,8 @@ return [
     | Typically your web server, load balancer, or internal backend services.
 
     */
+
+    ///for remembering sake this works for only dedicated server and not for shared hosting as the IP address of the server is shared among multiple users and can change frequently. In such cases, you may need to use other methods of authentication, such as API keys or OAuth tokens, to secure your API endpoints.
     'allowed_ips' => [
         '105.112.125.246', // server
         // '89.117.60.171',  //server
