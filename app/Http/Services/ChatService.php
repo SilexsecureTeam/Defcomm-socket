@@ -276,17 +276,17 @@ class ChatService
             $authId = auth()->id();
 
             // Determine who the "other user" is
-            if ($authId === $dt->user_to) {
-                $userTo = $dt->user->id ?? null;
-                $userToName = $dt->user->name ?? null;
-                $userFrom = $dt->userTo->id ?? null;
-                $userFromName = $dt->userTo->name ?? null;
-            } else {
+            // if ($authId === $dt->user_to) {
+            //     $userTo = $dt->user->id ?? null;
+            //     $userToName = $dt->user->name ?? null;
+            //     $userFrom = $dt->userTo->id ?? null;
+            //     $userFromName = $dt->userTo->name ?? null;
+            // } else {
                 $userTo = $dt->userTo->id ?? null;
                 $userToName = $dt->userTo->name ?? null;
                 $userFrom = $dt->user->id ?? null;
                 $userFromName = $dt->user->name ?? null;
-            }
+            // }
 
             // Skip this record if no valid other user found
             if (is_null($userTo)) {
