@@ -203,17 +203,17 @@ class AuthController extends Controller
             $user = $users->first();
             $otp = rand(1000, 9999);
             $user->update(['otp' => $otp]);
-            $this->smsSent($request->get('phone'), $otp);
+            // $this->smsSent($request->get('phone'), $otp);
             Mail::to($user->email)->send(new OtpMail($user->name, $otp));
 
             // $bodysms = 'Welcome to Defcomm!, Your OTP is ' . $otp . ' or use https://cloud.defcomm.ng/onboarding to join.';
 
             // $this->TermiiSms($request->phone, $bodysms);
-            // return response()->json([
-            //     'status' => 200,
-            //     'message' => 'OTP has been sent',
-            //     'otp' => $otp
-            // ], 200);
+            return response()->json([
+                'status' => 200,
+                'message' => 'OTP has been sent',
+                // 'otp' => $otp
+            ], 200);
         } else {
             return response()->json(['status' => 400, 'error' => "This user does not exist."], 400);
         }
